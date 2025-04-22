@@ -1,0 +1,63 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 组件开发指南
+
+## 命名约定
+- 组件使用PascalCase命名，如`Button`、`NFTCard`
+- 文件名与组件名保持一致，例如`Button.tsx`
+- 组件属性使用camelCase命名
+
+## 组件结构
+- 所有组件使用函数式组件，不使用类组件
+- 使用TypeScript类型定义组件属性
+- UI组件放在`components/ui`目录下
+- 页面特定组件放在相关页面目录或主组件目录中
+
+## 样式规范
+- 使用TailwindCSS进行样式开发
+- 通过`cn`工具函数合并类名 [utils.ts](mdc:src/lib/utils.ts)
+- 支持亮色/暗色主题，使用`dark:`前缀处理暗色模式
+- 样式属性按照布局、尺寸、颜色、交互的顺序组织
+
+## 组件示例
+
+### Button组件
+Button组件是一个基础UI组件，支持不同变体和尺寸 [Button.tsx](mdc:src/app/components/ui/Button.tsx)
+
+```tsx
+<Button 
+  variant="primary" // or "secondary", "outline"
+  size="md" // or "sm", "lg"
+  loading={false}
+  disabled={false}
+>
+  按钮文本
+</Button>
+```
+
+### NFT卡片组件
+NFT卡片组件用于展示单个NFT信息 [NFTCard.tsx](mdc:src/app/components/ui/NFTCard.tsx)
+
+```tsx
+<NFTCard
+  id="1"
+  title="数字生活 #457"
+  image="/images/nft.jpg"
+  creator="@creator"
+  price="2.5"
+  timeAgo="2小时前"
+/>
+```
+
+## 状态管理
+- 对于简单状态，使用React的`useState`和`useEffect`
+- 在Navbar组件中，使用本地状态管理钱包连接状态 [Navbar.tsx](mdc:src/app/components/Navbar.tsx)
+- 如需全局状态，考虑使用React Context或状态管理库
+
+## 响应式设计
+- 使用TailwindCSS的响应式前缀：`sm:`、`md:`、`lg:`和`xl:`
+- 移动端优先设计，默认样式针对移动设备
+- 在Navbar组件中，使用响应式类控制导航链接的显示 [Navbar.tsx](mdc:src/app/components/Navbar.tsx)

@@ -1,0 +1,45 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 智能合约开发指南
+
+## 合约架构
+- 主要NFT合约是`MyNFT.sol` [MyNFT.sol](mdc:contracts/MyNFT.sol)
+- 继承自OpenZeppelin的ERC721URIStorage标准
+- 使用Solidity 0.8.20版本
+
+## 合约功能
+- `safeMint`: 铸造新的NFT并分配给指定地址
+  - 参数: 接收地址、TokenURI
+  - 返回: 新铸造NFT的Token ID
+
+## 开发环境
+- 使用Hardhat开发环境 [hardhat.config.js](mdc:hardhat.config.js)
+- 本地区块链网络配置在端口8545
+- 使用@nomicfoundation/hardhat-toolbox工具包
+
+## 部署流程
+1. 启动本地区块链: `npx hardhat node`
+2. 部署合约: `npm run deploy:contracts`
+3. 部署脚本: [deploy.js](mdc:scripts/deploy.js)
+
+## 合约测试
+- 铸造测试脚本: [mint.js](mdc:scripts/mint.js)
+- 执行测试: `npx hardhat run scripts/mint.js --network localhost`
+
+## 安全最佳实践
+- 使用OpenZeppelin的安全合约库
+- 使用`safeMint`而非普通`mint`，提供额外安全检查
+- 避免在合约中存储大量数据，使用IPFS存储NFT元数据
+
+## 前后端集成
+- 前端使用ethers.js库与合约交互
+- 合约ABI在构建后生成在`artifacts`目录
+- 通过钱包连接实现合约调用
+
+## IPFS集成计划
+- 计划集成IPFS用于NFT资产和元数据存储
+- 使用兼容IPFS的URL格式: `ipfs://CID`
+- 前端需要将IPFS URL转换为HTTP网关URL进行显示

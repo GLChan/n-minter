@@ -1,0 +1,57 @@
+{
+  "editor": {
+    "formatOnSave": true,
+    "tabSize": 2,
+    "wordWrap": "on",
+    "rulers": [100]
+  },
+  "files": {
+    "exclude": [
+      ".git",
+      ".next",
+      "node_modules",
+      "artifacts",
+      "cache",
+      "dist",
+      "build"
+    ],
+    "watcherExclude": {
+      "**/.git/objects/**": true,
+      "**/node_modules/**": true,
+      "**/.next/**": true
+    }
+  },
+  "telemetry": {
+    "enableTelemetry": false
+  },
+  "terminal": {
+    "integrated": {
+      "defaultProfile": "zsh",
+      "fontSize": 12
+    }
+  },
+  "search": {
+    "exclude": {
+      "**/node_modules": true,
+      "**/.next": true,
+      "**/cache": true,
+      "**/artifacts": true
+    }
+  },
+  "workbench": {
+    "colorTheme": "GitHub Dark Default",
+    "iconTheme": "material-icon-theme"
+  },
+  "typescript": {
+    "updateImportsOnFileMove.enabled": "always",
+    "preferences": {
+      "importModuleSpecifier": "relative"
+    }
+  },
+  "javascript": {
+    "updateImportsOnFileMove.enabled": "always",
+    "preferences": {
+      "importModuleSpecifier": "relative" 
+    }
+  }
+} 

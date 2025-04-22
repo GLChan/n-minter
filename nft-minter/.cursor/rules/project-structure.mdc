@@ -1,0 +1,47 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# NFT铸造平台项目结构
+
+## 项目概述
+这是一个基于Next.js和Hardhat的NFT铸造平台，允许用户连接钱包并铸造自己的NFT。项目使用App Router模式组织Next.js代码。
+
+## 目录结构
+
+### 前端结构
+- `src/app`: Next.js应用主目录
+  - `page.tsx`: 主页面入口文件 [page.tsx](mdc:src/app/page.tsx)
+  - `layout.tsx`: 应用布局文件 [layout.tsx](mdc:src/app/layout.tsx)
+  - `globals.css`: 全局样式文件 [globals.css](mdc:src/app/globals.css)
+  - `components/`: 组件目录
+    - `ui/`: 通用UI组件
+      - `Button.tsx`: 按钮组件 [Button.tsx](mdc:src/app/components/ui/Button.tsx)
+      - `NFTCard.tsx`: NFT卡片组件 [NFTCard.tsx](mdc:src/app/components/ui/NFTCard.tsx)
+    - `Navbar.tsx`: 导航栏组件 [Navbar.tsx](mdc:src/app/components/Navbar.tsx)
+    - `Hero.tsx`: 主页英雄区组件 [Hero.tsx](mdc:src/app/components/Hero.tsx)
+    - `Footer.tsx`: 页脚组件 [Footer.tsx](mdc:src/app/components/Footer.tsx)
+    - `TrendingCollections.tsx`: 热门收藏品组件 [TrendingCollections.tsx](mdc:src/app/components/TrendingCollections.tsx)
+    - `SuggestedUsers.tsx`: 推荐用户组件 [SuggestedUsers.tsx](mdc:src/app/components/SuggestedUsers.tsx)
+  - `nft/[id]/`: NFT详情页面
+    - `page.tsx`: NFT详情页组件 [page.tsx](mdc:src/app/nft/[id]/page.tsx)
+  - `create/`: NFT创建页面
+    - `page.tsx`: NFT创建页组件 [page.tsx](mdc:src/app/create/page.tsx)
+
+### 工具函数
+- `src/lib/`: 工具函数目录
+  - `utils.ts`: 通用工具函数 [utils.ts](mdc:src/lib/utils.ts)
+
+### 智能合约
+- `contracts/`: 智能合约目录
+  - `MyNFT.sol`: NFT主合约 [MyNFT.sol](mdc:contracts/MyNFT.sol)
+- `scripts/`: 合约部署和测试脚本
+  - `deploy.js`: 合约部署脚本 [deploy.js](mdc:scripts/deploy.js)
+  - `mint.js`: NFT铸造测试脚本 [mint.js](mdc:scripts/mint.js)
+
+### 配置文件
+- `hardhat.config.js`: Hardhat配置文件 [hardhat.config.js](mdc:hardhat.config.js)
+- `next.config.ts`: Next.js配置文件 [next.config.ts](mdc:next.config.ts)
+- `tsconfig.json`: TypeScript配置文件 [tsconfig.json](mdc:tsconfig.json)
+- `package.json`: 项目依赖配置 [package.json](mdc:package.json)

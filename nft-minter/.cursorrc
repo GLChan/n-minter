@@ -1,0 +1,36 @@
+{
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "pkief.material-icon-theme",
+    "github.github-vscode-theme",
+    "juanblanco.solidity",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-typescript-next"
+  ],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "tasks": {
+    "dev": {
+      "command": "npm run dev",
+      "description": "启动Next.js开发服务器",
+      "group": "dev"
+    },
+    "compile": {
+      "command": "npm run compile:contracts",
+      "description": "编译智能合约",
+      "group": "blockchain"
+    },
+    "deploy": {
+      "command": "npm run deploy:contracts",
+      "description": "部署智能合约到本地网络",
+      "group": "blockchain"
+    },
+    "build": {
+      "command": "npm run build",
+      "description": "构建生产版本",
+      "group": "build"
+    }
+  }
+} 

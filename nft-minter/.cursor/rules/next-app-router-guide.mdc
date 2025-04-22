@@ -1,0 +1,120 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Next.js App Router 使用指南
+
+## 项目路由结构
+项目采用Next.js的App Router架构，以下是主要路由和文件:
+
+- `/`: 主页路由 [page.tsx](mdc:src/app/page.tsx)
+- `/nft/[id]`: NFT详情页路由 [page.tsx](mdc:src/app/nft/[id]/page.tsx)
+- `/create`: NFT创建页路由 [page.tsx](mdc:src/app/create/page.tsx)
+- `/collections`: 收藏品合集列表页 [page.tsx](mdc:src/app/collections/page.tsx)
+- `/collections/[id]`: 特定合集详情页 [page.tsx](mdc:src/app/collections/[id]/page.tsx)
+- `/search`: 搜索结果页面 [page.tsx](mdc:src/app/search/page.tsx)
+- `/about`: 关于我们页面 [page.tsx](mdc:src/app/about/page.tsx)
+- `/help`: 帮助中心页面 [page.tsx](mdc:src/app/help/page.tsx)
+- `/privacy`: 隐私政策页面 [page.tsx](mdc:src/app/privacy/page.tsx)
+
+## 项目目录结构
+- `src/app/_components`: 共享组件 (不会生成路由)
+  - `ui/`: UI组件库 (如Button, NFTCard等)
+  - `Navbar.tsx`, `Footer.tsx`等站点组件
+- `src/lib`: 工具函数和库
+- `public`: 静态资源
+
+## 特殊文件
+- `layout.tsx`: 定义应用的全局布局 [layout.tsx](mdc:src/app/layout.tsx)
+- `page.tsx`: 定义路由的页面组件
+- `globals.css`: 定义全局样式 [globals.css](mdc:src/app/globals.css)
+
+## App Router特性
+
+### 布局共享
+应用使用嵌套布局结构:
+```tsx
+// src/app/layout.tsx
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="zh-CN" suppressHydrationWarning>
+      <body className="...">
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+### 路由约定
+- 文件名`page.tsx`表示该目录是路由端点
+- 目录名`[id]`表示动态路由段
+- 组件文件夹(如`components`)不会生成路由
+
+### 客户端组件
+需要使用客户端交互的组件(如Navbar)添加"use client"指令:
+```tsx
+"use client"
+
+import React from 'react';
+// ...组件代码
+```
+
+### 数据获取
+在NFT详情页使用路由参数获取NFT数据:
+```tsx
+// src/app/nft/[id]/page.tsx
+export default function NFTDetails({ params }: { params: { id: string } }) {
+  // 使用params.id获取NFT数据
+  // ...
+}
+```
+
+## 元数据配置
+在`layout.tsx`中配置页面元数据:
+```tsx
+export const metadata: Metadata = {
+  title: "NFT铸造平台 | 创建、分享和铸造NFT",
+  description: "简单几步，将您的创意铸造为NFT，立即加入Web3数字艺术的世界。",
+  keywords: "NFT, 铸造, 数字艺术, Web3, 区块链, 以太坊",
+};
+```
+
+## 字体优化
+使用Next.js的字体优化功能:
+```tsx
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+```
+
+## 图片优化
+使用Next.js的Image组件自动优化图片:
+```tsx
+<Image 
+  src="https://example.com/image.jpg"
+  alt="Description"
+  fill
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+  priority
+/>
+```
+
+## 导航链接
+使用Next.js的Link组件实现客户端导航:
+```tsx
+<Link href="/create" className="...">
+  创建NFT
+</Link>
+```

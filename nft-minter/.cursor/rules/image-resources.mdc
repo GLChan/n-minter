@@ -1,0 +1,88 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 图片资源指南
+
+## 免费图片资源
+项目中使用的图片需要使用免费可商用资源。以下是推荐的免费图片资源平台和使用示例。
+
+### 推荐资源平台
+- Unsplash: https://unsplash.com/
+- Pexels: https://www.pexels.com/
+- Pixabay: https://pixabay.com/
+
+## 图片类型和用途
+
+### 用户头像
+从Unsplash获取的头像图片示例:
+```tsx
+// 男性头像
+"https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop"
+
+// 女性头像
+"https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop"
+
+// 另一个男性头像
+"https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=150&auto=format&fit=crop"
+```
+
+### NFT艺术品图片
+从Unsplash获取的适合作为NFT的图片示例:
+```tsx
+// 抽象艺术
+"https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1074&auto=format&fit=crop"
+
+// 数字艺术
+"https://images.unsplash.com/photo-1536924430914-91f9e2041b83?q=80&w=1066&auto=format&fit=crop"
+
+// 创意艺术
+"https://images.unsplash.com/photo-1625834384932-7788e7c5c47d?q=80&w=987&auto=format&fit=crop"
+
+// 几何图形
+"https://images.unsplash.com/photo-1612487528505-d2338264c821?q=80&w=1074&auto=format&fit=crop"
+```
+
+## 图片使用规范
+
+### 在组件中使用图片
+在Next.js的Image组件中使用外部图片链接:
+```tsx
+import Image from 'next/image';
+
+// 示例使用
+<Image 
+  src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1074&auto=format&fit=crop"
+  alt="NFT artwork"
+  fill
+  className="object-cover"
+/>
+```
+
+### 模拟数据中使用图片
+在模拟数据中使用图片链接:
+```tsx
+const mockNFTs = [
+  {
+    id: '1',
+    title: 'Abstract Waves',
+    image: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1074&auto=format&fit=crop',
+    creator: '@artist1',
+    // ...其他属性
+  },
+  // ...更多NFT
+];
+```
+
+### 图片优化
+- 使用Next.js的Image组件进行自动优化
+- 添加`width`和`height`属性或使用`fill`属性
+- 使用`priority`属性加载首屏关键图片
+- 使用`sizes`属性优化响应式加载
+
+### 优化参数
+- `q=80`: 图片质量参数，80%是视觉质量和性能的良好平衡
+- `w=NNN`: 图片宽度
+- `auto=format`: 自动选择最佳格式
+- `fit=crop`: 保持图片比例并裁剪
