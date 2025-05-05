@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Navbar } from '@/app/_components/Navbar';
 import { Footer } from '@/app/_components/Footer';
 import { Button } from '@/app/_components/ui/Button';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from '@/app/_lib/utils';
 
 // 定义合集类型
 interface Collection {

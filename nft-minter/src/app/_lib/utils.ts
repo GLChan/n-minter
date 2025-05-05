@@ -1,6 +1,19 @@
 import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+import { sessionCookieName, PINATA_IPFS_GATEWAY_BASE } from "@/app/_lib/constants";
+import { CookieOptionsWithName } from "@supabase/ssr";
+
+export function getCookieOptions() {
+  return {
+    name: sessionCookieName,
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "development",
+    sameSite: "lax",
+  } satisfies CookieOptionsWithName;
+}
+
+
 /**
  * 合并类名工具函数，结合clsx和tailwind-merge
  * 可以智能地合并tailwind类，避免冲突
@@ -62,3 +75,12 @@ export function formatTimeAgo(date: Date | string): string {
   if (diff < 31536000) return `${Math.floor(diff / 2592000)}个月前`;
   return `${Math.floor(diff / 31536000)}年前`;
 } 
+
+export function getGatewayUrl(ipfsUri?: string | null): string | null {
+  if (!ipfsUri || !ipfsUri.startsWith('ipfs://')) {
+    return null;
+  }
+  const cid = ipfsUri.substring(7);
+  // 使用常量拼接 URL
+  return `${PINATA_IPFS_GATEWAY_BASE}${cid}`;
+}

@@ -7,7 +7,7 @@ import { Navbar } from '@/app/_components/Navbar';
 import { Footer } from '@/app/_components/Footer';
 import { Button } from '@/app/_components/ui/Button';
 import { NFTCard } from '@/app/_components/ui/NFTCard';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from '@/app/_lib/utils';
 
 // 模拟合集数据 - 实际应用中应从API获取
 const mockCollections = [
