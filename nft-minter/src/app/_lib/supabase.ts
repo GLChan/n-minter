@@ -1,23 +1,26 @@
 
-// 从 @supabase/ssr 导入 createServerClient 和 CookieOptions 类型
-import { createServerClient as _createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient, createBrowserClient, type CookieOptions } from '@supabase/ssr';
 // 从 next/headers 导入 cookies 函数
 import { cookies } from 'next/headers';
 import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies'; // 可以导入类型
 
+export function createSupabaseBrowserClient() {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
 // 修正后的辅助函数，用于在服务器端（Server Components, Route Handlers, API Routes）创建 Supabase 客户端
 export async function createSupabaseServerClient() {
   // 在函数内部调用 cookies() 获取当前的 cookie store
   const cookieStore: ReadonlyRequestCookies = await cookies();
 
-  return _createServerClient( // 继续使用别名 _createServerClient 或直接用 createServerClient
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // 注意：这里使用的是 ANON key
     {
       cookies: {
-        // === 使用新的签名 ===
-
         // getAll 方法：直接使用 next/headers 的 cookieStore.getAll()
         getAll() {
           return cookieStore.getAll();

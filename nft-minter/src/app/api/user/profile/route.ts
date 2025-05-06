@@ -1,7 +1,4 @@
-// src/app/api/user/profile/route.ts
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-// 假设你的 _lib/supabase.ts 提供了这个函数
 import { createSupabaseServerClient } from '@/app/_lib/supabase';
 
 // 定义预期的请求体结构

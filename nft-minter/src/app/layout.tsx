@@ -22,7 +22,7 @@ export default function RootLayout({
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased bg-background text-foreground`}
       >
         <Web3Provider>
-          {children}
+        {children}
         </Web3Provider>
       </body>
     </html>

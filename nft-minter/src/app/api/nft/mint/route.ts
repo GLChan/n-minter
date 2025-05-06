@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     // 1. 验证用户身份
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
+    console.log('user', user);
     if (authError || !user) {
       return NextResponse.json({ error: '未授权' }, { status: 401 });
     }
