@@ -122,12 +122,18 @@ export default function ProfilePage() {
         // 如果有已验证的钱包地址，获取用户资料
         if (!verifiedUserData?.wallet) return;
         
+
+        console.log('verifiedUserData.wallet', verifiedUserData.wallet);
+        
         setIsLoading(true);
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('wallet_address', verifiedUserData.wallet)
           .single();
+
+          console.log('data', data);
+          
         
         if (error) {
           console.error('获取用户资料失败:', error);
@@ -155,48 +161,41 @@ export default function ProfilePage() {
     initializeProfileData();
   }, [verifiedUserData, supabase]);
   
-  // 处理设置保存
-  const handleSaveSettings = async (newUserData: User) => {
-    if (!verifiedUserData?.wallet) {
-      alert('未连接钱包，无法保存设置');
-      return;
-    }
+  // 处理Tab切换
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+  };
+
+  // 刷新用户资料
+  const refreshUserProfile = async () => {
+    if (!verifiedUserData?.wallet) return;
     
     try {
       setIsLoading(true);
-      
-      // 准备更新数据
-      const updates = {
-        username: newUserData.username,
-        bio: newUserData.bio,
-        avatar_url: newUserData.avatar,
-        external_link: newUserData.external_link,
-        wallet_address: verifiedUserData.wallet, // 确保钱包地址是验证过的
-        updated_at: new Date().toISOString(),
-      };
-      
-      // 更新或插入用户资料 - 去掉onConflict参数
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
-        .upsert(updates);
+        .select('*')
+        .eq('wallet_address', verifiedUserData.wallet)
+        .single();
       
       if (error) {
-        console.error('更新资料失败:', error);
-        alert(`保存资料失败: ${JSON.stringify(error)}`);
+        console.error('刷新用户资料失败:', error);
         return;
       }
       
-      // 更新本地状态
-      setUserData(prev => ({
-        ...prev,
-        ...newUserData
-      }));
-      
-      alert('个人资料已更新');
-      
+      if (data) {
+        setUserData({
+          id: data.id,
+          username: data.username || mockUser.username,
+          bio: data.bio || mockUser.bio,
+          avatar: data.avatar_url || mockUser.avatar,
+          wallet_address: data.wallet_address,
+          external_link: data.external_link,
+          joinedDate: `${new Date(data.created_at).getFullYear()}年${new Date(data.created_at).getMonth() + 1}月加入`,
+        });
+      }
     } catch (error) {
-      console.error('保存设置时出错:', error);
-      alert(`保存资料时发生错误: ${JSON.stringify(error)}`);
+      console.error('刷新用户资料时出错:', error);
     } finally {
       setIsLoading(false);
     }
@@ -257,22 +256,49 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="mb-8 border-b border-zinc-200 dark:border-zinc-800">
-            <nav className="flex space-x-2 overflow-x-auto pb-px" aria-label="Tabs">
-              <TabButton active={activeTab === 'collected'} onClick={() => setActiveTab('collected')}>收藏的 ({collectedNFTs.length})</TabButton>
-              <TabButton active={activeTab === 'created'} onClick={() => setActiveTab('created')}>创建的 ({createdNFTs.length})</TabButton>
-              <TabButton active={activeTab === 'activity'} onClick={() => setActiveTab('activity')}>活动</TabButton>
-              <TabButton active={activeTab === 'settings'} onClick={() => setActiveTab('settings')}>设置</TabButton>
-            </nav>
+          {/* Tabs */}
+          <div className="mt-8 border-b border-zinc-200 dark:border-zinc-800">
+            <div className="container mx-auto px-4">
+              <div className="flex space-x-2 overflow-x-auto pb-px">
+                <TabButton 
+                  active={activeTab === 'collected'} 
+                  onClick={() => handleTabChange('collected')}
+                >
+                  已收藏
+                </TabButton>
+                <TabButton 
+                  active={activeTab === 'created'} 
+                  onClick={() => handleTabChange('created')}
+                >
+                  已创建
+                </TabButton>
+                <TabButton 
+                  active={activeTab === 'activity'} 
+                  onClick={() => handleTabChange('activity')}
+                >
+                  活动
+                </TabButton>
+                <TabButton 
+                  active={activeTab === 'settings'} 
+                  onClick={() => handleTabChange('settings')}
+                >
+                  设置
+                </TabButton>
+              </div>
+            </div>
           </div>
 
-          {/* Tab Content - 使用拆分的组件 */}
-          <div>
+          {/* Tab Content */}
+          <div className="container mx-auto px-4 py-8">
             {activeTab === 'collected' && <CollectedNFTsTab nfts={collectedNFTs} />}
             {activeTab === 'created' && <CreatedNFTsTab nfts={createdNFTs} />}
             {activeTab === 'activity' && <ActivityTab activities={profileActivities} />}
-            {activeTab === 'settings' && <SettingsTab user={userData} onSave={handleSaveSettings} />}
+            {activeTab === 'settings' && (
+              <SettingsTab 
+                user={userData}
+                onProfileUpdated={refreshUserProfile}
+              />
+            )}
           </div>
         </div>
       </main>

@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { getIronSession } from "iron-session";
 import { SiweMessage } from "siwe";
 import { sessionOptions, SessionData } from "@/app/_lib/session";
+import { getSupabaseAdmin } from "@/app/_lib/supabase/admin";
+import { syncSiweToSupabaseAuth } from "@/app/_lib/siwe-to-supabase-auth";
 
 // SIWE验证API处理函数
 export async function POST(req: NextRequest) {
@@ -23,9 +25,8 @@ export async function POST(req: NextRequest) {
         signature,
       });
 
-      // 设置会话
-      const cookieStore = cookies();
-      // @ts-ignore - iron-session类型与Next.js App Router不完全兼容，但功能正常
+      // 设置SIWE会话
+      const cookieStore = await cookies();
       const session = await getIronSession<SessionData>(cookieStore, sessionOptions);
       
       // 设置7天的过期时间
@@ -42,14 +43,55 @@ export async function POST(req: NextRequest) {
       // 保存会话
       await session.save();
 
-      // 返回成功响应
-      const successResponse = NextResponse.json({
+      // 获取管理员客户端
+      const supabaseAdmin = getSupabaseAdmin();
+      
+      // 将SIWE认证同步到Supabase Auth
+      const { success: syncSuccess, session: supabaseSession, error: syncError } = 
+        await syncSiweToSupabaseAuth(supabaseAdmin, validatedMessage.address);
+        
+      if (!syncSuccess || syncError) {
+        console.warn('同步SIWE到Supabase认证失败，但SIWE认证本身成功:', syncError);
+      } else {
+        console.log('成功同步SIWE到Supabase认证:', supabaseSession);
+        
+        // 创建响应对象
+        const successResponse = NextResponse.json({
+          success: true,
+          message: "验证成功，用户已认证",
+          wallet: validatedMessage.address,
+        });
+        
+        // 设置Supabase会话cookie
+        if (supabaseSession?.session?.access_token) {
+          // 设置访问令牌
+          successResponse.cookies.set('sb-access-token', supabaseSession.session.access_token, {
+            maxAge: 60 * 60 * 24 * 7, // 7天
+            path: '/',
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            httpOnly: false,
+          });
+          
+          // 设置刷新令牌
+          successResponse.cookies.set('sb-refresh-token', supabaseSession.session.refresh_token, {
+            maxAge: 60 * 60 * 24 * 7, // 7天
+            path: '/',
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            httpOnly: true,
+          });
+        }
+
+        return successResponse;
+      }
+
+      // 如果Supabase同步失败，仍返回SIWE认证成功的响应
+      return NextResponse.json({
         success: true,
         message: "验证成功，用户已认证",
         wallet: validatedMessage.address,
       });
-
-      return successResponse;
     } catch (error) {
       console.error("SIWE验证错误:", error);
       return NextResponse.json(

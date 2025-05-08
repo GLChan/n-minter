@@ -36,41 +36,41 @@ export const WalletConnectWrapper = () => {
   const [isProfileSyncing, setIsProfileSyncing] = React.useState(false);
   const [supSessionChecked, setSupSessionChecked] = useState(false);
 
-  useEffect(() => {
-    if (isConnected && address && !profileSyncAttempted && !isProfileSyncing) {
-      setProfileSyncAttempted(true);
-      setIsProfileSyncing(true);
-      console.log(`WalletConnectWrapper: Wallet connected: ${address}. Syncing profile...`);
+  // useEffect(() => {
+  //   if (isConnected && address && !profileSyncAttempted && !isProfileSyncing) {
+  //     setProfileSyncAttempted(true);
+  //     setIsProfileSyncing(true);
+  //     console.log(`WalletConnectWrapper: Wallet connected: ${address}. Syncing profile...`);
 
-      const syncProfile = async () => {
-        try {
-          const response = await fetch('/api/user/profile', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ walletAddress: address }),
-          });
-          if (!response.ok) {
-             const errorData = await response.json().catch(() => ({ error: 'Failed to parse error JSON'}));
-             throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-          }
-          const profileData = await response.json();
-          console.log('WalletConnectWrapper: Profile synced/fetched successfully:', profileData);
-        } catch (error) {
-          console.error('WalletConnectWrapper: Error syncing profile:', error);
-          setProfileSyncAttempted(false); 
-        } finally {
-          setIsProfileSyncing(false);
-        }
-      };
-      syncProfile();
-    }
+  //     const syncProfile = async () => {
+  //       try {
+  //         const response = await fetch('/api/user/profile', {
+  //           method: 'POST',
+  //           headers: { 'Content-Type': 'application/json' },
+  //           body: JSON.stringify({ walletAddress: address }),
+  //         });
+  //         if (!response.ok) {
+  //            const errorData = await response.json().catch(() => ({ error: 'Failed to parse error JSON'}));
+  //            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+  //         }
+  //         const profileData = await response.json();
+  //         console.log('WalletConnectWrapper: Profile synced/fetched successfully:', profileData);
+  //       } catch (error) {
+  //         console.error('WalletConnectWrapper: Error syncing profile:', error);
+  //         setProfileSyncAttempted(false); 
+  //       } finally {
+  //         setIsProfileSyncing(false);
+  //       }
+  //     };
+  //     syncProfile();
+  //   }
 
-    if (!isConnected && !isConnecting && !isReconnecting) {
-        setProfileSyncAttempted(false);
-        setIsProfileSyncing(false);
-        setSupSessionChecked(false);
-    }
-  }, [isConnected, address, profileSyncAttempted, isConnecting, isReconnecting, isProfileSyncing]);
+  //   if (!isConnected && !isConnecting && !isReconnecting) {
+  //       setProfileSyncAttempted(false);
+  //       setIsProfileSyncing(false);
+  //       setSupSessionChecked(false);
+  //   }
+  // }, [isConnected, address, profileSyncAttempted, isConnecting, isReconnecting, isProfileSyncing]);
 
   // 调用全局上下文的login方法，而不是本地的handleSiweLogin
   const handleSiweLogin = useCallback(async () => { 

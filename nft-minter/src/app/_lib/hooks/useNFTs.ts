@@ -63,7 +63,7 @@ export function useNFTs(initialPage: number = 1, initialLimit: number = 10): Use
 
   // 获取NFT列表
   const fetchNFTs = useCallback(async () => {
-    if (!isBackendVerified) {
+    if (!isBackendVerified && isLoading) {
       return;
     }
 

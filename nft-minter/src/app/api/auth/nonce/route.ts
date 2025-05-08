@@ -21,8 +21,7 @@ export async function GET() {
     const nonce = generateNonce();
     
     // 将nonce存储在会话中 (可选，但增加安全性)
-    const cookieStore = cookies();
-    // @ts-ignore - iron-session类型与Next.js App Router不完全兼容，但功能正常
+    const cookieStore = await cookies();
     const session = await getIronSession<NonceSession>(cookieStore, sessionOptions);
     session.nonce = nonce;
     await session.save();

@@ -7,8 +7,7 @@ import { sessionOptions, SessionData } from '@/app/_lib/session';
 export async function POST(req: NextRequest) {
   try {
     // 获取会话 - 使用类型断言解决类型不匹配问题
-    const cookieStore = cookies();
-    // @ts-ignore - iron-session类型与Next.js App Router不完全兼容，但功能正常
+    const cookieStore = await cookies();
     const session = await getIronSession<SessionData>(cookieStore, sessionOptions);
 
     // 清除会话

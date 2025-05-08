@@ -47,17 +47,13 @@ export async function POST(request: Request) {
     // 基于地址生成默认用户名
     const defaultUsername = `user_${cleanAddress.substring(2, 8)}`;
 
-    // 注意：这里使用具有 ANON_KEY 的客户端插入。
-    // 确保 'profiles' 表的 INSERT RLS 策略允许（或者暂时没有 INSERT 策略）。
-    // 如果需要关联 auth_user_id，则需要在此之前或之后进行用户认证和更新。
     const { data: newProfile, error: insertError } = await supabase
       .from('profiles')
       .insert({
         // id 会自动生成 (uuid_generate_v4())
         wallet_address: cleanAddress,
         username: defaultUsername, // 设置默认用户名
-        // auth_user_id: null,      // 初始状态下不关联 Supabase Auth 用户
-        // 如果需要, 添加其他默认字段 (bio, avatar_url 等)
+        user_id: '2'
       })
       .select() // 返回新创建的记录
       .single();
