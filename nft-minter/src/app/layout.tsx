@@ -4,6 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Web3Provider } from "@/providers/Web3Provider";
 import "./globals.css";
+import { AuthProvider } from '@/contexts/AuthContext';
 
 export const metadata: Metadata = {
   title: "NFT铸造平台 | 创建、分享和铸造NFT",
@@ -22,7 +23,9 @@ export default function RootLayout({
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased bg-background text-foreground`}
       >
         <Web3Provider>
-        {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </Web3Provider>
       </body>
     </html>

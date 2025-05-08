@@ -17,7 +17,13 @@ const nextConfig: NextConfig = {
 
       {
         protocol: 'https',
-        hostname: 'azure-many-sole-7.mypinata.cloud/', // 允许 Pinata 公共网关
+        hostname: 'placehold.co',
+        port: '',
+      },
+
+      {
+        protocol: 'https',
+        hostname: 'azure-many-sole-7.mypinata.cloud', // 允许 Pinata 公共网关
         pathname: '/ipfs/**',
       },
     ],

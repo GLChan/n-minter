@@ -1,28 +1,39 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { generateNonce } from 'siwe';
+import { getIronSession } from 'iron-session';
+import { randomBytes } from 'crypto';
+import { sessionOptions } from '@/app/_lib/session';
 
-// 生成用于SIWE流程的随机一次性nonce
+// 生成随机nonce
+function generateNonce(): string {
+  return randomBytes(32).toString('hex');
+}
+
+// nonce会话类型
+interface NonceSession {
+  nonce?: string;
+}
+
+// 获取nonce的API路由处理函数
 export async function GET() {
   try {
+    // 生成新的nonce
     const nonce = generateNonce();
     
-    // 将nonce存储在HTTP-only cookie中，以便在验证时获取
-    const response = NextResponse.json({ nonce });
+    // 将nonce存储在会话中 (可选，但增加安全性)
+    const cookieStore = cookies();
+    // @ts-ignore - iron-session类型与Next.js App Router不完全兼容，但功能正常
+    const session = await getIronSession<NonceSession>(cookieStore, sessionOptions);
+    session.nonce = nonce;
+    await session.save();
     
-    // 设置cookie，注意这里不会有类型问题，因为不是在异步代码内调用
-    response.cookies.set("siwe-nonce", nonce, {
-      httpOnly: true,  // 仅http访问，不允许JavaScript访问
-      secure: process.env.NODE_ENV === "production", // 生产环境中只在https连接上发送
-      maxAge: 60 * 5,  // 5分钟有效期
-      path: "/",       // 整个站点可用
-      sameSite: "strict", // 防止CSRF
-    });
-    
-    console.log(`生成的nonce: ${nonce}`);
-    return response;
+    // 返回nonce给客户端用于SIWE消息创建
+    return NextResponse.json({ nonce });
   } catch (error) {
-    console.error("生成nonce失败:", error);
-    return NextResponse.json({ error: "无法生成nonce" }, { status: 500 });
+    console.error('生成nonce失败:', error);
+    return NextResponse.json(
+      { error: '服务器错误，无法生成nonce' },
+      { status: 500 }
+    );
   }
 } 

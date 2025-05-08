@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { createSupabaseServerClient } from '@/app/_lib/supabase';
+import { createSupabaseServerClient } from '@/app/_lib/supabase/server';
 
 // 定义预期的请求体结构
 interface RequestBody {

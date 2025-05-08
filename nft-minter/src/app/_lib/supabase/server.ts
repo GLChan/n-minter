@@ -1,15 +1,9 @@
+"use server"
 
-import { createServerClient, createBrowserClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 // 从 next/headers 导入 cookies 函数
 import { cookies } from 'next/headers';
 import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies'; // 可以导入类型
-
-export function createSupabaseBrowserClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-}
 
 // 修正后的辅助函数，用于在服务器端（Server Components, Route Handlers, API Routes）创建 Supabase 客户端
 export async function createSupabaseServerClient() {
@@ -49,7 +43,3 @@ export async function createSupabaseServerClient() {
     }
   );
 }
-
-// 注意：这里不包含 Service Role Client 的创建，
-// 因为它使用敏感密钥，应谨慎使用并放在更受保护的地方。
-// 如果确实需要，可以单独创建并确保只在绝对安全的服务器端环境调用。 

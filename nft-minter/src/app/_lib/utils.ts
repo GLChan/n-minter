@@ -76,7 +76,13 @@ export function formatTimeAgo(date: Date | string): string {
   return `${Math.floor(diff / 31536000)}年前`;
 } 
 
-export function getGatewayUrl(ipfsUri?: string | null): string | null {
+/**
+ * 将IPFS URI转换为可访问的HTTP URL
+ * 
+ * @param ipfsUri IPFS URI或链接
+ * @returns 可访问的HTTP URL
+ */
+export function formatIPFSUrl(ipfsUri?: string | null): string | null {
   if (!ipfsUri || !ipfsUri.startsWith('ipfs://')) {
     return null;
   }

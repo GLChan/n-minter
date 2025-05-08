@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import Link from 'next/link'; // Added Link for DropdownMenuItem asChild
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useDisconnect, useSignMessage } from 'wagmi';
+import { useAccount } from 'wagmi';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,7 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { LayoutDashboard, User, LogOut, Copy, Loader2 } from 'lucide-react';
 import { Button } from './ui/Button'; 
-import { SiweMessage } from 'siwe';
+import { useAuth } from '@/contexts/AuthContext'; // 导入全局认证钩子
 
 // Helper function to shorten address
 const shortenAddress = (addr: string | undefined) => {
@@ -26,17 +26,15 @@ const shortenAddress = (addr: string | undefined) => {
 
 export const WalletConnectWrapper = () => {
   const router = useRouter();
-  const { disconnect: wagmiDisconnect } = useDisconnect(); 
   const { address, isConnected, isConnecting, isReconnecting, chain } = useAccount();
-  const { signMessageAsync } = useSignMessage();
-
+  
+  // 使用全局认证上下文替代本地状态
+  const { isBackendVerified, verifiedUserData, isSiweLoading, login, logout } = useAuth();
+  
+  // 保留这些本地状态，因为它们是特定于组件的UI状态，与认证状态不同
   const [profileSyncAttempted, setProfileSyncAttempted] = React.useState(false);
   const [isProfileSyncing, setIsProfileSyncing] = React.useState(false);
-  const [isSiweLoading, setIsSiweLoading] = useState(false);
   const [supSessionChecked, setSupSessionChecked] = useState(false);
-
-  const [isBackendVerified, setIsBackendVerified] = React.useState(false);
-  const [verifiedUserData, setVerifiedUserData] = React.useState<{ wallet: string } | null>(null);
 
   useEffect(() => {
     if (isConnected && address && !profileSyncAttempted && !isProfileSyncing) {
@@ -52,7 +50,7 @@ export const WalletConnectWrapper = () => {
             body: JSON.stringify({ walletAddress: address }),
           });
           if (!response.ok) {
-             const errorData = await response.json().catch(() => ({ error: 'Failed to parse error JSON'})); // Prevent crash if errorData is not json
+             const errorData = await response.json().catch(() => ({ error: 'Failed to parse error JSON'}));
              throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
           }
           const profileData = await response.json();
@@ -71,91 +69,24 @@ export const WalletConnectWrapper = () => {
         setProfileSyncAttempted(false);
         setIsProfileSyncing(false);
         setSupSessionChecked(false);
-        setIsBackendVerified(false);
-        setVerifiedUserData(null);
-        setIsSiweLoading(false);
     }
   }, [isConnected, address, profileSyncAttempted, isConnecting, isReconnecting, isProfileSyncing]);
 
-
+  // 调用全局上下文的login方法，而不是本地的handleSiweLogin
   const handleSiweLogin = useCallback(async () => { 
-    if (!address || !chain?.id || isSiweLoading || isBackendVerified) {
-        if(isBackendVerified) console.log("WalletConnectWrapper: SIWE: Already verified.");
-        if(isSiweLoading) console.log("WalletConnectWrapper: SIWE: Already loading.");
-        if(!address || !chain?.id) console.log("WalletConnectWrapper: SIWE: No address or chain ID.");
-        return;
-    }
-
-    setIsSiweLoading(true);
-    console.log("WalletConnectWrapper: 开始 SIWE 登录流程...");
-    setIsBackendVerified(false); // Reset verification status before attempting
-    setVerifiedUserData(null);
-
     try {
-      const nonceRes = await fetch('/api/auth/nonce');
-      if (!nonceRes.ok) {
-        const errorData = await nonceRes.json().catch(() => ({ error: '获取 nonce 失败, 无法解析错误响应' }));
-        throw new Error(errorData.error || '获取 nonce 失败');
-      }
-      const { nonce } = await nonceRes.json();
-      if (!nonce) throw new Error('API 未返回 nonce');
-      
-      const now = new Date();
-      // Ensure window.location is available (client-side)
-      const domain = typeof window !== 'undefined' ? window.location.host : '';
-      const uri = typeof window !== 'undefined' ? window.location.origin : '';
-
-      const siweMessage = new SiweMessage({
-        domain,
-        address: address,
-        uri,
-        version: '1',
-        chainId: chain.id,
-        nonce: nonce,
-        issuedAt: now.toISOString(),
-      });
-      
-      const messageToSign = siweMessage.prepareMessage();
-      const signature = await signMessageAsync({ message: messageToSign });
-
-      const verifyRes = await fetch('/api/auth/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: messageToSign, signature }),
-        credentials: 'include',
-      });
-
-      if (!verifyRes.ok) {
-        const errorData = await verifyRes.json().catch(() => ({ error: '服务器验证失败, 无法解析错误响应' }));
-        throw new Error(errorData.error || '服务器验证失败');
-      }
-
-      const verificationData = await verifyRes.json();
-      console.log('WalletConnectWrapper: SIWE 登录成功:', verificationData);
-      
-      if (verificationData.success && verificationData.wallet) {
-        setIsBackendVerified(true);
-        setVerifiedUserData({ wallet: verificationData.wallet });
-        setProfileSyncAttempted(false); 
-        // alert("登录成功！"); // Consider using a less disruptive notification method
-        console.log("WalletConnectWrapper: SIWE 登录成功并已验证后端。");
-      } else {
-        throw new Error(verificationData.message || '验证成功但API未返回正确的用户信息或状态');
-      }
-
-    } catch (error: any) {
-      console.error("WalletConnectWrapper: SIWE 登录错误:", error.message);
-      // alert(`登录失败: ${error.message}`); // Consider using a less disruptive notification method
-      setIsBackendVerified(false);
-      setVerifiedUserData(null);
-    } finally {
-      setIsSiweLoading(false);
+      await login();
+      // 登录成功后重置Profile同步状态以允许获取最新数据
+      setProfileSyncAttempted(false);
+    } catch (error) {
+      console.error("WalletConnectWrapper: 登录失败:", error);
     }
-  }, [address, chain, isSiweLoading, isBackendVerified, signMessageAsync]);
+  }, [login]);
 
+  // 处理钱包连接后的自动登录
   useEffect(() => {
     if (isConnected && address && !isSiweLoading && !isBackendVerified && !supSessionChecked) {
-      console.log("WalletConnectWrapper: 连接状态变化，尝试SIWE登录. isConnected:", isConnected, "address:", !!address, "isSiweLoading:", isSiweLoading, "isBackendVerified:", isBackendVerified, "supSessionChecked:", supSessionChecked);
+      console.log("WalletConnectWrapper: 连接状态变化，尝试SIWE登录");
       setSupSessionChecked(true); 
       handleSiweLogin();
     } else if (!isConnected) {
@@ -163,15 +94,12 @@ export const WalletConnectWrapper = () => {
     }
   }, [isConnected, address, isSiweLoading, isBackendVerified, supSessionChecked, handleSiweLogin]);
 
+  // 使用全局的logout并清理本地状态
   const handleLogout = () => {
-    wagmiDisconnect();
-    setIsBackendVerified(false);
-    setVerifiedUserData(null);
+    logout(); // 调用全局登出方法
     setProfileSyncAttempted(false);
     setSupSessionChecked(false);
-    setIsSiweLoading(false);
-    if (typeof window !== 'undefined') router.push('/'); // Ensure router.push is client-side
-    console.log("WalletConnectWrapper: User logged out, states reset.");
+    console.log("WalletConnectWrapper: 用户已登出");
   };
 
   return (
@@ -189,7 +117,7 @@ export const WalletConnectWrapper = () => {
           );
         }
 
-        if (isBackendVerified && verifiedUserData && account) { // Ensure account is also available for display consistency
+        if (isBackendVerified && verifiedUserData && account) { // 使用全局状态验证
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -245,7 +173,7 @@ export const WalletConnectWrapper = () => {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="h-px bg-zinc-200 dark:bg-zinc-800 my-1" />
                 <DropdownMenuItem asChild>
-                  <Link href={`/profile/${verifiedUserData.wallet}`} className="flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800/50 cursor-pointer focus:outline-none focus:bg-zinc-100 dark:focus:bg-zinc-800/50">
+                  <Link href={`/profile`} className="flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800/50 cursor-pointer focus:outline-none focus:bg-zinc-100 dark:focus:bg-zinc-800/50">
                     <User size={16} />
                     <span>个人资料</span>
                   </Link>
@@ -336,7 +264,7 @@ export const WalletConnectWrapper = () => {
                     disabled={isSiweLoading}
                     className="flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800/50 cursor-pointer focus:outline-none focus:bg-zinc-100 dark:focus:bg-zinc-800/50"
                   >
-                    <User size={16} /> {/* Using User icon as a generic login icon here */}
+                    <User size={16} />
                     <span>{isSiweLoading ? "验证中..." : "使用钱包验证"}</span>
                   </DropdownMenuItem>
                 <DropdownMenuSeparator className="h-px bg-zinc-200 dark:bg-zinc-800 my-1" />
