@@ -100,6 +100,8 @@ export const WalletConnectWrapper = () => {
     setProfileSyncAttempted(false);
     setSupSessionChecked(false);
     console.log("WalletConnectWrapper: 用户已登出");
+
+    router.replace('/')
   };
 
   return (

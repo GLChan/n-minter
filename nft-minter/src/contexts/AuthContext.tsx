@@ -1,8 +1,8 @@
 "use client";
-
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
 import { useAccount, useDisconnect, useSignMessage } from 'wagmi';
 import { SiweMessage } from 'siwe';
+import useSupabaseClient from '@/app/_lib/supabase/client';
 
 // 类型定义
 interface AuthState {
@@ -22,10 +22,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // 提供者组件
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const supabase = useSupabaseClient();
   const { address, isConnected, chain } = useAccount();
   const { disconnect } = useDisconnect();
   const { signMessageAsync } = useSignMessage();
-  
+
   // Auth 状态
   const [isBackendVerified, setIsBackendVerified] = useState<boolean>(false);
   const [verifiedUserData, setVerifiedUserData] = useState<{ wallet: string } | null>(null);
@@ -79,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const data = await response.json();
       console.log('AuthContext: 会话检查响应:', data);
-      
+
       if (data.authenticated && data.wallet) {
         // 如果已认证，更新状态
         console.log('AuthContext: 检测到有效会话，钱包地址:', data.wallet);
@@ -87,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setVerifiedUserData({ wallet: data.wallet });
         return true;
       }
-      
+
       console.log('AuthContext: 未检测到有效会话');
       return false;
     } catch (error) {
@@ -122,7 +123,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     setIsSiweLoading(true);
     console.log("AuthContext: 开始 SIWE 登录流程...");
-    
+
     try {
       // 1. 获取随机数(nonce)
       const nonceRes = await fetch('/api/auth/nonce');
@@ -132,7 +133,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       const { nonce } = await nonceRes.json();
       if (!nonce) throw new Error('API 未返回 nonce');
-      
+
       // 2. 创建 SIWE 消息
       const domain = typeof window !== 'undefined' ? window.location.host : '';
       const uri = typeof window !== 'undefined' ? window.location.origin : '';
@@ -146,7 +147,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         nonce: nonce,
         issuedAt: new Date().toISOString(),
       });
-      
+
       // 3. 准备消息并签名
       const messageToSign = siweMessage.prepareMessage();
       const signature = await signMessageAsync({ message: messageToSign });
@@ -166,10 +167,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const verificationData = await verifyRes.json();
       console.log('AuthContext: SIWE 登录成功:', verificationData);
-      
-      if (verificationData.success && verificationData.wallet) {
+
+
+      let { access_token, refresh_token, wallet } = verificationData.data
+      if (verificationData.success && wallet) {
+
+        const { data, error: setError } = await supabase.auth.setSession({
+          access_token, refresh_token
+        })
+
+        if (setError) {
+          console.error('在客户端设置会话失败:', setError);
+          // 处理在客户端设置会话时发生的错误
+          return;
+        }
+
+        console.log('会话已在客户端成功设置:', data.session);
+        console.log('当前用户:', data.user); // data.user 也会被设置
+
         setIsBackendVerified(true);
-        setVerifiedUserData({ wallet: verificationData.wallet });
+        setVerifiedUserData({ wallet: wallet });
         console.log("AuthContext: SIWE 登录成功并已验证后端");
       } else {
         throw new Error(verificationData.message || '验证成功但API未返回正确的用户信息或状态');
@@ -196,7 +213,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('AuthContext: 登出API调用失败:', error);
     }
-    
+
     // 重置状态并断开钱包连接
     setIsBackendVerified(false);
     setVerifiedUserData(null);

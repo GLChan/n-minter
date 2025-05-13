@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
 
       {
         protocol: 'https',
-        hostname: 'placehold.co',
+        hostname: 'mzmlztcizgitmitugcdk.supabase.co',
         port: '',
       },
 

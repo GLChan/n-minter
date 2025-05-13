@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/app/_components/ui/Button';
@@ -240,12 +241,11 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
         bio: formData.bio,
         avatar_url: avatarUrl,
         external_link: formData.external_link,
+        email: formData.email,
         wallet_address: verifiedUserData.wallet, // 确保钱包地址是验证过的
         updated_at: new Date().toISOString(),
       };
 
-      console.log('😈', verifiedUserData.wallet)
-      
       // 更新或插入用户资料
       const { error } = await supabase
         .from('profiles')

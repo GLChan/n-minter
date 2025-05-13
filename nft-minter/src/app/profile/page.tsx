@@ -122,18 +122,12 @@ export default function ProfilePage() {
         // 如果有已验证的钱包地址，获取用户资料
         if (!verifiedUserData?.wallet) return;
         
-
-        console.log('verifiedUserData.wallet', verifiedUserData.wallet);
-        
         setIsLoading(true);
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('wallet_address', verifiedUserData.wallet)
           .single();
-
-          console.log('data', data);
-          
         
         if (error) {
           console.error('获取用户资料失败:', error);
@@ -148,6 +142,7 @@ export default function ProfilePage() {
             avatar: data.avatar_url || mockUser.avatar,
             wallet_address: data.wallet_address,
             external_link: data.external_link,
+            email: data.email,
             joinedDate: `${new Date(data.created_at).getFullYear()}年${new Date(data.created_at).getMonth() + 1}月加入`,
           });
         }

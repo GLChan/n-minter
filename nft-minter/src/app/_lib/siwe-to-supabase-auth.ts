@@ -74,17 +74,6 @@ export async function syncSiweToSupabaseAuth(
       return { success: false, error: sessionError };
     }
 
-
-    let { data: userProfile, error: getProfileError } = await supabaseAdmin
-    .from("profiles")
-    .select("*")
-    .eq("user_id", userId)
-    .select()
-    .single();
-
-    console.log('😄', userProfile, getProfileError);
-    
-    
     return { 
       success: true, 
       session: sessionData,
