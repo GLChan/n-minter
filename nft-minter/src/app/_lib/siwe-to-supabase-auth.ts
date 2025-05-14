@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '@/app/_lib/database.types';
+import { Database } from '@/app/_lib/types/database.types';
 import { generateWalletP } from './utils';
 
 /**

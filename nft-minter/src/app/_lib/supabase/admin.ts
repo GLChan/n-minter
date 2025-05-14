@@ -1,9 +1,9 @@
 // src/app/_lib/supabase/admin.ts
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '@/app/_lib/database.types';
+import { Database } from '@/app/_lib/types/database.types';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseServiceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
 
 let supabaseAdminInstance: SupabaseClient<Database> | null = null;
 
@@ -11,7 +11,7 @@ let supabaseAdminInstance: SupabaseClient<Database> | null = null;
 if (typeof window === 'undefined') {
   if (!supabaseUrl || !supabaseServiceRoleKey) {
     console.warn(
-      "Supabase Admin Client: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing. " +
+      "Supabase Admin Client: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY is missing. " +
       "The admin client will not be functional. Ensure these are set in your server environment."
     );
   } else {

@@ -1,39 +1,51 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { NFT } from '@/app/_lib/types';
+import { formatIPFSUrl } from '@/app/_lib/utils';
 
-type NFTCardProps = {
-  id: string;
-  title: string;
-  image: string;
-  creator: string;
-  price: number;
-  timeAgo: string;
-  collection?: string;
-  collectionImage?: string;
+// interface NFTCardProps {
+//   nft: NFT;
+// }
+
+// 处理钱包地址显示的辅助函数
+const shortenAddress = (address: string) => {
+  if (!address) return '';
+  return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 };
 
-export const NFTCard: React.FC<NFTCardProps> = ({
-  id,
-  title,
-  image,
-  creator,
-  price,
-  timeAgo,
-  collection,
-  collectionImage,
-}) => {
+// 获取代币ID或名称显示
+const getTitle = (nft: any) => {
+  if (nft.name) return nft.name;
+  if (nft.token_id) return `NFT #${nft.token_id}`;
+  return 'Untitled NFT';
+};
+
+export const NFTCard: React.FC<{
+  nft: NFT;
+}> = ({ nft }) => {
+  if (!nft) return <></>
+  let { name, id } = nft
+
+  let imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
+  let
+    creator,
+    price,
+    timeAgo,
+    collection,
+    collectionImage
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-700 transition-transform hover:translate-y-[-4px] hover:shadow-lg">
       <Link href={`/nft/${id}`}>
         <div className="relative aspect-square overflow-hidden group">
-          <Image
-            src={image}
-            alt={title}
+          {imageUrl ? <Image
+            src={imageUrl}
+            alt={name}
             fill
+            priority
             className="object-cover transition-transform group-hover:scale-110"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
+          /> : <></>}
           {collection && (
             <div className="absolute top-2 left-2">
               <div className="flex items-center bg-white/80 dark:bg-black/70 backdrop-blur-sm rounded-full px-2 py-1">
@@ -57,7 +69,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({
 
       <div className="p-4">
         <div className="flex justify-between mb-2">
-          <h3 className="font-medium text-base truncate max-w-[70%]">{title}</h3>
+          <h3 className="font-medium text-base truncate max-w-[70%]">{name}</h3>
           <div className="flex items-center">
             <svg
               width="16"

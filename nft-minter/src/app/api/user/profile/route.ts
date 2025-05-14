@@ -28,47 +28,17 @@ export async function POST(request: Request) {
     const { data: existingProfile, error: fetchError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('wallet_address', cleanAddress) // 基于钱包地址查询
+      .eq('wallet_address', walletAddress) // 基于钱包地址查询
       .maybeSingle(); // 使用 maybeSingle 避免未找到时报错
-
-    if (fetchError) {
-      console.error('获取 profile 时出错:', fetchError);
-      return NextResponse.json({ error: '获取 profile 失败' }, { status: 500 });
-    }
 
     // 3. 如果 profile 存在, 返回它
     if (existingProfile) {
       console.log(`Profile found for address ${cleanAddress}:`, existingProfile.id);
       return NextResponse.json(existingProfile);
+    } else {
+      console.error('获取 profile 时出错:', fetchError);
+      return NextResponse.json({ error: '获取 profile 失败' }, { status: 500 });
     }
-
-    // 4. 如果 profile 不存在, 创建它
-    console.log(`Profile not found for address ${cleanAddress}. Creating...`);
-    // 基于地址生成默认用户名
-    const defaultUsername = `user_${cleanAddress.substring(2, 8)}`;
-
-    const { data: newProfile, error: insertError } = await supabase
-      .from('profiles')
-      .insert({
-        // id 会自动生成 (uuid_generate_v4())
-        wallet_address: cleanAddress,
-        username: defaultUsername, // 设置默认用户名
-        user_id: '2'
-      })
-      .select() // 返回新创建的记录
-      .single();
-
-    if (insertError) {
-      console.error('创建 profile 时出错:', insertError);
-       // 检查唯一约束冲突 (理论上不应发生，因为我们先查询了)
-       if (insertError.code === '23505') {
-         return NextResponse.json({ error: '钱包地址已存在冲突。' }, { status: 409 });
-       }
-      return NextResponse.json({ error: '创建 profile 失败' }, { status: 500 });
-    }
-
-    console.log(`Profile created successfully for address ${cleanAddress}:`, newProfile.id);
-    return NextResponse.json(newProfile);
 
   } catch (error) {
     console.error('处理 /api/user/profile 时发生意外错误:', error);

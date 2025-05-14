@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { getIronSession } from 'iron-session';
 import { sessionOptions, SessionData } from '@/app/_lib/session';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { Database } from '@/app/_lib/database.types';
+import { Database } from '@/app/_lib/types/database.types';
 
 // 提供请求处理函数
 export async function GET(request: NextRequest) {

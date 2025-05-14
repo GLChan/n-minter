@@ -106,6 +106,9 @@ const sortOptions = [
 ];
 
 export default function ExplorePage() {
+
+
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -169,7 +172,7 @@ export default function ExplorePage() {
           
           {/* NFT列表 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {mockNFTs.map((nft) => (
+            {/* {mockNFTs.map((nft) => (
               <NFTCard
                 key={nft.id}
                 id={nft.id}
@@ -181,7 +184,7 @@ export default function ExplorePage() {
                 collection={nft.collection}
                 collectionImage={nft.collectionImage}
               />
-            ))}
+            ))} */}
           </div>
           
           {/* 加载更多按钮 */}

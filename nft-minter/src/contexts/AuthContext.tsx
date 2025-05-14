@@ -3,11 +3,13 @@ import React, { createContext, useState, useContext, useEffect, ReactNode, useCa
 import { useAccount, useDisconnect, useSignMessage } from 'wagmi';
 import { SiweMessage } from 'siwe';
 import useSupabaseClient from '@/app/_lib/supabase/client';
+import { UserProfile } from '@/app/_lib/types';
 
 // 类型定义
 interface AuthState {
   isBackendVerified: boolean;
   verifiedUserData: { wallet: string } | null;
+  userProfile: UserProfile | null;
   isSiweLoading: boolean;
 }
 
@@ -30,6 +32,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Auth 状态
   const [isBackendVerified, setIsBackendVerified] = useState<boolean>(false);
   const [verifiedUserData, setVerifiedUserData] = useState<{ wallet: string } | null>(null);
+
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isSiweLoading, setIsSiweLoading] = useState<boolean>(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
 
@@ -118,6 +122,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const isAlreadyAuthenticated = await checkAuth();
     if (isAlreadyAuthenticated) {
       console.log("AuthContext: 已存在有效会话，无需重新登录");
+
+      const profileRes = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ walletAddress: address }),
+      })
+
+      if (!profileRes.ok) {
+        const errorData = await profileRes.json().catch(() => ({ error: '获取 profile 失败, 无法解析错误响应' }));
+        throw new Error(errorData.error || '获取 profile 失败');
+      } else {
+        const profileData = await profileRes.json();
+        setUserProfile(profileData)
+      }
       return;
     }
 
@@ -187,6 +205,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         setIsBackendVerified(true);
         setVerifiedUserData({ wallet: wallet });
+
+        // 4. 获取个人信息
+        const profileRes = await fetch('/api/user/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ walletAddress: wallet }),
+        })
+        if (!profileRes.ok) {
+          const errorData = await profileRes.json().catch(() => ({ error: '获取 profile 失败, 无法解析错误响应' }));
+          throw new Error(errorData.error || '获取 profile 失败');
+        } else {
+          const profileData = await profileRes.json();
+          setUserProfile(profileData)
+        }
+
         console.log("AuthContext: SIWE 登录成功并已验证后端");
       } else {
         throw new Error(verificationData.message || '验证成功但API未返回正确的用户信息或状态');
@@ -224,6 +257,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // 提供上下文值
   const contextValue: AuthContextType = {
     isBackendVerified,
+    userProfile,
     verifiedUserData,
     isSiweLoading,
     login,

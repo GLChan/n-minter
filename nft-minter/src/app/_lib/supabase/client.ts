@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
+import { Database } from '../types/database.types';
 
 // 设置客户端cookie处理
 const cookieOptions = {
@@ -12,7 +13,7 @@ const cookieOptions = {
 
 // 为每个客户端创建一个新的Supabase实例
 export function getSupabaseBrowserClient() {
-  return createBrowserClient(
+  return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

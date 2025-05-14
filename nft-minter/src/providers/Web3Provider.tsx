@@ -20,32 +20,51 @@ import {
   localhost
 } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import type { Chain } from 'wagmi/chains';
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 if (!projectId) {
   throw new Error("Error: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set in .env.local");
 }
 
+const enableTestnets = process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true';
+
+// 定义支持的链
+const supportedChains = enableTestnets
+  ? [
+      mainnet,
+      polygon,
+      optimism,
+      arbitrum,
+      base,
+      zora,
+      sepolia,
+      holesky,
+      // hoodi,
+      // localhost,
+    ] as const
+  : [mainnet, polygon, optimism, arbitrum, base, zora] as const;
+
+// 创建配置
 const config = getDefaultConfig({
   appName: 'NFT Minter',
   projectId: projectId,
-  chains: [
-    mainnet,
-    polygon,
-    optimism,
-    arbitrum,
-    base,
-    zora,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [sepolia, holesky, hoodi, localhost] : []),
-  ],
-  ssr: true,
+  chains: supportedChains,
+  ssr: false,
 });
+
+// 安全地检查 config 结构
+// console.log('Wagmi config keys:', Object.keys(config));
+// console.log('Wagmi config chains:', config.chains);
 
 const queryClient = new QueryClient();
 
 export function Web3Provider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => setMounted(true), []);
+  
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const rainbowKitTheme = darkTheme({
     accentColor: '#3b82f6',
@@ -54,6 +73,10 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
     fontStack: 'system',
   });
 
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
@@ -61,7 +84,7 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
           theme={rainbowKitTheme}
           modalSize="compact"
         >
-          {mounted && children}
+          {children}
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

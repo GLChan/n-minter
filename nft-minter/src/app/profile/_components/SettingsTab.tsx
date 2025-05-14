@@ -5,19 +5,10 @@ import { Button } from '@/app/_components/ui/Button';
 import useSupabaseClient from '@/app/_lib/supabase/client';
 import { Camera, Upload, Loader2, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-
-// 用户接口定义
-interface User {
-  username: string;
-  bio: string;
-  email?: string;
-  avatar?: string;
-  wallet_address?: string;
-  external_link?: string;
-}
+import { UserProfile } from '@/app/_lib/types';
 
 interface SettingsTabProps {
-  user: User;
+  user: UserProfile;
   onProfileUpdated?: () => void; // 可选回调，仅用于通知父组件更新已完成
 }
 
@@ -51,18 +42,21 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 表单状态
-  const [formData, setFormData] = React.useState<User>({
+  const [formData, setFormData] = React.useState<UserProfile>({
+    id: user.id || '',
+    user_id: user.user_id || '',
     username: user.username || '',
     bio: user.bio || '',
     email: user.email || '',
-    avatar: user.avatar || '',
-    external_link: user.external_link || '',
+    avatar_url: user.avatar_url || '',
+    website: user.website || '',
     wallet_address: user.wallet_address || '',
+    created_at: user.created_at || '',
   });
 
   // 头像上传状态
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>(user.avatar || '');
+  const [avatarPreview, setAvatarPreview] = useState<string>(user.avatar_url || '');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -73,14 +67,17 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
   // 当外部user数据变化时更新本地状态
   useEffect(() => {
     setFormData({
+      id: user.id || '',
+      user_id: user.user_id || '',
       username: user.username || '',
       bio: user.bio || '',
       email: user.email || '',
-      avatar: user.avatar || '',
-      external_link: user.external_link || '',
+      avatar_url: user.avatar_url || '',
+      website: user.website || '',
       wallet_address: user.wallet_address || '',
+      created_at: user.created_at || ''
     });
-    setAvatarPreview(user.avatar || '');
+    setAvatarPreview(user.avatar_url || '');
   }, [user]);
 
   // 处理输入变化
@@ -227,7 +224,7 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
       }
 
       // 如果有新头像，先上传
-      let avatarUrl = formData.avatar;
+      let avatarUrl = formData.avatar_url;
       if (avatarFile) {
         const uploadedUrl = await uploadAvatar();
         if (uploadedUrl) {
@@ -240,7 +237,7 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
         username: formData.username,
         bio: formData.bio,
         avatar_url: avatarUrl,
-        external_link: formData.external_link,
+        website: formData.website,
         email: formData.email,
         wallet_address: verifiedUserData.wallet, // 确保钱包地址是验证过的
         updated_at: new Date().toISOString(),
@@ -355,10 +352,10 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
         />
         <InputField
           label="个人网站 (可选)"
-          id="external_link"
+          id="website"
           type="url"
           placeholder="https://yourwebsite.com"
-          value={formData.external_link}
+          value={formData.website}
           onChange={handleChange}
         />
 

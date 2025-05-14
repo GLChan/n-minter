@@ -1,23 +1,10 @@
 import React from 'react';
 import { NFTCard } from '@/app/_components/ui/NFTCard';
+import { NFT } from '@/app/_lib/types';
 
-// NFT接口定义
-interface NFT {
-  id: string;
-  title: string;
-  image: string;
-  creator: string;
-  price: number;
-  timeAgo: string;
-  collection?: string;
-  collectionImage?: string;
-}
-
-interface CreatedNFTsTabProps {
+export function CreatedNFTsTab({ nfts }: {
   nfts: NFT[];
-}
-
-export function CreatedNFTsTab({ nfts }: CreatedNFTsTabProps) {
+}) {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4 sr-only">创建的 NFT</h2>
