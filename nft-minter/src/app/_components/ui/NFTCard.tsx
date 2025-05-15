@@ -9,25 +9,25 @@ import { formatIPFSUrl } from '@/app/_lib/utils';
 // }
 
 // 处理钱包地址显示的辅助函数
-const shortenAddress = (address: string) => {
-  if (!address) return '';
-  return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
-};
+// const shortenAddress = (address: string) => {
+//   if (!address) return '';
+//   return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+// };
 
 // 获取代币ID或名称显示
-const getTitle = (nft: any) => {
-  if (nft.name) return nft.name;
-  if (nft.token_id) return `NFT #${nft.token_id}`;
-  return 'Untitled NFT';
-};
+// const getTitle = (nft: any) => {
+//   if (nft.name) return nft.name;
+//   if (nft.token_id) return `NFT #${nft.token_id}`;
+//   return 'Untitled NFT';
+// };
 
 export const NFTCard: React.FC<{
   nft: NFT;
 }> = ({ nft }) => {
   if (!nft) return <></>
-  let { name, id } = nft
+  const { name, id } = nft
 
-  let imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
+  const imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
   let
     creator,
     price,

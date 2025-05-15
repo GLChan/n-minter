@@ -12,7 +12,7 @@ export function CreatedNFTsTab({ nfts }: {
         // 网格布局，响应不同屏幕尺寸
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {nfts.map((nft) => (
-            <NFTCard key={nft.id} {...nft} />
+            <NFTCard key={nft.id} nft={nft} />
           ))}
         </div>
       ) : (

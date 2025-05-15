@@ -35,36 +35,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isSiweLoading, setIsSiweLoading] = useState<boolean>(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
-
-  // 在组件初始化时检查认证状态
-  // useEffect(() => {
-  //   const initAuth = async () => {
-  //     setIsCheckingAuth(true);
-  //     try {
-  //       const isAuthenticated = await checkAuth();
-  //       console.log('AuthContext: 初始状态检查:', isAuthenticated ? '已认证' : '未认证');
-  //     } catch (error) {
-  //       console.error('AuthContext: 初始状态检查失败:', error);
-  //     } finally {
-  //       setIsCheckingAuth(false);
-  //     }
-  //   };
-
-  //   initAuth();
-  // }, []);
-
-  // 在钱包连接状态改变时处理
-  useEffect(() => {
-    if (isConnected && address && !isBackendVerified && !isCheckingAuth) {
-      // 只有在钱包连接且未认证时检查会话状态
-      checkAuth();
-    } else if (!isConnected && isBackendVerified) {
-      // 钱包断开连接时，重置认证状态
-      setIsBackendVerified(false);
-      setVerifiedUserData(null);
-    }
-  }, [isConnected, address, isBackendVerified, isCheckingAuth]);
 
   // 检查当前会话是否已认证
   const checkAuth = useCallback(async (): Promise<boolean> => {
@@ -100,6 +70,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return false;
     }
   }, []);
+
+  // 在钱包连接状态改变时处理
+  useEffect(() => {
+    if (isConnected && address && !isBackendVerified) {
+      // 只有在钱包连接且未认证时检查会话状态
+      checkAuth();
+    } else if (!isConnected && isBackendVerified) {
+      // 钱包断开连接时，重置认证状态
+      setIsBackendVerified(false);
+      setVerifiedUserData(null);
+    }
+  }, [isConnected, address, isBackendVerified]);
 
   // SIWE登录逻辑
   const login = useCallback(async (): Promise<void> => {
@@ -187,7 +169,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log('AuthContext: SIWE 登录成功:', verificationData);
 
 
-      let { access_token, refresh_token, wallet } = verificationData.data
+      const { access_token, refresh_token, wallet } = verificationData.data
       if (verificationData.success && wallet) {
 
         const { data, error: setError } = await supabase.auth.setSession({
@@ -225,8 +207,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(verificationData.message || '验证成功但API未返回正确的用户信息或状态');
       }
 
-    } catch (error: any) {
-      console.error("AuthContext: SIWE 登录错误:", error.message);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("AuthContext: SIWE 登录错误:", error.message);
+      }
       setIsBackendVerified(false);
       setVerifiedUserData(null);
       throw error; // 重新抛出错误以便调用者处理

@@ -3,8 +3,6 @@
 import React, { useState } from 'react';
 import { Navbar } from '@/app/_components/Navbar';
 import { Footer } from '@/app/_components/Footer';
-import Link from 'next/link';
-import Image from 'next/image';
 import { OwnedNFTsTab } from './_components/OwnedNFTsTab';
 import { ActivityTab } from './_components/ActivityTab';
 import { OffersTab } from './_components/OffersTab';

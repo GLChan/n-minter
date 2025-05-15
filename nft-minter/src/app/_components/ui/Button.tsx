@@ -11,6 +11,12 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   rightIcon?: React.ReactNode;
 }
 
+type ButtonVariantType = ButtonProps['variant'];
+
+export const ButtonVariantDefault: ButtonVariantType = 'default'
+export const ButtonVariantSecondary: ButtonVariantType = 'secondary'
+
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ 
     className, 

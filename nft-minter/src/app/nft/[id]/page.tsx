@@ -4,16 +4,10 @@ import Link from 'next/link';
 import { Navbar } from '@/app/_components/Navbar';
 import { Footer } from '@/app/_components/Footer';
 import { Button } from '@/app/_components/ui/Button';
-import { formatPrice, formatAddress, formatIPFSUrl } from '@/app/_lib/utils';
+import { formatAddress, formatIPFSUrl } from '@/app/_lib/utils'; // formatPrice
 import { getNFTById, getProfileByUserId, getProfileByWallet } from '@/app/_lib/data-service';
 
-interface NFTDetailsProps {
-  params: {
-    id: string;
-  };
-}
-
-export default async function NFTDetails({ params }: NFTDetailsProps) {
+export default async function NFTDetails({ params }: {params: Promise<{ id: string }>}) {
 
   // 在实际应用中，这里应该从API获取NFT数据
   // const nft = {
@@ -67,10 +61,11 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
   ]
 
   // 'not_listed', 'listed', 'sold', 'cancelled'
+  const {id} = await params;
+  
+  const nft = await getNFTById(id)
 
-  const nft = await getNFTById(params.id)
-
-  let imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
+  const imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
 
   const creator = await getProfileByUserId(nft.creator_id || '')
   const owner = await getProfileByWallet(nft.owner_address || '')

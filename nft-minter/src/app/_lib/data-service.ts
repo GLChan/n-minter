@@ -1,19 +1,19 @@
-import useSupabaseClient, { getSupabaseBrowserClient } from '@/app/_lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/app/_lib/supabase/client';
 import { notFound } from "next/navigation";
-import { Database, Tables } from "./types/database.types";
+import { Collection, NFT } from './types';
 
-// export function getCurrentUserId() {
-//   const supabase = useSupabaseClient();
+export async function getCurrentUserId() {
+  const supabase = getSupabaseBrowserClient();
 
-//   const { data: user, error } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
 
-//   if (user) {
-//     return user.id;  // 返回当前用户的 ID
-//   } else {
-//     console.log('No user is logged in');
-//     return null;  // 如果没有登录用户，返回 null
-//   }
-// }
+  if (error) {
+    console.error('获取用户失败:', error);
+    notFound()
+  }
+
+  return data;
+}
 
 export async function getProfileByWallet(walletAddress: string) {
   const supabase = getSupabaseBrowserClient();
@@ -39,7 +39,6 @@ export async function getProfileByUserId(userId: string) {
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
-    // .eq('user_id', '84597181-2ff5-4742-aeee-74be03bb1d71')
     .eq('id', userId)
     .single();
 
@@ -51,7 +50,7 @@ export async function getProfileByUserId(userId: string) {
   return data;
 }
 
-export async function getUserNFTs(page: number, pageSize: number, ownerId?: string): Promise<Tables<'nfts'>[]> {
+export async function getUserNFTs(page: number, pageSize: number, ownerId?: string): Promise<NFT[]> {
   const supabase = getSupabaseBrowserClient();
   let query = supabase
     .from('nfts')
@@ -74,7 +73,7 @@ export async function getUserNFTs(page: number, pageSize: number, ownerId?: stri
   return data || [];
 };
 
-export async function getNFTById(id: string): Promise<Tables<'nfts'>> {
+export async function getNFTById(id: string): Promise<NFT> {
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase
     .from('nfts')
@@ -89,6 +88,23 @@ export async function getNFTById(id: string): Promise<Tables<'nfts'>> {
 
   return data
 }
+
+export async function getCollectionByUserId(userId: string): Promise<Collection[]> {
+  const supabase = getSupabaseBrowserClient();
+
+  const { data, error } = await supabase
+    .from('collections')
+    .select('*')
+    .eq('id', userId);
+
+  if (error) {
+    console.error('获取用户合集失败:', error);
+    notFound()
+  }
+
+  return data;
+}
+
 
 // export async function getGuest(email) {
 //   const { data, error } = await supabase

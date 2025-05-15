@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, ChangeEvent, DragEvent, useCallback } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Navbar } from '@/app/_components/Navbar';
 import { Footer } from '@/app/_components/Footer';
 import { Button } from '@/app/_components/ui/Button';
@@ -7,7 +7,6 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagm
 import Image from 'next/image';
 import { id as ethersId } from 'ethers'; // 用于获取事件签名的哈希
 import { contractAddress, contractAbi } from '@/app/_lib/constants'; // 引入合约信息
-
 
 export default function CreateNFT() {
   const [file, setFile] = useState<File | null>(null);
@@ -55,25 +54,25 @@ export default function CreateNFT() {
   }
 
   // 拖放处理 (简化示例)
-  const handleDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault(); // 阻止默认行为以允许放置
-  }, []);
+  // const handleDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
+  //   event.preventDefault(); // 阻止默认行为以允许放置
+  // }, []);
 
-  const handleDrop = useCallback((event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const droppedFiles = event.dataTransfer.files;
-    if (droppedFiles && droppedFiles.length > 0) {
-      const selectedFile = droppedFiles[0];
-      // TODO: 添加文件类型和大小检查
-      setFile(selectedFile);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(selectedFile);
-      setError(null);
-    }
-  }, []);
+  // const handleDrop = useCallback((event: DragEvent<HTMLDivElement>) => {
+  //   event.preventDefault();
+  //   const droppedFiles = event.dataTransfer.files;
+  //   if (droppedFiles && droppedFiles.length > 0) {
+  //     const selectedFile = droppedFiles[0];
+  //     // TODO: 添加文件类型和大小检查
+  //     setFile(selectedFile);
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setPreviewUrl(reader.result as string);
+  //     };
+  //     reader.readAsDataURL(selectedFile);
+  //     setError(null);
+  //   }
+  // }, []);
 
 
   // 属性处理
@@ -162,13 +161,15 @@ export default function CreateNFT() {
       // isPending 状态由 useWriteContract hook 管理, UI 可以用它显示"等待钱包确认"
       // isConfirming 和 isConfirmed 由 useWaitForTransactionReceipt 管理
 
-    } catch (err: any) {
+    } catch (err) {
       console.error("创建 NFT 过程中出错:", err);
       // 区分是上传错误还是用户拒绝交易等
-      if (err.message.includes('rejected the request')) {
-        setError('用户取消了钱包操作');
-      } else {
-        setError(err.message || "发生未知错误");
+      if (err instanceof Error) {
+        if (err.message.includes('rejected the request')) {
+          setError('用户取消了钱包操作');
+        } else {
+          setError(err.message || "发生未知错误");
+        }
       }
       setIsProcessing(false);
       setProcessingStep('');
@@ -198,29 +199,29 @@ export default function CreateNFT() {
           // 解析 Transfer 事件获取 tokenId
           const transferEventTopic = ethersId("Transfer(address,address,uint256)");
           const transferLog = receipt.logs?.find(log =>
-              log.address.toLowerCase() === contractAddress.toLowerCase() && // Check contract address
-              log.topics[0] === transferEventTopic &&
-              log.topics.length > 3 && // Ensure tokenId exists in topics
-              log.topics[2]?.toLowerCase() === address.toLowerCase() // Check 'to' address (topic[2], 0x padded)
+            log.address.toLowerCase() === contractAddress.toLowerCase() && // Check contract address
+            log.topics[0] === transferEventTopic &&
+            log.topics.length > 3 && // Ensure tokenId exists in topics
+            log.topics[2]?.toLowerCase() === address.toLowerCase() // Check 'to' address (topic[2], 0x padded)
           );
 
           console.log("transferLog:", transferLog);
           if (transferLog && transferLog.topics[3]) {
-             // tokenId is in topics[3] for Transfer event
-             tokenId = BigInt(transferLog.topics[3]).toString();
-             console.log("成功解析 Token ID:", tokenId);
+            // tokenId is in topics[3] for Transfer event
+            tokenId = BigInt(transferLog.topics[3]).toString();
+            console.log("成功解析 Token ID:", tokenId);
           } else {
-              console.warn("在交易日志中未找到匹配的 Transfer 事件或 Token ID。", receipt.logs);
-              // Optionally try other methods or inform the user
-              tokenId = '解析失败';
+            console.warn("在交易日志中未找到匹配的 Transfer 事件或 Token ID。", receipt.logs);
+            // Optionally try other methods or inform the user
+            tokenId = '解析失败';
           }
         } catch (e) {
-           console.error("解析 Token ID 出错:", e);
-           tokenId = '解析出错';
+          console.error("解析 Token ID 出错:", e);
+          tokenId = '解析出错';
         }
 
-         // Set success data even if tokenId parsing failed, to show tx hash
-         setSuccessData({ txHash: receipt.transactionHash, tokenId: tokenId });
+        // Set success data even if tokenId parsing failed, to show tx hash
+        setSuccessData({ txHash: receipt.transactionHash, tokenId: tokenId });
 
         // --- 调用 API 保存 NFT 数据 ---
         try {
@@ -255,16 +256,16 @@ export default function CreateNFT() {
           console.log("NFT 数据保存成功:", saveData);
           setProcessingStep("NFT 创建并保存成功！"); // Update final success message
 
-        } catch (saveError: any) {
+        } catch (saveError) {
           console.error("保存 NFT 数据到 Supabase 时出错:", saveError);
-          setError(`铸造成功，但保存 NFT 信息失败: ${saveError.message}`);
+          setError(`铸造成功，但保存 NFT 信息失败: ${saveError instanceof Error ? saveError.message : 'error'}`);
           setProcessingStep("铸造成功，保存信息时出错"); // Update message to inform user
         } finally {
-           setIsProcessing(false); // End the overall processing state
-           setMintedTokenURI(null); // Clean up state after processing
-           setUploadedImageUrl(null); // Clean up state after processing
-           // Optionally clear the form here if desired
-           // clearForm();
+          setIsProcessing(false); // End the overall processing state
+          setMintedTokenURI(null); // Clean up state after processing
+          setUploadedImageUrl(null); // Clean up state after processing
+          // Optionally clear the form here if desired
+          // clearForm();
         }
       };
 
@@ -274,7 +275,7 @@ export default function CreateNFT() {
     if (mintError) {
       console.error("铸造交易错误:", mintError);
       // Ensure only mintError.message is used
-      setError(mintError.message || "铸造交易失败"); 
+      setError(mintError.message || "铸造交易失败");
       setIsProcessing(false);
       setProcessingStep('');
       setMintedTokenURI(null); // Reset state on mint error
@@ -283,10 +284,10 @@ export default function CreateNFT() {
 
     // Update processing step only if the minting process is active
     if (isMinting && isProcessing) {
-        setProcessingStep("请在钱包中确认交易...");
+      setProcessingStep("请在钱包中确认交易...");
     }
 
-  // Update dependency array to include new states and variables used in the effect
+    // Update dependency array to include new states and variables used in the effect
   }, [isConfirming, isConfirmed, mintError, receipt, mintedTokenURI, uploadedImageUrl, address, chain, name, description, attributes, isProcessing, isMinting]); // Added isProcessing, isMinting
 
 

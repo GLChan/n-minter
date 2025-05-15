@@ -128,10 +128,10 @@ export type Database = {
           collection_id: string | null
           contract_address: string
           created_at: string
-          creator_id: string | null
-          description: string | null
+          creator_id: string
+          description: string
           id: string
-          image_url: string | null
+          image_url: string
           last_sale_currency: string | null
           last_sale_price: number | null
           last_sale_time: string | null
@@ -141,12 +141,15 @@ export type Database = {
           lister_address: string | null
           metadata: Json | null
           metadata_url: string | null
+          minter_address: string | null
           name: string
-          owner_address: string | null
-          owner_id: string | null
+          network: string | null
+          owner_address: string
+          owner_id: string
+          status: string | null
           token_id: number | null
           token_uri: string | null
-          transaction_hash: string | null
+          transaction_hash: string
           updated_at: string
         }
         Insert: {
@@ -154,10 +157,10 @@ export type Database = {
           collection_id?: string | null
           contract_address: string
           created_at?: string
-          creator_id?: string | null
-          description?: string | null
+          creator_id: string
+          description: string
           id?: string
-          image_url?: string | null
+          image_url: string
           last_sale_currency?: string | null
           last_sale_price?: number | null
           last_sale_time?: string | null
@@ -167,12 +170,15 @@ export type Database = {
           lister_address?: string | null
           metadata?: Json | null
           metadata_url?: string | null
+          minter_address?: string | null
           name: string
-          owner_address?: string | null
-          owner_id?: string | null
+          network?: string | null
+          owner_address: string
+          owner_id: string
+          status?: string | null
           token_id?: number | null
           token_uri?: string | null
-          transaction_hash?: string | null
+          transaction_hash: string
           updated_at?: string
         }
         Update: {
@@ -180,10 +186,10 @@ export type Database = {
           collection_id?: string | null
           contract_address?: string
           created_at?: string
-          creator_id?: string | null
-          description?: string | null
+          creator_id?: string
+          description?: string
           id?: string
-          image_url?: string | null
+          image_url?: string
           last_sale_currency?: string | null
           last_sale_price?: number | null
           last_sale_time?: string | null
@@ -193,12 +199,15 @@ export type Database = {
           lister_address?: string | null
           metadata?: Json | null
           metadata_url?: string | null
+          minter_address?: string | null
           name?: string
-          owner_address?: string | null
-          owner_id?: string | null
+          network?: string | null
+          owner_address?: string
+          owner_id?: string
+          status?: string | null
           token_id?: number | null
           token_uri?: string | null
-          transaction_hash?: string | null
+          transaction_hash?: string
           updated_at?: string
         }
         Relationships: [
@@ -215,6 +224,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nfts_owner_address_fkey"
+            columns: ["owner_address"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["wallet_address"]
           },
           {
             foreignKeyName: "nfts_owner_id_fkey"

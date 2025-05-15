@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react'; // ChevronLeft, ChevronRight, 
 import { NFTCard } from '@/app/_components/ui/NFTCard';
 import { NFTSkeleton } from './NFTSkeleton';
 import { getUserNFTs } from '@/app/_lib/data-service';

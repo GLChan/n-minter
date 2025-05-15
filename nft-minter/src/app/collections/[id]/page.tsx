@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Navbar } from '@/app/_components/Navbar';
@@ -8,6 +8,7 @@ import { Footer } from '@/app/_components/Footer';
 import { Button } from '@/app/_components/ui/Button';
 import { NFTCard } from '@/app/_components/ui/NFTCard';
 import { formatPrice } from '@/app/_lib/utils';
+import { NFT } from '@/app/_lib/types';
 
 // 模拟合集数据 - 实际应用中应从API获取
 const mockCollections = [
@@ -52,88 +53,88 @@ const mockCollections = [
 ];
 
 // 模拟合集中的NFT数据
-const mockNFTs = [
-  {
-    id: '101',
-    title: '抽象波形 #42',
-    image: 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?w=400&auto=format&fit=crop&q=80',
-    creator: '@abstractart',
-    price: 2.5,
-    timeAgo: '3小时前',
-    collection: '抽象迷幻',
-    collectionImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=80'
-  },
-  {
-    id: '102',
-    title: '量子片段 #18',
-    image: 'https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=400&auto=format&fit=crop&q=80',
-    creator: '@abstractart',
-    price: 1.8,
-    timeAgo: '1天前',
-    collection: '抽象迷幻',
-    collectionImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=80'
-  },
-  {
-    id: '103',
-    title: '流光溢彩 #73',
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80',
-    creator: '@abstractart',
-    price: 3.2,
-    timeAgo: '2天前',
-    collection: '抽象迷幻',
-    collectionImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=80'
-  },
-  {
-    id: '104',
-    title: '扭曲空间 #29',
-    image: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=400&auto=format&fit=crop&q=80',
-    creator: '@abstractart',
-    price: 4.1,
-    timeAgo: '4小时前',
-    collection: '抽象迷幻',
-    collectionImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=80'
-  },
-  {
-    id: '105',
-    title: '和谐振动 #56',
-    image: 'https://images.unsplash.com/photo-1604871000636-074fa5117945?w=400&auto=format&fit=crop&q=80',
-    creator: '@abstractart',
-    price: 2.2,
-    timeAgo: '1天前',
-    collection: '抽象迷幻',
-    collectionImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=80'
-  },
-  {
-    id: '106',
-    title: '未知边境 #64',
-    image: 'https://images.unsplash.com/photo-1580927752452-89d86da3fa0a?w=400&auto=format&fit=crop&q=80',
-    creator: '@abstractart',
-    price: 1.5,
-    timeAgo: '5天前',
-    collection: '抽象迷幻',
-    collectionImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=80'
-  },
-  {
-    id: '201',
-    title: '灰猫 #127',
-    image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&auto=format&fit=crop&q=80',
-    creator: '@pixelpets',
-    price: 0.6,
-    timeAgo: '2小时前',
-    collection: '像素猫咪',
-    collectionImage: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=100&auto=format&fit=crop&q=80'
-  },
-  {
-    id: '202',
-    title: '橘猫 #435',
-    image: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=400&auto=format&fit=crop&q=80',
-    creator: '@pixelpets',
-    price: 0.8,
-    timeAgo: '1天前',
-    collection: '像素猫咪',
-    collectionImage: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=100&auto=format&fit=crop&q=80'
-  }
-];
+// const mockNFTs = [
+//   {
+//     id: '101',
+//     title: '抽象波形 #42',
+//     image: 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?w=400&auto=format&fit=crop&q=80',
+//     creator: '@abstractart',
+//     price: 2.5,
+//     timeAgo: '3小时前',
+//     collection: '抽象迷幻',
+//     collectionImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=80'
+//   },
+//   {
+//     id: '102',
+//     title: '量子片段 #18',
+//     image: 'https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=400&auto=format&fit=crop&q=80',
+//     creator: '@abstractart',
+//     price: 1.8,
+//     timeAgo: '1天前',
+//     collection: '抽象迷幻',
+//     collectionImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=80'
+//   },
+//   {
+//     id: '103',
+//     title: '流光溢彩 #73',
+//     image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80',
+//     creator: '@abstractart',
+//     price: 3.2,
+//     timeAgo: '2天前',
+//     collection: '抽象迷幻',
+//     collectionImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=80'
+//   },
+//   {
+//     id: '104',
+//     title: '扭曲空间 #29',
+//     image: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=400&auto=format&fit=crop&q=80',
+//     creator: '@abstractart',
+//     price: 4.1,
+//     timeAgo: '4小时前',
+//     collection: '抽象迷幻',
+//     collectionImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=80'
+//   },
+//   {
+//     id: '105',
+//     title: '和谐振动 #56',
+//     image: 'https://images.unsplash.com/photo-1604871000636-074fa5117945?w=400&auto=format&fit=crop&q=80',
+//     creator: '@abstractart',
+//     price: 2.2,
+//     timeAgo: '1天前',
+//     collection: '抽象迷幻',
+//     collectionImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=80'
+//   },
+//   {
+//     id: '106',
+//     title: '未知边境 #64',
+//     image: 'https://images.unsplash.com/photo-1580927752452-89d86da3fa0a?w=400&auto=format&fit=crop&q=80',
+//     creator: '@abstractart',
+//     price: 1.5,
+//     timeAgo: '5天前',
+//     collection: '抽象迷幻',
+//     collectionImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=80'
+//   },
+//   {
+//     id: '201',
+//     title: '灰猫 #127',
+//     image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&auto=format&fit=crop&q=80',
+//     creator: '@pixelpets',
+//     price: 0.6,
+//     timeAgo: '2小时前',
+//     collection: '像素猫咪',
+//     collectionImage: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=100&auto=format&fit=crop&q=80'
+//   },
+//   {
+//     id: '202',
+//     title: '橘猫 #435',
+//     image: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=400&auto=format&fit=crop&q=80',
+//     creator: '@pixelpets',
+//     price: 0.8,
+//     timeAgo: '1天前',
+//     collection: '像素猫咪',
+//     collectionImage: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=100&auto=format&fit=crop&q=80'
+//   }
+// ];
 
 // 筛选选项
 const filterOptions = [
@@ -143,18 +144,16 @@ const filterOptions = [
   { label: '最近创建', value: 'recent_created' }
 ];
 
-interface CollectionPageProps {
-  params: {
-    id: string;
-  };
-}
+export default function CollectionPage({ params }: {params: Promise<{ id: string }>}) {
+  const { id } = use(params);
 
-export default function CollectionPage({ params }: CollectionPageProps) {
-  const { id } = params;
+  // 活动类型标签
+  const [activeTab, setActiveTab] = useState('items');
+  const [filterBy, setFilterBy] = useState('recent_listed');
 
   // 根据ID查找合集数据
   const collection = mockCollections.find(c => c.id === id);
-  
+
   // 如果找不到合集数据，显示错误信息
   if (!collection) {
     return (
@@ -175,16 +174,12 @@ export default function CollectionPage({ params }: CollectionPageProps) {
   }
 
   // 筛选当前合集的NFTs
-  const collectionNFTs = mockNFTs.filter(nft => nft.collection === collection.name);
-  
-  // 活动类型标签
-  const [activeTab, setActiveTab] = useState('items');
-  const [filterBy, setFilterBy] = useState('recent_listed');
-  
+  const collectionNFTs: NFT[] = []; // mockNFTs.filter(nft => nft.collection === collection.name);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <main className="flex-grow">
         {/* 合集Banner */}
         <div className="w-full h-64 md:h-80 relative">
@@ -198,7 +193,7 @@ export default function CollectionPage({ params }: CollectionPageProps) {
           {/* Banner遮罩 */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background opacity-70"></div>
         </div>
-        
+
         <div className="container mx-auto px-4 -mt-20 relative z-10">
           {/* 合集Logo和头部信息 */}
           <div className="flex flex-col md:flex-row gap-6 mb-8">
@@ -213,7 +208,7 @@ export default function CollectionPage({ params }: CollectionPageProps) {
                 />
               </div>
             </div>
-            
+
             {/* 合集名称和创建者信息 */}
             <div className="flex-1 md:mt-20">
               <div className="flex items-center gap-2 mb-2">
@@ -224,7 +219,7 @@ export default function CollectionPage({ params }: CollectionPageProps) {
                   </svg>
                 )}
               </div>
-              
+
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-zinc-600 dark:text-zinc-400">创建者:</span>
                 <div className="flex items-center gap-2">
@@ -246,7 +241,7 @@ export default function CollectionPage({ params }: CollectionPageProps) {
               </div>
             </div>
           </div>
-          
+
           {/* 合集描述 */}
           <div className="mb-8">
             <h2 className="text-xl font-semibold mb-3">关于合集</h2>
@@ -254,7 +249,7 @@ export default function CollectionPage({ params }: CollectionPageProps) {
               {collection.description}
             </p>
           </div>
-          
+
           {/* 统计数据 */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             <div className="bg-white dark:bg-zinc-800 rounded-xl p-4 border border-zinc-100 dark:border-zinc-700">
@@ -274,43 +269,40 @@ export default function CollectionPage({ params }: CollectionPageProps) {
               <p className="font-bold text-lg">{collection.owners.toLocaleString()}</p>
             </div>
           </div>
-          
+
           {/* 标签选项卡 */}
           <div className="mb-6 border-b border-zinc-200 dark:border-zinc-700">
             <div className="flex gap-6">
               <button
-                className={`py-3 px-1 font-medium text-sm relative ${
-                  activeTab === 'items' 
-                    ? 'text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-foreground'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:text-foreground dark:hover:text-zinc-300'
-                }`}
+                className={`py-3 px-1 font-medium text-sm relative ${activeTab === 'items'
+                  ? 'text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-foreground'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-foreground dark:hover:text-zinc-300'
+                  }`}
                 onClick={() => setActiveTab('items')}
               >
                 物品
               </button>
               <button
-                className={`py-3 px-1 font-medium text-sm relative ${
-                  activeTab === 'activity' 
-                    ? 'text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-foreground'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:text-foreground dark:hover:text-zinc-300'
-                }`}
+                className={`py-3 px-1 font-medium text-sm relative ${activeTab === 'activity'
+                  ? 'text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-foreground'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-foreground dark:hover:text-zinc-300'
+                  }`}
                 onClick={() => setActiveTab('activity')}
               >
                 活动
               </button>
               <button
-                className={`py-3 px-1 font-medium text-sm relative ${
-                  activeTab === 'about' 
-                    ? 'text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-foreground'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:text-foreground dark:hover:text-zinc-300'
-                }`}
+                className={`py-3 px-1 font-medium text-sm relative ${activeTab === 'about'
+                  ? 'text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-foreground'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-foreground dark:hover:text-zinc-300'
+                  }`}
                 onClick={() => setActiveTab('about')}
               >
                 详情
               </button>
             </div>
           </div>
-          
+
           {/* 内容区域 */}
           {activeTab === 'items' && (
             <>
@@ -319,7 +311,7 @@ export default function CollectionPage({ params }: CollectionPageProps) {
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-zinc-500 dark:text-zinc-400">{collectionNFTs.length} 个物品</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-zinc-500 dark:text-zinc-400">排序:</span>
                   <select
@@ -335,26 +327,19 @@ export default function CollectionPage({ params }: CollectionPageProps) {
                   </select>
                 </div>
               </div>
-              
+
               {/* NFT网格 */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">
                 {collectionNFTs.map((nft) => (
                   <NFTCard
                     key={nft.id}
-                    id={nft.id}
-                    title={nft.title}
-                    image={nft.image}
-                    creator={nft.creator}
-                    price={nft.price}
-                    timeAgo={nft.timeAgo}
-                    collection={nft.collection}
-                    collectionImage={nft.collectionImage}
+                    nft={nft}
                   />
                 ))}
               </div>
             </>
           )}
-          
+
           {activeTab === 'activity' && (
             <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 overflow-hidden">
               <div className="p-6">
@@ -388,7 +373,7 @@ export default function CollectionPage({ params }: CollectionPageProps) {
               </div>
             </div>
           )}
-          
+
           {activeTab === 'about' && (
             <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 overflow-hidden">
               <div className="p-6">
@@ -424,7 +409,7 @@ export default function CollectionPage({ params }: CollectionPageProps) {
           )}
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

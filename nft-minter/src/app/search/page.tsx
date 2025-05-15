@@ -141,7 +141,7 @@ export default function SearchPage() {
         });
         
         // 排序结果
-        let sortedResults = [...filtered];
+        const sortedResults = [...filtered];
         switch (sortBy) {
           case 'price_asc':
             sortedResults.sort((a, b) => (a.price || 0) - (b.price || 0));
@@ -279,7 +279,7 @@ export default function SearchPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 14h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <h3 className="mt-4 text-lg font-medium">未找到结果</h3>
-          <p className="mt-2 text-zinc-500 dark:text-zinc-400">抱歉，没有找到与"{query}"相关的内容</p>
+          <p className="mt-2 text-zinc-500 dark:text-zinc-400">抱歉，没有找到与&quot;{query}&quot;相关的内容</p>
           <div className="mt-6">
             <Button onClick={() => window.history.back()}>返回</Button>
           </div>
@@ -383,7 +383,7 @@ export default function SearchPage() {
           {/* 搜索结果数量 */}
           {!isLoading && results.length > 0 && (
             <p className="mb-6 text-zinc-500 dark:text-zinc-400">
-              找到 {results.length} 个与 "{query}" 相关的结果
+              找到 {results.length} 个与 &quot;{query}&quot; 相关的结果
             </p>
           )}
           

@@ -1,13 +1,14 @@
 "use client"
 
-import React from 'react';
+import React, { use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Navbar } from '@/app/_components/Navbar';
 import { Footer } from '@/app/_components/Footer';
 import { Button } from '@/app/_components/ui/Button';
 import { NFTCard } from '@/app/_components/ui/NFTCard'; // Assuming NFTCard is reusable
-import { ExternalLink, Rss } from 'lucide-react'; // Example icons
+import { ExternalLink } from 'lucide-react';
+import { NFT } from '@/app/_lib/types';
 
 // Reusing TabButton component (or import if refactored)
 interface TabButtonProps {
@@ -42,105 +43,99 @@ const sampleUser = {
   externalLink: 'barkr.xyz', // Example link
 };
 
-const userPosts = [
-  {
-    id: 'post-1',
-    title: '白雪小狗',
-    image: 'https://images.unsplash.com/photo-1591160690555-5debfba289f0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDEwfHxwdXBweXxlbnwwfHx8fDE2NzkwNjExMzA&ixlib=rb-4.0.3&q=80&w=400',
-    creator: sampleUser.username,
-    price: 0.1,
-    timeAgo: '2小时前',
-  },
-  {
-    id: 'post-2',
-    title: '漫画猫咪',
-    image: 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDR8fGNhdHxlbnwwfHx8fDE2NzkwNjExNjQ&ixlib=rb-4.0.3&q=80&w=400',
-    creator: sampleUser.username,
-    price: 0.2,
-    timeAgo: '5小时前',
-    collection: '卡通伙伴'
-  },
-  {
-    id: 'post-3',
-    title: '意大利灵缇',
-    image: 'https://images.unsplash.com/photo-1504595403659-9088ce801e29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDF8fGdyZXlob3VuZHxlbnwwfHx8fDE2NzkwNjExOTE&ixlib=rb-4.0.3&q=80&w=400',
-    creator: sampleUser.username,
-    price: 0.5,
-    timeAgo: '1天前',
-  },
-  {
-    id: 'post-4',
-    title: '像素狗狗 x3',
-    image: 'https://images.unsplash.com/photo-1611140059333-669648e975a0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDEwfHxwaXhlbCUyMGFydHxlbnwwfHx8fDE2NzkwNjEyMTc&ixlib=rb-4.0.3&q=80&w=400',
-    creator: sampleUser.username,
-    price: 1.0,
-    timeAgo: '2天前',
-    collection: '像素宠物'
-  },
-  {
-    id: 'post-5',
-    title: '吉娃娃思考者',
-    image: 'https://images.unsplash.com/photo-1605915492173-353446555891?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDV8fGNoaWh1YWh1YXxlbnwwfHx8fDE2NzkwNjEyNDQ&ixlib=rb-4.0.3&q=80&w=400',
-    creator: sampleUser.username,
-    price: 0.3,
-    timeAgo: '3天前',
-  },
-  {
-    id: 'post-6',
-    title: '酷盖蓝狗',
-    image: 'https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDE1fHxibHVlJTIwZG9nfGVufDB8fHx8MTY3OTA2MTI3MA&ixlib=rb-4.0.3&q=80&w=400',
-    creator: sampleUser.username,
-    price: 0.8,
-    timeAgo: '4天前',
-    collection: 'Cool Dogs Club'
-  },
-  // Add more posts based on the image...
-];
+// const userPosts = [
+//   {
+//     id: 'post-1',
+//     title: '白雪小狗',
+//     image: 'https://images.unsplash.com/photo-1591160690555-5debfba289f0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDEwfHxwdXBweXxlbnwwfHx8fDE2NzkwNjExMzA&ixlib=rb-4.0.3&q=80&w=400',
+//     creator: sampleUser.username,
+//     price: 0.1,
+//     timeAgo: '2小时前',
+//   },
+//   {
+//     id: 'post-2',
+//     title: '漫画猫咪',
+//     image: 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDR8fGNhdHxlbnwwfHx8fDE2NzkwNjExNjQ&ixlib=rb-4.0.3&q=80&w=400',
+//     creator: sampleUser.username,
+//     price: 0.2,
+//     timeAgo: '5小时前',
+//     collection: '卡通伙伴'
+//   },
+//   {
+//     id: 'post-3',
+//     title: '意大利灵缇',
+//     image: 'https://images.unsplash.com/photo-1504595403659-9088ce801e29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDF8fGdyZXlob3VuZHxlbnwwfHx8fDE2NzkwNjExOTE&ixlib=rb-4.0.3&q=80&w=400',
+//     creator: sampleUser.username,
+//     price: 0.5,
+//     timeAgo: '1天前',
+//   },
+//   {
+//     id: 'post-4',
+//     title: '像素狗狗 x3',
+//     image: 'https://images.unsplash.com/photo-1611140059333-669648e975a0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDEwfHxwaXhlbCUyMGFydHxlbnwwfHx8fDE2NzkwNjEyMTc&ixlib=rb-4.0.3&q=80&w=400',
+//     creator: sampleUser.username,
+//     price: 1.0,
+//     timeAgo: '2天前',
+//     collection: '像素宠物'
+//   },
+//   {
+//     id: 'post-5',
+//     title: '吉娃娃思考者',
+//     image: 'https://images.unsplash.com/photo-1605915492173-353446555891?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDV8fGNoaWh1YWh1YXxlbnwwfHx8fDE2NzkwNjEyNDQ&ixlib=rb-4.0.3&q=80&w=400',
+//     creator: sampleUser.username,
+//     price: 0.3,
+//     timeAgo: '3天前',
+//   },
+//   {
+//     id: 'post-6',
+//     title: '酷盖蓝狗',
+//     image: 'https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDE1fHxibHVlJTIwZG9nfGVufDB8fHx8MTY3OTA2MTI3MA&ixlib=rb-4.0.3&q=80&w=400',
+//     creator: sampleUser.username,
+//     price: 0.8,
+//     timeAgo: '4天前',
+//     collection: 'Cool Dogs Club'
+//   },
+//   // Add more posts based on the image...
+// ];
 
-const userHoldings = [
-  {
-    id: 'hold-1',
-    title: '可爱小狗',
-    image: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDN8fHB1cHB5fGVufDB8fHx8MTY3OTA2MTEzMA&ixlib=rb-4.0.3&q=80&w=400',
-    creator: '宠物摄影师',
-    price: 0.05,
-    timeAgo: '收藏于1周前',
-    collection: '萌宠瞬间'
-  },
-  {
-    id: 'hold-2',
-    title: '黑犬标志',
-    image: 'https://images.unsplash.com/photo-1534361960057-19889db9621e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDN8fGJsYWNrJTIwZG9nfGVufDB8fHx8MTY3OTA2MTMxNQ&ixlib=rb-4.0.3&q=80&w=400',
-    creator: '设计工作室',
-    price: 1.5,
-    timeAgo: '收藏于3天前',
-  },
-  {
-    id: 'hold-3',
-    title: '草地上的狗狗',
-    image: 'https://images.unsplash.com/photo-1583512603805-3cc6b41f3edb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDZ8fGRvZ3xlbnwwfHx8fDE2NzkwNjEwODA&ixlib=rb-4.0.3&q=80&w=400',
-    creator: '自然爱好者',
-    price: 0.4,
-    timeAgo: '收藏于1个月前',
-  },
-  // Add more holdings if needed
-];
+// const userHoldings = [
+//   {
+//     id: 'hold-1',
+//     title: '可爱小狗',
+//     image: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDN8fHB1cHB5fGVufDB8fHx8MTY3OTA2MTEzMA&ixlib=rb-4.0.3&q=80&w=400',
+//     creator: '宠物摄影师',
+//     price: 0.05,
+//     timeAgo: '收藏于1周前',
+//     collection: '萌宠瞬间'
+//   },
+//   {
+//     id: 'hold-2',
+//     title: '黑犬标志',
+//     image: 'https://images.unsplash.com/photo-1534361960057-19889db9621e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDN8fGJsYWNrJTIwZG9nfGVufDB8fHx8MTY3OTA2MTMxNQ&ixlib=rb-4.0.3&q=80&w=400',
+//     creator: '设计工作室',
+//     price: 1.5,
+//     timeAgo: '收藏于3天前',
+//   },
+//   {
+//     id: 'hold-3',
+//     title: '草地上的狗狗',
+//     image: 'https://images.unsplash.com/photo-1583512603805-3cc6b41f3edb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDZ8fGRvZ3xlbnwwfHx8fDE2NzkwNjEwODA&ixlib=rb-4.0.3&q=80&w=400',
+//     creator: '自然爱好者',
+//     price: 0.4,
+//     timeAgo: '收藏于1个月前',
+//   },
+//   // Add more holdings if needed
+// ];
 // --- End Mock Data ---
 
-type UserProfilePageProps = {
-  params: {
-    userId: string;
-  };
-};
-
-export default function UserProfilePage({ params }: UserProfilePageProps) {
+export default function UserProfilePage({ params }: {params: Promise<{ userId: string }>}) {
   const [activeTab, setActiveTab] = React.useState('posts'); // 'posts' or 'holdings'
-  const { userId } = params;
+  const { userId } = use(params);
 
   // In a real app, fetch user data based on userId
   const user = sampleUser; // Use mock data for now
-  const posts = userPosts;
-  const holdings = userHoldings;
+  const posts: NFT[] = []; // userPosts
+  const holdings: NFT[] = []; // userHoldings
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -203,7 +198,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                 {posts.length > 0 ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {posts.map((nft) => (
-                      <NFTCard key={nft.id} {...nft} />
+                      <NFTCard key={nft.id} nft={nft} />
                     ))}
                   </div>
                 ) : (
@@ -217,7 +212,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                 {holdings.length > 0 ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {holdings.map((nft) => (
-                      <NFTCard key={nft.id} {...nft} />
+                      <NFTCard key={nft.id} nft={nft} />
                     ))}
                   </div>
                 ) : (

@@ -16,7 +16,7 @@ const NFTCard: React.FC<{
 
   const { image_url, name, id } = nft
 
-  let imageUrl = formatIPFSUrl(image_url)
+  const imageUrl = formatIPFSUrl(image_url)
 
   return (
     <div className="group relative overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-black transition-all hover:shadow-lg">

@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       name,
       description,
       imageUrl, // 假设前端会传递
-      attributes,
+      // attributes,
       metadata,
       transactionHash,
     } = body;
@@ -27,16 +27,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required NFT data fields.' }, { status: 400 });
     }
     if (typeof ownerAddress !== 'string' || !ownerAddress.startsWith('0x')) {
-        return NextResponse.json({ error: 'Invalid owner address format.' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid owner address format.' }, { status: 400 });
     }
-     if (typeof contractAddress !== 'string' || !contractAddress.startsWith('0x')) {
-        return NextResponse.json({ error: 'Invalid contract address format.' }, { status: 400 });
+    if (typeof contractAddress !== 'string' || !contractAddress.startsWith('0x')) {
+      return NextResponse.json({ error: 'Invalid contract address format.' }, { status: 400 });
     }
     if (typeof transactionHash !== 'string' || !transactionHash.startsWith('0x')) {
-        return NextResponse.json({ error: 'Invalid transaction hash format.' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid transaction hash format.' }, { status: 400 });
     }
     if (typeof chainId !== 'number') {
-        return NextResponse.json({ error: 'Invalid chain ID format.' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid chain ID format.' }, { status: 400 });
     }
 
 
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       profileId = profileData.id;
       console.log('Found profile ID:', profileId, 'for address:', ownerAddress);
     } else {
-       console.warn('No profile found for address:', ownerAddress);
+      console.warn('No profile found for address:', ownerAddress);
     }
 
 
@@ -82,9 +82,9 @@ export async function POST(request: Request) {
 
     if (insertError) {
       console.error('Error inserting NFT data:', insertError);
-       // Check for unique constraint violation (e.g., duplicate transaction_hash or contract/token_id/chain)
+      // Check for unique constraint violation (e.g., duplicate transaction_hash or contract/token_id/chain)
       if (insertError.code === '23505') { // PostgreSQL unique violation code
-         return NextResponse.json({ error: 'This NFT or transaction has already been saved.' }, { status: 409 }); // Conflict
+        return NextResponse.json({ error: 'This NFT or transaction has already been saved.' }, { status: 409 }); // Conflict
       }
       return NextResponse.json({ error: 'Failed to save NFT data to database.', details: insertError.message }, { status: 500 });
     }
@@ -92,11 +92,13 @@ export async function POST(request: Request) {
     console.log('NFT data saved successfully:', nftData);
     return NextResponse.json({ message: 'NFT data saved successfully', data: nftData }, { status: 201 }); // 201 Created
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in /api/nft/save:', error);
-     if (error instanceof SyntaxError) { // Handle invalid JSON body
+    if (error instanceof SyntaxError) { // Handle invalid JSON body
       return NextResponse.json({ error: 'Invalid JSON format in request body.' }, { status: 400 });
     }
-    return NextResponse.json({ error: 'An unexpected error occurred.', details: error.message }, { status: 500 });
+    if (error instanceof Error) {
+      return NextResponse.json({ error: 'An unexpected error occurred.', details: error.message }, { status: 500 });
+    }
   }
 } 

@@ -1,47 +1,46 @@
 'use client';
 
 import { useState } from 'react';
-import NFTCard from './NFTCard';
 
 // 示例数据
-const TRENDING_DATA = [
-  {
-    id: '1',
-    name: 'Base星球',
-    image: '/images/placeholder1.jpg',
-    creator: 'base',
-    price: '0.05',
-    collection: 'Base系列',
-    timeLeft: '6d'
-  },
-  {
-    id: '2',
-    name: '青蛙NFT',
-    image: '/images/placeholder2.jpg',
-    creator: 'frog',
-    price: '0.03',
-    collection: 'Ripe系列',
-    timeLeft: '1d'
-  },
-  {
-    id: '3',
-    name: '数字藏品#3452',
-    image: '/images/placeholder3.jpg',
-    creator: 'cryptomfer',
-    price: '0.02',
-    collection: 'Cryptomfer系列',
-    timeLeft: '5d'
-  },
-  {
-    id: '4',
-    name: '元宇宙空间站',
-    image: '/images/placeholder4.jpg',
-    creator: 'metaverse',
-    price: '0.08',
-    collection: '元宇宙系列',
-    timeLeft: '2d'
-  }
-];
+// const TRENDING_DATA = [
+//   {
+//     id: '1',
+//     name: 'Base星球',
+//     image: '/images/placeholder1.jpg',
+//     creator: 'base',
+//     price: '0.05',
+//     collection: 'Base系列',
+//     timeLeft: '6d'
+//   },
+//   {
+//     id: '2',
+//     name: '青蛙NFT',
+//     image: '/images/placeholder2.jpg',
+//     creator: 'frog',
+//     price: '0.03',
+//     collection: 'Ripe系列',
+//     timeLeft: '1d'
+//   },
+//   {
+//     id: '3',
+//     name: '数字藏品#3452',
+//     image: '/images/placeholder3.jpg',
+//     creator: 'cryptomfer',
+//     price: '0.02',
+//     collection: 'Cryptomfer系列',
+//     timeLeft: '5d'
+//   },
+//   {
+//     id: '4',
+//     name: '元宇宙空间站',
+//     image: '/images/placeholder4.jpg',
+//     creator: 'metaverse',
+//     price: '0.08',
+//     collection: '元宇宙系列',
+//     timeLeft: '2d'
+//   }
+// ];
 
 const TrendingSection = () => {
   // 可以添加不同时间范围的过滤器

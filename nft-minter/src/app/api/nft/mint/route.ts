@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/app/_lib/supabase/server';
 
 // 定义预期的请求体结构
@@ -26,7 +25,7 @@ export async function POST(request: Request) {
 
     // 2. 从请求体获取 NFT 数据
     const body: RequestBody = await request.json();
-    const { name, description, imageUrl, attributes, collectionId } = body;
+    const { name, description, imageUrl, attributes } = body; // collectionId
 
     // 3. 验证必需字段
     if (!name || !imageUrl) {

@@ -2,7 +2,7 @@ import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { sessionCookieName, PINATA_IPFS_GATEWAY_BASE } from "@/app/_lib/constants";
 import { CookieOptionsWithName } from "@supabase/ssr";
-import { keccak256, toUtf8Bytes, hexlify } from 'ethers';
+import { keccak256, toUtf8Bytes } from 'ethers';
 
 export function getCookieOptions() {
   return {
@@ -91,7 +91,7 @@ export function formatIPFSUrl(ipfsUri?: string | null): string | null {
   return `${PINATA_IPFS_GATEWAY_BASE}${cid}`;
 }
 
-export function generateWalletP(walletAddress: String) {
+export function generateWalletP(walletAddress: string) {
   const secretKey = process.env.PROJECT_SECRET;
   const hash = keccak256(toUtf8Bytes(`${walletAddress}:${secretKey}`));
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$!%*?&';

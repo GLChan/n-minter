@@ -16,11 +16,10 @@ import {
   zora,
   sepolia,
   holesky,
-  hoodi,
-  localhost
+  // hoodi,
+  // localhost
 } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import type { Chain } from 'wagmi/chains';
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 if (!projectId) {

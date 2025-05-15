@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getIronSession } from 'iron-session';
 import { sessionOptions, SessionData } from '@/app/_lib/session';
 
 // 检查认证状态的API路由处理函数
-export async function GET(req: NextRequest) {
+export async function GET() { // req: NextRequest
   try {
     // 获取会话 - 使用类型断言解决类型不匹配问题
     const cookieStore = await cookies();
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     if (session.expirationTime) {
       const now = new Date();
       const expiry = new Date(session.expirationTime);
-      
+
       if (now > expiry) {
         return NextResponse.json({
           authenticated: false,

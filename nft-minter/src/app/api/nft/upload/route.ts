@@ -9,16 +9,16 @@ const pinata = new PinataClient({ pinataJWTKey: process.env.PINATA_JWT });
 
 // 辅助函数：将 Web Stream 转换为 Node.js Readable Stream
 // Pinata SDK v2 可能需要 Node.js Stream
-async function streamToBuffer(stream: ReadableStream<Uint8Array>): Promise<Buffer> {
-  const reader = stream.getReader();
-  const chunks: Uint8Array[] = [];
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    if (value) chunks.push(value);
-  }
-  return Buffer.concat(chunks);
-}
+// async function streamToBuffer(stream: ReadableStream<Uint8Array>): Promise<Buffer> {
+//   const reader = stream.getReader();
+//   const chunks: Uint8Array[] = [];
+//   while (true) {
+//     const { done, value } = await reader.read();
+//     if (done) break;
+//     if (value) chunks.push(value);
+//   }
+//   return Buffer.concat(chunks);
+// }
 
 export async function POST(request: Request) {
   console.log("Received upload request..."); // 调试日志
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     console.log("Pinning file to IPFS...");
     // 将 File 对象转换为 Pinata SDK 需要的 ReadableStream
     // 注意：Node.js 环境下 request.formData() 返回的 File 对象可能需要转换
-    // @ts-ignore Readable.fromWeb is available in Node 16.15+
+    // @ts-expect-error Readable.fromWeb is available in Node 16.15+
     const fileStream = Readable.fromWeb(file.stream());
 
     const fileResult = await pinata.pinFileToIPFS(fileStream, {
@@ -98,12 +98,17 @@ export async function POST(request: Request) {
     const tokenURI = `ipfs://${metadataIpfsHash}`;
     return NextResponse.json({ tokenURI: tokenURI, imageURI: imageURI });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("IPFS 上传或处理失败:", error);
     // 检查是否是 Pinata SDK 的错误
-    if (error.name === 'PinataError' || error.response?.data?.error) {
-       return NextResponse.json({ error: `Pinata 服务错误: ${error.message || error.response?.data?.error}` }, { status: 500 });
+    if (error instanceof Error) {
+      if (error.name === 'PinataError') { //  || error.response?.data?.error
+        return NextResponse.json({ error: `Pinata 服务错误: ${error.message}` }, { status: 500 });
+        // || error.response?.data?.error
+      }
+      return NextResponse.json({ error: `服务器内部错误: ${error.message}` }, { status: 500 });
     }
-    return NextResponse.json({ error: `服务器内部错误: ${error.message}` }, { status: 500 });
+
+
   }
 }

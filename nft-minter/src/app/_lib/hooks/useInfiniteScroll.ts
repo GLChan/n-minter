@@ -32,7 +32,7 @@ export function useInfiniteScroll<T>({
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, loading, hasMore]);
+  }, [page, pageSize, loading, hasMore, fetchFn]);
 
   // Intersection Observer
   useEffect(() => {

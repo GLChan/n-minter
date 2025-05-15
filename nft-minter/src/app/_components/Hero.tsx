@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Button } from './ui/Button';
+import { Button, ButtonVariantDefault, ButtonVariantSecondary } from './ui/Button';
 import Link from 'next/link';
 
 // Hero部分数据对象
@@ -13,8 +13,8 @@ const heroData = {
   },
   description: '简单几步，将您的创意铸造为 NFT，立即加入 Web3 数字艺术的世界。',
   buttons: [
-    { text: '开始创建', variant: 'default', url: '/create' },
-    { text: '探索收藏品', variant: 'secondary', url: '/explore' }
+    { text: '开始创建', variant: ButtonVariantDefault, url: '/create' },
+    { text: '探索收藏品', variant: ButtonVariantSecondary, url: '/explore' }
   ],
   community: {
     count: '3.5k+',
@@ -64,7 +64,7 @@ export const Hero = () => {
               {heroData.buttons.map((button, index) => (
                 <Button
                   key={index}
-                  variant={button.variant as any}
+                  variant={button.variant}
                   size="lg"
                   onClick={() => window.location.href = button.url}
                 >

@@ -52,6 +52,7 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
     website: user.website || '',
     wallet_address: user.wallet_address || '',
     created_at: user.created_at || '',
+    updated_at: user.updated_at || '',
   });
 
   // 头像上传状态
@@ -75,7 +76,8 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
       avatar_url: user.avatar_url || '',
       website: user.website || '',
       wallet_address: user.wallet_address || '',
-      created_at: user.created_at || ''
+      created_at: user.created_at || '',
+      updated_at: user.updated_at || '',
     });
     setAvatarPreview(user.avatar_url || '');
   }, [user]);
@@ -327,7 +329,7 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
         <InputField
           label="用户名"
           id="username"
-          value={formData.username}
+          value={formData.username || ''}
           onChange={handleChange}
         />
         <div>
@@ -338,7 +340,7 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
             id="bio"
             rows={3}
             className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-            value={formData.bio}
+            value={formData.bio || ''}
             onChange={handleChange}
           ></textarea>
         </div>
@@ -347,7 +349,7 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
           id="email"
           type="email"
           placeholder="you@example.com"
-          value={formData.email}
+          value={formData.email || ''}
           onChange={handleChange}
         />
         <InputField
@@ -355,7 +357,7 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
           id="website"
           type="url"
           placeholder="https://yourwebsite.com"
-          value={formData.website}
+          value={formData.website || ''}
           onChange={handleChange}
         />
 

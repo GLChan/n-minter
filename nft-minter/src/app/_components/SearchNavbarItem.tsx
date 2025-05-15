@@ -3,8 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { Button } from './ui/Button'; // Assuming Button is in ./ui/Button relative to _components
-
 const quickTagsData = [
   '数字艺术',
   '加密朋克',

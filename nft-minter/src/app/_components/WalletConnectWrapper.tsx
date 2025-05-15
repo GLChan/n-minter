@@ -25,7 +25,7 @@ const shortenAddress = (addr: string | undefined) => {
 
 export const WalletConnectWrapper = () => {
   const router = useRouter();
-  const { address, isConnected, isConnecting, isReconnecting, chain } = useAccount(); // wagmi
+  const { address, isConnected, isConnecting, isReconnecting } = useAccount(); // wagmi chain
 
   // 使用全局认证上下文替代本地状态
   const { isBackendVerified, verifiedUserData, userProfile, isSiweLoading, login, logout } = useAuth();

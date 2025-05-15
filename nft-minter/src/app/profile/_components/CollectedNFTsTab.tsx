@@ -1,17 +1,6 @@
 import React from 'react';
 import { NFTCard } from '@/app/_components/ui/NFTCard';
-
-// NFT接口定义
-interface NFT {
-  id: string;
-  title: string;
-  image: string;
-  creator: string;
-  price: number;
-  timeAgo: string;
-  collection?: string;
-  collectionImage?: string;
-}
+import { NFT } from '@/app/_lib/types';
 
 interface CollectedNFTsTabProps {
   nfts: NFT[];
@@ -25,7 +14,7 @@ export function CollectedNFTsTab({ nfts }: CollectedNFTsTabProps) {
         // 网格布局，响应不同屏幕尺寸
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {nfts.map((nft) => (
-            <NFTCard key={nft.id} {...nft} />
+            <NFTCard key={nft.id} nft={nft} />
           ))}
         </div>
       ) : (

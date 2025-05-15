@@ -17,7 +17,7 @@ export function InfiniteScrollList<T>({
   pageSize = 20,
   renderItem,
   container = (child) => <>{child}</>,
-  errorMessage = '加载失败，请稍后再试。',
+  // errorMessage = '加载失败，请稍后再试。',
   loadingPlaceholder,
   emptyPlaceholder,
 }: InfiniteScrollListProps<T>) {
