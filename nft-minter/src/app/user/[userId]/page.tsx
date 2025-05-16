@@ -128,7 +128,7 @@ const sampleUser = {
 // ];
 // --- End Mock Data ---
 
-export default function UserProfilePage({ params }: {params: Promise<{ userId: string }>}) {
+export default function UserProfilePage({ params }: { params: Promise<{ userId: string }> }) {
   const [activeTab, setActiveTab] = React.useState('posts'); // 'posts' or 'holdings'
   const { userId } = use(params);
 
@@ -138,92 +138,85 @@ export default function UserProfilePage({ params }: {params: Promise<{ userId: s
   const holdings: NFT[] = []; // userHoldings
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-
-      <main className="flex-grow">
-        <div className="container mx-auto px-4 py-8">
-          {/* Profile Header -参考图片布局 */}
-          <div className="flex flex-col sm:flex-row items-start gap-6 mb-10">
-            {/* Avatar */}
-            <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-2 border-zinc-300 dark:border-zinc-700 flex-shrink-0 bg-zinc-100 dark:bg-zinc-800 mx-auto sm:mx-0">
-              <Image
-                src={user.avatar}
-                alt={`${user.username} Avatar`}
-                fill
-                sizes="(max-width: 640px) 96px, 128px"
-                className="object-cover"
-              />
+    <div className="container mx-auto px-4 py-8">
+      {/* Profile Header -参考图片布局 */}
+      <div className="flex flex-col sm:flex-row items-start gap-6 mb-10">
+        {/* Avatar */}
+        <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-2 border-zinc-300 dark:border-zinc-700 flex-shrink-0 bg-zinc-100 dark:bg-zinc-800 mx-auto sm:mx-0">
+          <Image
+            src={user.avatar}
+            alt={`${user.username} Avatar`}
+            fill
+            sizes="(max-width: 640px) 96px, 128px"
+            className="object-cover"
+          />
+        </div>
+        {/* User Info & Follow Button */}
+        <div className="flex-1 flex flex-col sm:flex-row items-start w-full">
+          <div className="flex-1 mb-4 sm:mb-0">
+            <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+              {user.username}
+              {user.verified && (
+                <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
+              )}
+            </h1>
+            <p className="text-zinc-500 dark:text-zinc-400 mb-2">@{userId}</p> {/* Displaying route param */}
+            <p className="text-sm text-zinc-700 dark:text-zinc-300 mb-3 max-w-lg">{user.bio}</p>
+            <div className="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400 mb-3">
+              <span><span className="font-semibold text-zinc-900 dark:text-zinc-100">{user.followers}</span> followers</span>
+              <span><span className="font-semibold text-zinc-900 dark:text-zinc-100">{user.following}</span> following</span>
             </div>
-            {/* User Info & Follow Button */}
-            <div className="flex-1 flex flex-col sm:flex-row items-start w-full">
-              <div className="flex-1 mb-4 sm:mb-0">
-                <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
-                  {user.username}
-                  {user.verified && (
-                    <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
-                  )}
-                </h1>
-                <p className="text-zinc-500 dark:text-zinc-400 mb-2">@{userId}</p> {/* Displaying route param */}
-                <p className="text-sm text-zinc-700 dark:text-zinc-300 mb-3 max-w-lg">{user.bio}</p>
-                <div className="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400 mb-3">
-                  <span><span className="font-semibold text-zinc-900 dark:text-zinc-100">{user.followers}</span> followers</span>
-                  <span><span className="font-semibold text-zinc-900 dark:text-zinc-100">{user.following}</span> following</span>
-                </div>
-                {user.externalLink && (
-                  <Link href={`https://${user.externalLink}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm text-blue-600 hover:underline dark:text-blue-400">
-                    <ExternalLink size={14} />
-                    {user.externalLink}
-                  </Link>
-                )}
-              </div>
-              <div className="flex-shrink-0 ml-auto">
-                <Button size="lg">Follow</Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Tab Navigation - 参考图片样式 */}
-          <div className="mb-8 border-b border-zinc-200 dark:border-zinc-800">
-            <nav className="flex -mb-px" aria-label="Tabs">
-              <TabButton active={activeTab === 'posts'} onClick={() => setActiveTab('posts')}>Posts ({posts.length})</TabButton>
-              <TabButton active={activeTab === 'holdings'} onClick={() => setActiveTab('holdings')}>Holdings ({holdings.length})</TabButton>
-            </nav>
-          </div>
-
-          {/* Tab Content - 参考图片网格布局 (3列) */}
-          <div>
-            {activeTab === 'posts' && (
-              <div>
-                {posts.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {posts.map((nft) => (
-                      <NFTCard key={nft.id} nft={nft} />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-zinc-500 dark:text-zinc-400 mt-6">{user.username}还没有发布任何内容。</p>
-                )}
-              </div>
+            {user.externalLink && (
+              <Link href={`https://${user.externalLink}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm text-blue-600 hover:underline dark:text-blue-400">
+                <ExternalLink size={14} />
+                {user.externalLink}
+              </Link>
             )}
-
-            {activeTab === 'holdings' && (
-              <div>
-                {holdings.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {holdings.map((nft) => (
-                      <NFTCard key={nft.id} nft={nft} />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-zinc-500 dark:text-zinc-400 mt-6">{user.username}还没有持有任何藏品。</p>
-                )}
-              </div>
-            )}
+          </div>
+          <div className="flex-shrink-0 ml-auto">
+            <Button size="lg">Follow</Button>
           </div>
         </div>
-      </main>
-      <Footer />
+      </div>
+
+      {/* Tab Navigation - 参考图片样式 */}
+      <div className="mb-8 border-b border-zinc-200 dark:border-zinc-800">
+        <nav className="flex -mb-px" aria-label="Tabs">
+          <TabButton active={activeTab === 'posts'} onClick={() => setActiveTab('posts')}>Posts ({posts.length})</TabButton>
+          <TabButton active={activeTab === 'holdings'} onClick={() => setActiveTab('holdings')}>Holdings ({holdings.length})</TabButton>
+        </nav>
+      </div>
+
+      {/* Tab Content - 参考图片网格布局 (3列) */}
+      <div>
+        {activeTab === 'posts' && (
+          <div>
+            {posts.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {posts.map((nft) => (
+                  <NFTCard key={nft.id} nft={nft} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-zinc-500 dark:text-zinc-400 mt-6">{user.username}还没有发布任何内容。</p>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'holdings' && (
+          <div>
+            {holdings.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {holdings.map((nft) => (
+                  <NFTCard key={nft.id} nft={nft} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-zinc-500 dark:text-zinc-400 mt-6">{user.username}还没有持有任何藏品。</p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 } 

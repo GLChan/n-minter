@@ -2,7 +2,7 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
 import { useAccount, useDisconnect, useSignMessage } from 'wagmi';
 import { SiweMessage } from 'siwe';
-import useSupabaseClient from '@/app/_lib/supabase/client';
+import { createClient } from '@/app/_lib/supabase/client';
 import { UserProfile } from '@/app/_lib/types';
 
 // 类型定义
@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // 提供者组件
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const supabase = useSupabaseClient();
+  const supabase = createClient();
   const { address, isConnected, chain } = useAccount();
   const { disconnect } = useDisconnect();
   const { signMessageAsync } = useSignMessage();
@@ -38,50 +38,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // 检查当前会话是否已认证
   const checkAuth = useCallback(async (): Promise<boolean> => {
-    try {
-      console.log('AuthContext: 检查会话认证状态...');
-      // 调用后端API检查会话状态
-      const response = await fetch('/api/auth/check', {
-        method: 'GET',
-        credentials: 'include', // 确保包含会话cookie
-        cache: 'no-store', // 确保不使用缓存
-      });
-
-      if (!response.ok) {
-        console.log('AuthContext: 会话检查响应不成功');
-        return false;
-      }
-
-      const data = await response.json();
-      console.log('AuthContext: 会话检查响应:', data);
-
-      if (data.authenticated && data.wallet) {
-        // 如果已认证，更新状态
-        console.log('AuthContext: 检测到有效会话，钱包地址:', data.wallet);
-        setIsBackendVerified(true);
-        setVerifiedUserData({ wallet: data.wallet });
-        return true;
-      }
-
-      console.log('AuthContext: 未检测到有效会话');
-      return false;
-    } catch (error) {
-      console.error('AuthContext: 检查认证状态失败:', error);
-      return false;
-    }
-  }, []);
-
-  // 在钱包连接状态改变时处理
-  useEffect(() => {
-    if (isConnected && address && !isBackendVerified) {
-      // 只有在钱包连接且未认证时检查会话状态
-      checkAuth();
-    } else if (!isConnected && isBackendVerified) {
-      // 钱包断开连接时，重置认证状态
+    const { data: { session }, error } = await supabase.auth.getSession();
+    console.log('AuthContext: 检查会话状态:', session);
+    if (error) {
+      console.error('AuthContext: 从 Supabase 获取会话失败:', error);
       setIsBackendVerified(false);
       setVerifiedUserData(null);
+      return false;
     }
-  }, [isConnected, address, isBackendVerified]);
+    if (session) {
+      setIsBackendVerified(true);
+      setVerifiedUserData({ wallet: session.user.id });
+      return true;
+    } else {
+      setIsBackendVerified(false);
+      setVerifiedUserData(null);
+      return false;
+    }
+  }, [supabase]);
+
+  // 在钱包连接状态改变时处理
+  // useEffect(() => {
+  //   if (isConnected && address && !isBackendVerified) {
+  //     // 只有在钱包连接且未认证时检查会话状态
+  //     checkAuth();
+  //   } else if (!isConnected && isBackendVerified) {
+  //     // 钱包断开连接时，重置认证状态
+  //     setIsBackendVerified(false);
+  //     setVerifiedUserData(null);
+  //   }
+  // }, [isConnected, address, isBackendVerified]);
+
+  // 替换 useEffect：首次检查会话并订阅 Supabase 身份验证状态变化
+  // useEffect(() => {
+  //   checkAuth();
+  //   const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+  //     if (session) {
+  //       setIsBackendVerified(true);
+  //       setVerifiedUserData({ wallet: session.user.id });
+  //     } else {
+  //       setIsBackendVerified(false);
+  //       setVerifiedUserData(null);
+  //       setUserProfile(null);
+  //     }
+  //   });
+  //   return () => subscription.unsubscribe();
+  // }, [supabase, checkAuth]);
 
   // SIWE登录逻辑
   const login = useCallback(async (): Promise<void> => {
@@ -222,11 +224,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // 登出逻辑
   const logout = useCallback(async () => {
     try {
-      // 调用后端API清除会话
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+
+      await supabase.auth.signOut()
     } catch (error) {
       console.error('AuthContext: 登出API调用失败:', error);
     }

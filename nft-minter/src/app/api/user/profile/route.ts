@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/app/_lib/supabase/server';
+import { createClient } from '@/app/_lib/supabase/server';
 
 // 定义预期的请求体结构
 interface RequestBody {
@@ -7,7 +7,7 @@ interface RequestBody {
 }
 
 export async function POST(request: Request) {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createClient();
 
   try {
     // 1. 从请求体获取钱包地址 (不再需要先验证 auth 用户)

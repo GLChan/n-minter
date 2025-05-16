@@ -197,154 +197,146 @@ export default function CollectionsPage() {
     : mockCollections.filter(collection => collection.category === activeCategory);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="flex-grow">
-        {/* 页面标题 */}
-        <div className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-          <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-2">探索NFT合集</h1>
-            <p className="text-zinc-600 dark:text-zinc-400">
-              发现最热门的NFT合集，从艺术到游戏，这里有各种类型的数字资产
-            </p>
-          </div>
-        </div>
-        
+    <>
+      {/* 页面标题 */}
+      <div className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="container mx-auto px-4 py-8">
-          {/* 筛选器部分 */}
-          <div className="flex flex-col space-y-6 mb-8">
-            {/* 分类筛选 */}
+          <h1 className="text-3xl font-bold mb-2">探索NFT合集</h1>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            发现最热门的NFT合集，从艺术到游戏，这里有各种类型的数字资产
+          </p>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
+        {/* 筛选器部分 */}
+        <div className="flex flex-col space-y-6 mb-8">
+          {/* 分类筛选 */}
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category, index) => (
+              <button
+                key={index}
+                className={`px-4 py-2 rounded-full text-sm ${category === activeCategory
+                  ? 'bg-foreground text-background hover:bg-zinc-800 dark:hover:bg-zinc-200'
+                  : 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
+                  }`}
+                onClick={() => setActiveCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          {/* 时间和排序筛选 */}
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap gap-2">
-              {categories.map((category, index) => (
+              {timeRanges.map((range, index) => (
                 <button
                   key={index}
-                  className={`px-4 py-2 rounded-full text-sm ${
-                    category === activeCategory
-                      ? 'bg-foreground text-background hover:bg-zinc-800 dark:hover:bg-zinc-200'
-                      : 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
-                  }`}
-                  onClick={() => setActiveCategory(category)}
+                  className={`px-4 py-2 rounded-full text-sm ${range.value === activeTimeRange
+                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
+                    : 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
+                    }`}
+                  onClick={() => setActiveTimeRange(range.value)}
                 >
-                  {category}
+                  {range.label}
                 </button>
               ))}
             </div>
-            
-            {/* 时间和排序筛选 */}
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex flex-wrap gap-2">
-                {timeRanges.map((range, index) => (
-                  <button
-                    key={index}
-                    className={`px-4 py-2 rounded-full text-sm ${
-                      range.value === activeTimeRange
-                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
-                        : 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
-                    }`}
-                    onClick={() => setActiveTimeRange(range.value)}
-                  >
-                    {range.label}
-                  </button>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-zinc-500 dark:text-zinc-400">排序:</span>
+              <select
+                className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
                 ))}
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-zinc-500 dark:text-zinc-400">排序:</span>
-                <select
-                  className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                >
-                  {sortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              </select>
             </div>
           </div>
-          
-          {/* 合集列表 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredCollections.map((collection) => (
-              <Link 
-                key={collection.id} 
-                href={`/collections/${collection.id}`}
-                className="bg-white dark:bg-zinc-800 rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-700 transition-all hover:shadow-lg"
-              >
-                {/* 合集封面图 */}
-                <div className="relative h-48 w-full overflow-hidden">
-                  <Image
-                    src={collection.image}
-                    alt={collection.name}
-                    fill
-                    className="object-cover transition-transform hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  />
-                </div>
-                
-                {/* 合集信息 */}
-                <div className="p-4">
-                  {/* 创作者头像和名称 */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                      <Image
-                        src={collection.creator.avatar}
-                        alt={collection.creator.name}
-                        fill
-                        className="object-cover"
-                        sizes="24px"
-                      />
-                    </div>
-                    <span className="text-sm text-zinc-600 dark:text-zinc-400 truncate">
-                      {collection.creator.name}
-                    </span>
-                  </div>
-                  
-                  {/* 合集名称 */}
-                  <h3 className="font-medium text-lg mb-2 truncate">{collection.name}</h3>
-                  
-                  {/* 合集描述 */}
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 line-clamp-2">
-                    {collection.description}
-                  </p>
-                  
-                  {/* 合集统计数据 */}
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="flex flex-col">
-                      <span className="text-zinc-500 dark:text-zinc-400">地板价</span>
-                      <span className="font-medium">${formatPrice(collection.floorPrice)}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-zinc-500 dark:text-zinc-400">总交易量</span>
-                      <span className="font-medium">${formatPrice(collection.volume)}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-zinc-500 dark:text-zinc-400">物品数量</span>
-                      <span className="font-medium">{collection.itemCount.toLocaleString()}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-zinc-500 dark:text-zinc-400">持有者</span>
-                      <span className="font-medium">{collection.owners.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-          
-          {/* 加载更多按钮 */}
-          <div className="flex justify-center mt-12">
-            <Button variant="secondary" size="lg">
-              加载更多
-            </Button>
-          </div>
         </div>
-      </main>
-      
-      <Footer />
-    </div>
+
+        {/* 合集列表 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredCollections.map((collection) => (
+            <Link
+              key={collection.id}
+              href={`/collections/${collection.id}`}
+              className="bg-white dark:bg-zinc-800 rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-700 transition-all hover:shadow-lg"
+            >
+              {/* 合集封面图 */}
+              <div className="relative h-48 w-full overflow-hidden">
+                <Image
+                  src={collection.image}
+                  alt={collection.name}
+                  fill
+                  className="object-cover transition-transform hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                />
+              </div>
+
+              {/* 合集信息 */}
+              <div className="p-4">
+                {/* 创作者头像和名称 */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                    <Image
+                      src={collection.creator.avatar}
+                      alt={collection.creator.name}
+                      fill
+                      className="object-cover"
+                      sizes="24px"
+                    />
+                  </div>
+                  <span className="text-sm text-zinc-600 dark:text-zinc-400 truncate">
+                    {collection.creator.name}
+                  </span>
+                </div>
+
+                {/* 合集名称 */}
+                <h3 className="font-medium text-lg mb-2 truncate">{collection.name}</h3>
+
+                {/* 合集描述 */}
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 line-clamp-2">
+                  {collection.description}
+                </p>
+
+                {/* 合集统计数据 */}
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="flex flex-col">
+                    <span className="text-zinc-500 dark:text-zinc-400">地板价</span>
+                    <span className="font-medium">${formatPrice(collection.floorPrice)}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-zinc-500 dark:text-zinc-400">总交易量</span>
+                    <span className="font-medium">${formatPrice(collection.volume)}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-zinc-500 dark:text-zinc-400">物品数量</span>
+                    <span className="font-medium">{collection.itemCount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-zinc-500 dark:text-zinc-400">持有者</span>
+                    <span className="font-medium">{collection.owners.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* 加载更多按钮 */}
+        <div className="flex justify-center mt-12">
+          <Button variant="secondary" size="lg">
+            加载更多
+          </Button>
+        </div>
+      </div>
+    </>
   );
 } 

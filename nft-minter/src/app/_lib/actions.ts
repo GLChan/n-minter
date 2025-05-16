@@ -1,4 +1,6 @@
-// import useSupabaseClient from '@/app/_lib/supabase/client';
+"use server";
+
+import { createClient } from "./supabase/client";
 
 
 // export async function updateGuest(formData) {

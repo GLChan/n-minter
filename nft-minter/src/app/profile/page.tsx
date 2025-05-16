@@ -1,12 +1,11 @@
 "use client"
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
-import { Navbar } from '@/app/_components/Navbar';
-import { Footer } from '@/app/_components/Footer';
 import { CollectedNFTsTab, CreatedNFTsTab, ActivityTab, SettingsTab } from './_components';
-import useSupabaseClient from '@/app/_lib/supabase/client';
+import { createClient } from '@/app/_lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { NFT, UserProfile } from '../_lib/types';
+import { getUserProfile } from '../_lib/data-service';
 
 // TabButton组件
 interface TabButtonProps {
@@ -41,7 +40,7 @@ const mockUser: UserProfile = {
   website: '',
 };
 
-const collectedNFTs:NFT[] = []
+const collectedNFTs: NFT[] = []
 //   {
 //     id: 'nft-c1',
 //     title: '未来都市 #001',
@@ -98,204 +97,130 @@ const profileActivities = [
 ];
 // --- End Mock Data ---
 
-export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState('collected');
-  const [isLoading, setIsLoading] = useState(false);
-  const [userData, setUserData] = useState<UserProfile>(mockUser); // 真实应用中应初始化为空对象并通过API获取
+export default async function ProfilePage() {
 
-  // 获取认证上下文
-  const { verifiedUserData } = useAuth();
-  const supabase = useSupabaseClient();
+  // const supabase = createClient();
+  // const { data: { session }, error } = await supabase.auth.getSession();
+  // console.log(session)
+  
+  // const userData = await getUserProfile();
+  // console.log(userData)
 
-  // 获取用户资料数据并确保存储桶存在
-  React.useEffect(() => {
-    async function initializeProfileData() {
-      if (isLoading) return
-      try {
-        // 如果有已验证的钱包地址，获取用户资料
-        if (!verifiedUserData?.wallet) return;
+  // setUserData({
+  //   id: data.id,
+  //   user_id: data.user_id,
+  //   username: data.username || mockUser.username,
+  //   bio: data.bio || mockUser.bio,
+  //   avatar_url: data.avatar_url || mockUser.avatar_url,
+  //   wallet_address: data.wallet_address,
+  //   website: data.website,
+  //   created_at: `${new Date(data.created_at).getFullYear()}年${new Date(data.created_at).getMonth() + 1}月加入`,
+  //   updated_at: '',
+  //   email: ''
+  // });
 
-        setIsLoading(true);
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('wallet_address', verifiedUserData.wallet)
-          .single();
+  // const [activeTab, setActiveTab] = useState('collected');
 
-        if (error) {
-          console.error('获取用户资料失败:', error);
-          return;
-        }
+  // // 处理Tab切换
+  // const handleTabChange = (tab: string) => {
+  //   setActiveTab(tab);
+  // };
 
-        if (data) {
-          setUserData({
-            id: data.id,
-            user_id: data.user_id,
-            username: data.username || mockUser.username,
-            bio: data.bio || mockUser.bio,
-            avatar_url: data.avatar_url || mockUser.avatar_url,
-            wallet_address: data.wallet_address,
-            website: data.website,
-            email: data.email,
-            created_at: `${new Date(data.created_at).getFullYear()}年${new Date(data.created_at).getMonth() + 1}月加入`,
-            updated_at: '',
-          });
-        }
-      } catch (error) {
-        console.error('初始化用户资料时出错:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  return (<></>)
+  // return (
+  //   <div className="container mx-auto px-4 py-8">
+  //     {/* Profile Header */}
+  //     <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-10">
+  //       <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-zinc-300 dark:border-zinc-700 flex-shrink-0 bg-zinc-100 dark:bg-zinc-800">
+  //         <Image
+  //           src={userData.avatar_url || '/placeholder-avatar.png'}
+  //           alt={`${userData.username} Avatar`}
+  //           fill
+  //           sizes="(max-width: 768px) 96px, 128px"
+  //           className="object-cover"
+  //         />
+  //       </div>
+  //       <div className="flex-1">
+  //         <h1 className="text-2xl md:text-3xl font-bold mb-1">{userData.username}</h1>
+  //         <div className="flex items-center gap-2 mb-2">
+  //           <p className="text-sm font-mono text-zinc-500 dark:text-zinc-400">
+  //             {userData.wallet_address || verifiedUserData?.wallet || '未连接钱包'}
+  //           </p>
+  //           {/* Simple copy button example */}
+  //           <button
+  //             title="复制地址"
+  //             className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+  //             onClick={() => {
+  //               const address = userData.wallet_address || verifiedUserData?.wallet || '';
+  //               if (address) {
+  //                 navigator.clipboard.writeText(address);
+  //                 alert('钱包地址已复制');
+  //               }
+  //             }}
+  //           >
+  //             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+  //               <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+  //             </svg>
+  //           </button>
+  //         </div>
+  //         <p className="text-zinc-700 dark:text-zinc-300 text-sm max-w-lg mb-3">{userData.bio}</p>
+  //         <p className="text-xs text-zinc-400 dark:text-zinc-500">{userData.created_at}</p>
+  //         {userData.website && (
+  //           <a
+  //             href={userData.website}
+  //             target="_blank"
+  //             rel="noopener noreferrer"
+  //             className="text-xs text-primary hover:underline mt-1 inline-block"
+  //           >
+  //             {userData.website}
+  //           </a>
+  //         )}
+  //       </div>
+  //     </div>
 
-    initializeProfileData();
-  }, [verifiedUserData, supabase, isLoading]);
+  //     {/* Tabs */}
+  //     <div className="mt-8 border-b border-zinc-200 dark:border-zinc-800">
+  //       <div className="container mx-auto px-4">
+  //         <div className="flex space-x-2 overflow-x-auto pb-px">
+  //           <TabButton
+  //             active={activeTab === 'collected'}
+  //             onClick={() => handleTabChange('collected')}
+  //           >
+  //             已收藏
+  //           </TabButton>
+  //           <TabButton
+  //             active={activeTab === 'created'}
+  //             onClick={() => handleTabChange('created')}
+  //           >
+  //             已创建
+  //           </TabButton>
+  //           <TabButton
+  //             active={activeTab === 'activity'}
+  //             onClick={() => handleTabChange('activity')}
+  //           >
+  //             活动
+  //           </TabButton>
+  //           <TabButton
+  //             active={activeTab === 'settings'}
+  //             onClick={() => handleTabChange('settings')}
+  //           >
+  //             设置
+  //           </TabButton>
+  //         </div>
+  //       </div>
+  //     </div>
 
-  // 处理Tab切换
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-  };
-
-  // 刷新用户资料
-  const refreshUserProfile = async () => {
-    if (!verifiedUserData?.wallet) return;
-
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('wallet_address', verifiedUserData.wallet)
-        .single();
-
-      if (error) {
-        console.error('刷新用户资料失败:', error);
-        return;
-      }
-
-      if (data) {
-        setUserData({
-          id: data.id,
-          user_id: data.user_id,
-          username: data.username || mockUser.username,
-          bio: data.bio || mockUser.bio,
-          avatar_url: data.avatar_url || mockUser.avatar_url,
-          wallet_address: data.wallet_address,
-          website: data.website,
-          created_at: `${new Date(data.created_at).getFullYear()}年${new Date(data.created_at).getMonth() + 1}月加入`,
-          updated_at: '',
-          email: ''
-        });
-      }
-    } catch (error) {
-      console.error('刷新用户资料时出错:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-
-      <main className="flex-grow">
-        <div className="container mx-auto px-4 py-8">
-          {/* Profile Header */}
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-10">
-            <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-zinc-300 dark:border-zinc-700 flex-shrink-0 bg-zinc-100 dark:bg-zinc-800">
-              <Image
-                src={userData.avatar_url || '/placeholder-avatar.png'}
-                alt={`${userData.username} Avatar`}
-                fill
-                sizes="(max-width: 768px) 96px, 128px"
-                className="object-cover"
-              />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl font-bold mb-1">{userData.username}</h1>
-              <div className="flex items-center gap-2 mb-2">
-                <p className="text-sm font-mono text-zinc-500 dark:text-zinc-400">
-                  {userData.wallet_address || verifiedUserData?.wallet || '未连接钱包'}
-                </p>
-                {/* Simple copy button example */}
-                <button
-                  title="复制地址"
-                  className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
-                  onClick={() => {
-                    const address = userData.wallet_address || verifiedUserData?.wallet || '';
-                    if (address) {
-                      navigator.clipboard.writeText(address);
-                      alert('钱包地址已复制');
-                    }
-                  }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                </button>
-              </div>
-              <p className="text-zinc-700 dark:text-zinc-300 text-sm max-w-lg mb-3">{userData.bio}</p>
-              <p className="text-xs text-zinc-400 dark:text-zinc-500">{userData.created_at}</p>
-              {userData.website && (
-                <a
-                  href={userData.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-primary hover:underline mt-1 inline-block"
-                >
-                  {userData.website}
-                </a>
-              )}
-            </div>
-          </div>
-
-          {/* Tabs */}
-          <div className="mt-8 border-b border-zinc-200 dark:border-zinc-800">
-            <div className="container mx-auto px-4">
-              <div className="flex space-x-2 overflow-x-auto pb-px">
-                <TabButton
-                  active={activeTab === 'collected'}
-                  onClick={() => handleTabChange('collected')}
-                >
-                  已收藏
-                </TabButton>
-                <TabButton
-                  active={activeTab === 'created'}
-                  onClick={() => handleTabChange('created')}
-                >
-                  已创建
-                </TabButton>
-                <TabButton
-                  active={activeTab === 'activity'}
-                  onClick={() => handleTabChange('activity')}
-                >
-                  活动
-                </TabButton>
-                <TabButton
-                  active={activeTab === 'settings'}
-                  onClick={() => handleTabChange('settings')}
-                >
-                  设置
-                </TabButton>
-              </div>
-            </div>
-          </div>
-
-          {/* Tab Content */}
-          <div className="container mx-auto px-4 py-8">
-            {activeTab === 'collected' && <CollectedNFTsTab nfts={collectedNFTs} />}
-            {activeTab === 'created' && <CreatedNFTsTab nfts={createdNFTs} />}
-            {activeTab === 'activity' && <ActivityTab activities={profileActivities} />}
-            {activeTab === 'settings' && (
-              <SettingsTab
-                user={userData}
-                onProfileUpdated={refreshUserProfile}
-              />
-            )}
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+  //     {/* Tab Content */}
+  //     <div className="container mx-auto px-4 py-8">
+  //       {activeTab === 'collected' && <CollectedNFTsTab nfts={collectedNFTs} />}
+  //       {activeTab === 'created' && <CreatedNFTsTab nfts={createdNFTs} />}
+  //       {activeTab === 'activity' && <ActivityTab activities={profileActivities} />}
+  //       {activeTab === 'settings' && (
+  //         <SettingsTab
+  //           user={userData}
+  //         />
+  //       )}
+  //     </div>
+  //   </div>
+  // );
 } 

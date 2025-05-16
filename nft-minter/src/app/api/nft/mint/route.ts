@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/app/_lib/supabase/server';
+import { createClient } from '@/app/_lib/supabase/server';
 
 // 定义预期的请求体结构
 interface RequestBody {
@@ -12,7 +12,7 @@ interface RequestBody {
 
 export async function POST(request: Request) {
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createClient();
 
   try {
     // 1. 验证用户身份

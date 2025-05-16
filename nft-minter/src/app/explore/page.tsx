@@ -108,69 +108,65 @@ export default function ExplorePage() {
 
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="flex-grow">
-        {/* 页面标题 */}
-        <div className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-          <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-2">探索数字艺术品</h1>
-            <p className="text-zinc-600 dark:text-zinc-400">
-              发现独特的NFT作品，从艺术到收藏品，这里应有尽有
-            </p>
+    <>
+      {/* 页面标题 */}
+      <div className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold mb-2">探索数字艺术品</h1>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            发现独特的NFT作品，从艺术到收藏品，这里应有尽有
+          </p>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
+        {/* 筛选器部分 */}
+        <div className="flex flex-col lg:flex-row justify-between gap-4 mb-8">
+          {/* 左侧分类 */}
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category, index) => (
+              <button
+                key={index}
+                className={`px-4 py-2 rounded-full text-sm ${index === 0
+                    ? 'bg-foreground text-background hover:bg-zinc-800 dark:hover:bg-zinc-200'
+                    : 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
+                  }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          {/* 右侧排序和布局 */}
+          <div className="flex items-center gap-4">
+            <select
+              className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden">
+              <button className="p-2 bg-zinc-100 dark:bg-zinc-700">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <button className="p-2">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm0 6h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1zm0 6h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
-        
-        <div className="container mx-auto px-4 py-8">
-          {/* 筛选器部分 */}
-          <div className="flex flex-col lg:flex-row justify-between gap-4 mb-8">
-            {/* 左侧分类 */}
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category, index) => (
-                <button
-                  key={index}
-                  className={`px-4 py-2 rounded-full text-sm ${
-                    index === 0
-                      ? 'bg-foreground text-background hover:bg-zinc-800 dark:hover:bg-zinc-200'
-                      : 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-            
-            {/* 右侧排序和布局 */}
-            <div className="flex items-center gap-4">
-              <select
-                className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              
-              <div className="flex bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden">
-                <button className="p-2 bg-zinc-100 dark:bg-zinc-700">
-                  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-                <button className="p-2">
-                  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm0 6h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1zm0 6h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          {/* NFT列表 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {/* {mockNFTs.map((nft) => (
+
+        {/* NFT列表 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* {mockNFTs.map((nft) => (
               <NFTCard
                 key={nft.id}
                 id={nft.id}
@@ -183,18 +179,15 @@ export default function ExplorePage() {
                 collectionImage={nft.collectionImage}
               />
             ))} */}
-          </div>
-          
-          {/* 加载更多按钮 */}
-          <div className="flex justify-center mt-12">
-            <Button variant="secondary" size="lg">
-              加载更多
-            </Button>
-          </div>
         </div>
-      </main>
-      
-      <Footer />
-    </div>
+
+        {/* 加载更多按钮 */}
+        <div className="flex justify-center mt-12">
+          <Button variant="secondary" size="lg">
+            加载更多
+          </Button>
+        </div>
+      </div>
+    </>
   );
 } 

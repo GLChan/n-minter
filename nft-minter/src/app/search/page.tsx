@@ -112,17 +112,17 @@ const mockSearchResults: SearchResult[] = [
 export default function SearchPage() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
-  
+
   const [activeFilter, setActiveFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const [isLoading, setIsLoading] = useState(true);
   const [results, setResults] = useState<SearchResult[]>([]);
-  
+
   // 模拟搜索过程
   useEffect(() => {
     if (query) {
       setIsLoading(true);
-      
+
       // 模拟API请求延迟
       const timer = setTimeout(() => {
         // 过滤搜索结果
@@ -131,7 +131,7 @@ export default function SearchPage() {
           if (activeFilter !== 'all' && result.type !== activeFilter) {
             return false;
           }
-          
+
           // 简单的文本匹配
           return (
             result.title.toLowerCase().includes(query.toLowerCase()) ||
@@ -139,7 +139,7 @@ export default function SearchPage() {
             (result.creatorName && result.creatorName.toLowerCase().includes(query.toLowerCase()))
           );
         });
-        
+
         // 排序结果
         const sortedResults = [...filtered];
         switch (sortBy) {
@@ -156,18 +156,18 @@ export default function SearchPage() {
             // 默认按最新排序，这里不做特殊处理
             break;
         }
-        
+
         setResults(sortedResults);
         setIsLoading(false);
       }, 800);
-      
+
       return () => clearTimeout(timer);
     } else {
       setResults([]);
       setIsLoading(false);
     }
   }, [query, activeFilter, sortBy]);
-  
+
   // 渲染NFT项
   const renderNFTItem = (item: SearchResult) => (
     <Link href={`/nft/${item.id}`} key={item.id} className="block group">
@@ -208,7 +208,7 @@ export default function SearchPage() {
       </div>
     </Link>
   );
-  
+
   // 渲染合集项
   const renderCollectionItem = (item: SearchResult) => (
     <Link href={`/collections/${item.id}`} key={item.id} className="block group">
@@ -238,7 +238,7 @@ export default function SearchPage() {
       </div>
     </Link>
   );
-  
+
   // 渲染创作者项
   const renderCreatorItem = (item: SearchResult) => (
     <Link href={`/creator/${item.id}`} key={item.id} className="block group">
@@ -260,7 +260,7 @@ export default function SearchPage() {
       </div>
     </Link>
   );
-  
+
   // 渲染搜索结果
   const renderSearchResults = () => {
     if (isLoading) {
@@ -271,7 +271,7 @@ export default function SearchPage() {
         </div>
       );
     }
-    
+
     if (results.length === 0) {
       return (
         <div className="text-center py-20">
@@ -286,7 +286,7 @@ export default function SearchPage() {
         </div>
       );
     }
-    
+
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {results.map((result) => {
@@ -304,95 +304,88 @@ export default function SearchPage() {
       </div>
     );
   };
-  
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="flex-grow">
-        {/* 页面标题和搜索栏 */}
-        <div className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-          <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-4">搜索结果: {query}</h1>
-            <div className="relative max-w-2xl">
-              <form action="/search" method="get">
-                <input
-                  type="text"
-                  name="q"
-                  defaultValue={query}
-                  placeholder="搜索 NFT、合集或创作者..."
-                  className="w-full px-4 py-3 pl-10 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 absolute left-3 top-3.5 text-zinc-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-                <button type="submit" className="hidden">搜索</button>
-              </form>
-            </div>
-          </div>
-        </div>
-        
+    <>
+      {/* 页面标题和搜索栏 */}
+      < div className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800" >
         <div className="container mx-auto px-4 py-8">
-          {/* 筛选器和排序选项 */}
-          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-8">
-            {/* 筛选选项 */}
-            <div className="flex flex-wrap gap-2">
-              {filterOptions.map((option) => (
-                <button
-                  key={option.value}
-                  className={`px-4 py-2 rounded-full text-sm ${
-                    activeFilter === option.value
-                      ? 'bg-foreground text-background hover:bg-zinc-800 dark:hover:bg-zinc-200'
-                      : 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
-                  }`}
-                  onClick={() => setActiveFilter(option.value)}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-            
-            {/* 排序选项 */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-zinc-500 dark:text-zinc-400">排序:</span>
-              <select
-                className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+          <h1 className="text-3xl font-bold mb-4">搜索结果: {query}</h1>
+          <div className="relative max-w-2xl">
+            <form action="/search" method="get">
+              <input
+                type="text"
+                name="q"
+                defaultValue={query}
+                placeholder="搜索 NFT、合集或创作者..."
+                className="w-full px-4 py-3 pl-10 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 absolute left-3 top-3.5 text-zinc-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              <button type="submit" className="hidden">搜索</button>
+            </form>
           </div>
-          
-          {/* 搜索结果数量 */}
-          {!isLoading && results.length > 0 && (
-            <p className="mb-6 text-zinc-500 dark:text-zinc-400">
-              找到 {results.length} 个与 &quot;{query}&quot; 相关的结果
-            </p>
-          )}
-          
-          {/* 搜索结果 */}
-          {renderSearchResults()}
         </div>
-      </main>
-      
-      <Footer />
-    </div>
+      </div >
+
+      <div className="container mx-auto px-4 py-8">
+        {/* 筛选器和排序选项 */}
+        <div className="flex flex-col sm:flex-row justify-between gap-4 mb-8">
+          {/* 筛选选项 */}
+          <div className="flex flex-wrap gap-2">
+            {filterOptions.map((option) => (
+              <button
+                key={option.value}
+                className={`px-4 py-2 rounded-full text-sm ${activeFilter === option.value
+                  ? 'bg-foreground text-background hover:bg-zinc-800 dark:hover:bg-zinc-200'
+                  : 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
+                  }`}
+                onClick={() => setActiveFilter(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
+          {/* 排序选项 */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-zinc-500 dark:text-zinc-400">排序:</span>
+            <select
+              className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* 搜索结果数量 */}
+        {!isLoading && results.length > 0 && (
+          <p className="mb-6 text-zinc-500 dark:text-zinc-400">
+            找到 {results.length} 个与 &quot;{query}&quot; 相关的结果
+          </p>
+        )}
+
+        {/* 搜索结果 */}
+        {renderSearchResults()}
+      </div>
+    </>
   );
 } 

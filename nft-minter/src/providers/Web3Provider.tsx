@@ -21,33 +21,34 @@ import {
 } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
-if (!projectId) {
-  throw new Error("Error: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set in .env.local");
-}
 
 const enableTestnets = process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true';
 
 // 定义支持的链
 const supportedChains = enableTestnets
   ? [
-      mainnet,
-      polygon,
-      optimism,
-      arbitrum,
-      base,
-      zora,
-      sepolia,
-      holesky,
-      // hoodi,
-      // localhost,
-    ] as const
+    mainnet,
+    polygon,
+    optimism,
+    arbitrum,
+    base,
+    zora,
+    sepolia,
+    holesky,
+    // hoodi,
+    // localhost,
+  ] as const
   : [mainnet, polygon, optimism, arbitrum, base, zora] as const;
 
+
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
+if (!projectId) {
+  throw new Error("Error: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set in .env.local");
+}
 // 创建配置
 const config = getDefaultConfig({
   appName: 'NFT Minter',
-  projectId: projectId,
+  projectId,
   chains: supportedChains,
   ssr: false,
 });
@@ -60,7 +61,7 @@ const queryClient = new QueryClient();
 
 export function Web3Provider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = React.useState(false);
-  
+
   React.useEffect(() => {
     setMounted(true);
   }, []);

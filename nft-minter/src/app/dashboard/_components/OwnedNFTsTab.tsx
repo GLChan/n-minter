@@ -58,7 +58,8 @@ export function OwnedNFTsTab() {
 
   // 1. 验证用户身份
 
-  // const supabase = useSupabaseClient();
+
+  // const supabase = getSupabaseBrowserClient();
   // const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   // console.log('user', user);

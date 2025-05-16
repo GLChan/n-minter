@@ -1,8 +1,8 @@
-
+"use client"
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/app/_components/ui/Button';
-import useSupabaseClient from '@/app/_lib/supabase/client';
+import { createClient } from '@/app/_lib/supabase/client';
 import { Camera, Upload, Loader2, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserProfile } from '@/app/_lib/types';
@@ -35,7 +35,7 @@ const InputField = ({
 
 export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
   // 更新：使用我们自定义的Supabase客户端创建方法
-  const supabase = useSupabaseClient();
+  const supabase = createClient();
   const { verifiedUserData } = useAuth();
 
   // 文件输入引用

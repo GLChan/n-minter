@@ -1,23 +1,32 @@
-import { getSupabaseBrowserClient } from '@/app/_lib/supabase/client';
+import { createClient } from '@/app/_lib/supabase/client';
 import { notFound } from "next/navigation";
 import { Collection, NFT } from './types';
 
+const supabase = createClient();
+
 export async function getCurrentUserId() {
-  const supabase = getSupabaseBrowserClient();
-
   const { data, error } = await supabase.auth.getUser();
-
   if (error) {
     console.error('获取用户失败:', error);
     notFound()
   }
+  return data;
+}
 
+export async function getUserProfile() {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) {
+    console.error('获取用户资料失败:', error);
+    notFound()
+  }
+  const profile = await getProfileByUserId(data.user.id);
+  if (profile) {
+    return profile;
+  }
   return data;
 }
 
 export async function getProfileByWallet(walletAddress: string) {
-  const supabase = getSupabaseBrowserClient();
-
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
@@ -34,8 +43,6 @@ export async function getProfileByWallet(walletAddress: string) {
 }
 
 export async function getProfileByUserId(userId: string) {
-  const supabase = getSupabaseBrowserClient();
-
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
@@ -51,7 +58,6 @@ export async function getProfileByUserId(userId: string) {
 }
 
 export async function getUserNFTs(page: number, pageSize: number, ownerId?: string): Promise<NFT[]> {
-  const supabase = getSupabaseBrowserClient();
   let query = supabase
     .from('nfts')
     .select('*')
@@ -74,7 +80,6 @@ export async function getUserNFTs(page: number, pageSize: number, ownerId?: stri
 };
 
 export async function getNFTById(id: string): Promise<NFT> {
-  const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase
     .from('nfts')
     .select('*')
@@ -90,8 +95,6 @@ export async function getNFTById(id: string): Promise<NFT> {
 }
 
 export async function getCollectionByUserId(userId: string): Promise<Collection[]> {
-  const supabase = getSupabaseBrowserClient();
-
   const { data, error } = await supabase
     .from('collections')
     .select('*')

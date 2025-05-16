@@ -5,6 +5,8 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { Web3Provider } from "@/providers/Web3Provider";
 import "./globals.css";
 import { AuthProvider } from '@/contexts/AuthContext';
+import { Navbar } from "./_components/Navbar";
+import { Footer } from "./_components/Footer";
 
 export const metadata: Metadata = {
   title: "NFT铸造平台 | 创建、分享和铸造NFT",
@@ -22,9 +24,20 @@ export default function RootLayout({
       <body
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased bg-background text-foreground`}
       >
+
         <Web3Provider>
           <AuthProvider>
-            {children}
+            <div className="min-h-screen flex flex-col">
+              <Navbar />
+
+              <main className="flex-grow">
+                {children}
+              </main>
+
+
+              <Footer />
+            </div>
+
           </AuthProvider>
         </Web3Provider>
       </body>

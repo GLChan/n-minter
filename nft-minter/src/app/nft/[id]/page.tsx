@@ -1,13 +1,11 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Navbar } from '@/app/_components/Navbar';
-import { Footer } from '@/app/_components/Footer';
 import { Button } from '@/app/_components/ui/Button';
 import { formatAddress, formatIPFSUrl } from '@/app/_lib/utils'; // formatPrice
 import { getNFTById, getProfileByUserId, getProfileByWallet } from '@/app/_lib/data-service';
 
-export default async function NFTDetails({ params }: {params: Promise<{ id: string }>}) {
+export default async function NFTDetails({ params }: { params: Promise<{ id: string }> }) {
 
   // 在实际应用中，这里应该从API获取NFT数据
   // const nft = {
@@ -61,8 +59,8 @@ export default async function NFTDetails({ params }: {params: Promise<{ id: stri
   ]
 
   // 'not_listed', 'listed', 'sold', 'cancelled'
-  const {id} = await params;
-  
+  const { id } = await params;
+
   const nft = await getNFTById(id)
 
   const imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
@@ -71,27 +69,23 @@ export default async function NFTDetails({ params }: {params: Promise<{ id: stri
   const owner = await getProfileByWallet(nft.owner_address || '')
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {/* 左侧 NFT 图片 */}
+        <div className="relative aspect-square rounded-2xl overflow-hidden">
+          {imageUrl ? <Image
+            src={imageUrl}
+            alt={nft.name}
+            fill
+            className="object-cover"
+            priority
+          /> : <></>}
+        </div>
 
-      <main className="flex-grow">
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* 左侧 NFT 图片 */}
-            <div className="relative aspect-square rounded-2xl overflow-hidden">
-              {imageUrl ? <Image
-                src={imageUrl}
-                alt={nft.name}
-                fill
-                className="object-cover"
-                priority
-              /> : <></>}
-            </div>
-
-            {/* 右侧 NFT 信息 */}
-            <div className="flex flex-col gap-6">
-              {/* 集合信息 */}
-              {/* {nft.collection && (
+        {/* 右侧 NFT 信息 */}
+        <div className="flex flex-col gap-6">
+          {/* 集合信息 */}
+          {/* {nft.collection && (
                 <Link href={`/collections/${nft.collection.name}`} className="flex items-center gap-2">
                   <div className="relative w-6 h-6 rounded-full overflow-hidden">
                     <Image
@@ -105,116 +99,112 @@ export default async function NFTDetails({ params }: {params: Promise<{ id: stri
                 </Link>
               )} */}
 
-              {/* NFT 标题 */}
-              <h1 className="text-3xl font-bold">{nft.name}</h1>
+          {/* NFT 标题 */}
+          <h1 className="text-3xl font-bold">{nft.name}</h1>
 
-              {/* 创作者和拥有者 */}
-              <div className="flex items-center gap-6">
-                <div className="flex flex-col gap-1">
-                  <span className="text-sm text-zinc-500">创作者</span>
-                  <Link href={`/profile/${creator.wallet_address}`} className="flex items-center gap-2">
-                    <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                      <Image
-                        src={creator.avatar_url || ''}
-                        alt={creator.username || ''}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <span className="text-sm font-medium">{creator.username}</span>
-                  </Link>
+          {/* 创作者和拥有者 */}
+          <div className="flex items-center gap-6">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm text-zinc-500">创作者</span>
+              <Link href={`/profile/${creator.wallet_address}`} className="flex items-center gap-2">
+                <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                  <Image
+                    src={creator.avatar_url || ''}
+                    alt={creator.username || ''}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
+                <span className="text-sm font-medium">{creator.username}</span>
+              </Link>
+            </div>
 
-                <div className="flex flex-col gap-1">
-                  <span className="text-sm text-zinc-500">当前拥有者</span>
-                  <Link href={`/profile/${owner.wallet_address}`} className="flex items-center gap-2">
-                    <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                      <Image
-                        src={owner.avatar_url || ''}
-                        alt={owner.username || ''}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <span className="text-sm font-medium">{owner.username}</span>
-                  </Link>
+            <div className="flex flex-col gap-1">
+              <span className="text-sm text-zinc-500">当前拥有者</span>
+              <Link href={`/profile/${owner.wallet_address}`} className="flex items-center gap-2">
+                <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                  <Image
+                    src={owner.avatar_url || ''}
+                    alt={owner.username || ''}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-              </div>
+                <span className="text-sm font-medium">{owner.username}</span>
+              </Link>
+            </div>
+          </div>
 
-              {/* 描述 */}
-              <div className="mt-4">
-                <h2 className="text-lg font-semibold mb-2">描述</h2>
-                <p className="text-zinc-700 dark:text-zinc-300">{nft.description}</p>
-              </div>
+          {/* 描述 */}
+          <div className="mt-4">
+            <h2 className="text-lg font-semibold mb-2">描述</h2>
+            <p className="text-zinc-700 dark:text-zinc-300">{nft.description}</p>
+          </div>
 
-              {/* 价格和购买 */}
-              <div className="p-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl mt-4">
-                <div className="flex justify-between items-center mb-4">
-                  <div>
-                    <span className="text-sm text-zinc-500">当前价格</span>
-                    <div className="flex items-end gap-2">
-                      <span className="text-2xl font-bold">{'-'}</span>
-                      {/* nft.price ||  */}
-                      <span className="text-lg">$</span>
-                      {/* nft.currency */}
-                    </div>
-                  </div>
-                  <Button size="lg">购买此 NFT</Button>
+          {/* 价格和购买 */}
+          <div className="p-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl mt-4">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <span className="text-sm text-zinc-500">当前价格</span>
+                <div className="flex items-end gap-2">
+                  <span className="text-2xl font-bold">{'-'}</span>
+                  {/* nft.price ||  */}
+                  <span className="text-lg">$</span>
+                  {/* nft.currency */}
                 </div>
               </div>
+              <Button size="lg">购买此 NFT</Button>
+            </div>
+          </div>
 
-              {/* 属性 */}
-              <div className="mt-6">
-                <h2 className="text-lg font-semibold mb-3">属性</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {attributes.map((attr, index) => (
-                    <div
-                      key={index}
-                      className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-3 flex flex-col items-center"
-                    >
-                      <span className="text-xs text-zinc-500 mb-1">{attr.trait_type}</span>
-                      <span className="text-sm font-medium">{attr.value}</span>
-                    </div>
-                  ))}
+          {/* 属性 */}
+          <div className="mt-6">
+            <h2 className="text-lg font-semibold mb-3">属性</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {attributes.map((attr, index) => (
+                <div
+                  key={index}
+                  className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-3 flex flex-col items-center"
+                >
+                  <span className="text-xs text-zinc-500 mb-1">{attr.trait_type}</span>
+                  <span className="text-sm font-medium">{attr.value}</span>
                 </div>
-              </div>
+              ))}
+            </div>
+          </div>
 
-              {/* 交易历史 */}
-              <div className="mt-8">
-                <h2 className="text-lg font-semibold mb-3">交易历史</h2>
-                <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden">
-                  <div className="max-h-80 overflow-y-auto relative">
-                    <table className="w-full">
-                      <thead className="bg-zinc-50 dark:bg-zinc-900 sticky top-0 z-10">
-                        <tr>
-                          <th className="text-left p-3 text-sm font-medium">事件</th>
-                          <th className="text-left p-3 text-sm font-medium">价格</th>
-                          <th className="text-left p-3 text-sm font-medium">来源</th>
-                          <th className="text-left p-3 text-sm font-medium">目标</th>
-                          <th className="text-left p-3 text-sm font-medium">日期</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {history.map((event, index) => (
-                          <tr key={index} className="border-t border-zinc-200 dark:border-zinc-800">
-                            <td className="p-3 text-sm">{event.event}</td>
-                            <td className="p-3 text-sm">{event.price > 0 ? `${event.price} ETH` : '-'}</td>
-                            <td className="p-3 text-sm">{formatAddress(event.from)}</td>
-                            <td className="p-3 text-sm">{formatAddress(event.to)}</td>
-                            <td className="p-3 text-sm">{event.date}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+          {/* 交易历史 */}
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold mb-3">交易历史</h2>
+            <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden">
+              <div className="max-h-80 overflow-y-auto relative">
+                <table className="w-full">
+                  <thead className="bg-zinc-50 dark:bg-zinc-900 sticky top-0 z-10">
+                    <tr>
+                      <th className="text-left p-3 text-sm font-medium">事件</th>
+                      <th className="text-left p-3 text-sm font-medium">价格</th>
+                      <th className="text-left p-3 text-sm font-medium">来源</th>
+                      <th className="text-left p-3 text-sm font-medium">目标</th>
+                      <th className="text-left p-3 text-sm font-medium">日期</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {history.map((event, index) => (
+                      <tr key={index} className="border-t border-zinc-200 dark:border-zinc-800">
+                        <td className="p-3 text-sm">{event.event}</td>
+                        <td className="p-3 text-sm">{event.price > 0 ? `${event.price} ETH` : '-'}</td>
+                        <td className="p-3 text-sm">{formatAddress(event.from)}</td>
+                        <td className="p-3 text-sm">{formatAddress(event.to)}</td>
+                        <td className="p-3 text-sm">{event.date}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
+      </div>
     </div>
   );
 } 

@@ -99,151 +99,145 @@ const helpCategories = [
 
 export default function HelpCenterPage() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="flex-grow">
-        {/* 页面标题 */}
-        <div className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-          <div className="container mx-auto px-4 py-12">
-            <h1 className="text-3xl font-bold mb-4 text-center">帮助中心</h1>
-            <p className="text-zinc-600 dark:text-zinc-400 text-center max-w-3xl mx-auto">
-              查找您需要的帮助和指南，快速解决问题
-            </p>
+    <>
+      {/* 页面标题 */}
+      <div className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+        <div className="container mx-auto px-4 py-12">
+          <h1 className="text-3xl font-bold mb-4 text-center">帮助中心</h1>
+          <p className="text-zinc-600 dark:text-zinc-400 text-center max-w-3xl mx-auto">
+            查找您需要的帮助和指南，快速解决问题
+          </p>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-12">
+        {/* 搜索栏 */}
+        <div className="max-w-2xl mx-auto mb-12">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="搜索帮助主题..."
+              className="w-full px-4 py-3 pl-10 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 absolute left-3 top-3.5 text-zinc-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
           </div>
         </div>
-        
-        <div className="container mx-auto px-4 py-12">
-          {/* 搜索栏 */}
-          <div className="max-w-2xl mx-auto mb-12">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="搜索帮助主题..."
-                className="w-full px-4 py-3 pl-10 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 absolute left-3 top-3.5 text-zinc-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-          </div>
 
-          {/* 快速链接 */}
-          <div className="mb-16">
-            <h2 className="text-2xl font-semibold mb-6 text-center">常见问题快速链接</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Link href="#account-wallet" className="p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                  <span>账户与钱包</span>
+        {/* 快速链接 */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-semibold mb-6 text-center">常见问题快速链接</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link href="#account-wallet" className="p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow">
+              <div className="flex items-center space-x-3">
+                <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
                 </div>
-              </Link>
-              <Link href="#nft-creation" className="p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  </div>
-                  <span>NFT创建与铸造</span>
+                <span>账户与钱包</span>
+              </div>
+            </Link>
+            <Link href="#nft-creation" className="p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow">
+              <div className="flex items-center space-x-3">
+                <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
                 </div>
-              </Link>
-              <Link href="#marketplace" className="p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                  <span>交易与市场</span>
+                <span>NFT创建与铸造</span>
+              </div>
+            </Link>
+            <Link href="#marketplace" className="p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow">
+              <div className="flex items-center space-x-3">
+                <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
                 </div>
-              </Link>
-              <Link href="#support" className="p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <span>技术支持与问题</span>
+                <span>交易与市场</span>
+              </div>
+            </Link>
+            <Link href="#support" className="p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow">
+              <div className="flex items-center space-x-3">
+                <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </div>
-              </Link>
-            </div>
-          </div>
-
-          {/* 帮助分类 */}
-          <div className="space-y-16">
-            {helpCategories.map((category, categoryIndex) => (
-              <section key={categoryIndex} id={
-                categoryIndex === 0 ? "account-wallet" :
-                categoryIndex === 1 ? "nft-creation" :
-                categoryIndex === 2 ? "marketplace" : "support"
-              } className="scroll-mt-20">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="bg-zinc-100 dark:bg-zinc-800 p-2 rounded-full">
-                    {category.icon}
-                  </div>
-                  <h2 className="text-2xl font-semibold">{category.title}</h2>
-                </div>
-                
-                <div className="space-y-6">
-                  {category.questions.map((item, itemIndex) => (
-                    <div key={itemIndex} className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
-                      <h3 className="text-lg font-medium mb-3">{item.question}</h3>
-                      <p className="text-zinc-600 dark:text-zinc-400">{item.answer}</p>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-
-          {/* 联系支持 */}
-          <div className="mt-16 bg-zinc-50 dark:bg-zinc-900 rounded-xl p-8 border border-zinc-200 dark:border-zinc-800">
-            <h2 className="text-2xl font-semibold mb-4 text-center">没有找到您需要的答案？</h2>
-            <p className="text-zinc-600 dark:text-zinc-400 text-center mb-6">
-              我们的客服团队随时为您提供帮助，请通过以下方式联系我们
-            </p>
-            <div className="flex flex-col md:flex-row justify-center items-center gap-4">
-              <Link href="mailto:support@example.com" className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <span>发送邮件</span>
-              </Link>
-              <Link href="/contact" className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                <span>联系我们</span>
-              </Link>
-            </div>
-          </div>
-          
-          <div className="text-center mt-12">
-            <Link href="/" className="text-blue-600 dark:text-blue-400 hover:underline">
-              返回首页
+                <span>技术支持与问题</span>
+              </div>
             </Link>
           </div>
         </div>
-      </main>
-      
-      <Footer />
-    </div>
+
+        {/* 帮助分类 */}
+        <div className="space-y-16">
+          {helpCategories.map((category, categoryIndex) => (
+            <section key={categoryIndex} id={
+              categoryIndex === 0 ? "account-wallet" :
+                categoryIndex === 1 ? "nft-creation" :
+                  categoryIndex === 2 ? "marketplace" : "support"
+            } className="scroll-mt-20">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="bg-zinc-100 dark:bg-zinc-800 p-2 rounded-full">
+                  {category.icon}
+                </div>
+                <h2 className="text-2xl font-semibold">{category.title}</h2>
+              </div>
+
+              <div className="space-y-6">
+                {category.questions.map((item, itemIndex) => (
+                  <div key={itemIndex} className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
+                    <h3 className="text-lg font-medium mb-3">{item.question}</h3>
+                    <p className="text-zinc-600 dark:text-zinc-400">{item.answer}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+
+        {/* 联系支持 */}
+        <div className="mt-16 bg-zinc-50 dark:bg-zinc-900 rounded-xl p-8 border border-zinc-200 dark:border-zinc-800">
+          <h2 className="text-2xl font-semibold mb-4 text-center">没有找到您需要的答案？</h2>
+          <p className="text-zinc-600 dark:text-zinc-400 text-center mb-6">
+            我们的客服团队随时为您提供帮助，请通过以下方式联系我们
+          </p>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4">
+            <Link href="mailto:support@example.com" className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <span>发送邮件</span>
+            </Link>
+            <Link href="/contact" className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              <span>联系我们</span>
+            </Link>
+          </div>
+        </div>
+
+        <div className="text-center mt-12">
+          <Link href="/" className="text-blue-600 dark:text-blue-400 hover:underline">
+            返回首页
+          </Link>
+        </div>
+      </div>
+    </>
   );
 } 

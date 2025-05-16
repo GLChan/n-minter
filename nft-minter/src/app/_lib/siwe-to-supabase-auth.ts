@@ -40,6 +40,9 @@ export async function syncSiweToSupabaseAuth(
         email,
         password: pwd, // 随机密码
         email_confirm: true, // 自动确认邮箱
+        user_metadata: {
+          wallet_address: walletAddress,
+        }
       });
 
       if (createError || !authData.user) {
