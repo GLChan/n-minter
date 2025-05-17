@@ -6,11 +6,7 @@ import { createClient } from '@/app/_lib/supabase/client';
 import { Camera, Upload, Loader2, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserProfile } from '@/app/_lib/types';
-
-interface SettingsTabProps {
-  user: UserProfile;
-  onProfileUpdated?: () => void; // 可选回调，仅用于通知父组件更新已完成
-}
+import { getUserProfile } from '@/app/_lib/data-service';
 
 // 输入字段组件
 const InputField = ({
@@ -33,54 +29,33 @@ const InputField = ({
   </div>
 );
 
-export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
-  // 更新：使用我们自定义的Supabase客户端创建方法
+export function SettingsTab({ profile }: { profile: UserProfile }) { 
   const supabase = createClient();
-  const { verifiedUserData } = useAuth();
-
   // 文件输入引用
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 表单状态
   const [formData, setFormData] = React.useState<UserProfile>({
-    id: user.id || '',
-    user_id: user.user_id || '',
-    username: user.username || '',
-    bio: user.bio || '',
-    email: user.email || '',
-    avatar_url: user.avatar_url || '',
-    website: user.website || '',
-    wallet_address: user.wallet_address || '',
-    created_at: user.created_at || '',
-    updated_at: user.updated_at || '',
+    id: profile.id || '',
+    username: profile.username || '',
+    bio: profile.bio || '',
+    email: profile.email || '',
+    avatar_url: profile.avatar_url || '',
+    website: profile.website || '',
+    wallet_address: profile.wallet_address || '',
+    created_at: profile.created_at || '',
+    updated_at: profile.updated_at || '',
   });
 
   // 头像上传状态
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>(user.avatar_url || '');
+  const [avatarPreview, setAvatarPreview] = useState<string>(profile.avatar_url || '');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   // 保存成功状态
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-
-  // 当外部user数据变化时更新本地状态
-  useEffect(() => {
-    setFormData({
-      id: user.id || '',
-      user_id: user.user_id || '',
-      username: user.username || '',
-      bio: user.bio || '',
-      email: user.email || '',
-      avatar_url: user.avatar_url || '',
-      website: user.website || '',
-      wallet_address: user.wallet_address || '',
-      created_at: user.created_at || '',
-      updated_at: user.updated_at || '',
-    });
-    setAvatarPreview(user.avatar_url || '');
-  }, [user]);
 
   // 处理输入变化
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -219,12 +194,6 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
       setSaveSuccess(false);
       setSaveError(null);
 
-      // 验证钱包地址
-      if (!verifiedUserData?.wallet) {
-        setSaveError('未连接钱包，无法保存设置');
-        return;
-      }
-
       // 如果有新头像，先上传
       let avatarUrl = formData.avatar_url;
       if (avatarFile) {
@@ -241,7 +210,7 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
         avatar_url: avatarUrl,
         website: formData.website,
         email: formData.email,
-        wallet_address: verifiedUserData.wallet, // 确保钱包地址是验证过的
+        wallet_address: profile.wallet_address,
         updated_at: new Date().toISOString(),
       };
 
@@ -249,7 +218,7 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
       const { error } = await supabase
         .from('profiles')
         .update(updates)
-        .eq('wallet_address', verifiedUserData.wallet)
+        .eq('id', profile.id)
 
       if (error) {
         console.error('更新资料失败:', error);
@@ -265,11 +234,6 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
 
       // 设置成功状态
       setSaveSuccess(true);
-
-      // 通知父组件（如果提供了回调）
-      if (onProfileUpdated) {
-        onProfileUpdated();
-      }
 
     } catch (error) {
       console.error('保存设置时出错:', error);
@@ -292,6 +256,7 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
                   src={avatarPreview}
                   alt="头像预览"
                   fill
+                  sizes="(max-width: 768px) 96px, 128px"
                   className="object-cover"
                 />
               ) : (
@@ -393,4 +358,5 @@ export function SettingsTab({ user, onProfileUpdated }: SettingsTabProps) {
       </div>
     </form>
   );
+
 } 

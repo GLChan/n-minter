@@ -3,8 +3,6 @@
 import React, { use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Navbar } from '@/app/_components/Navbar';
-import { Footer } from '@/app/_components/Footer';
 import { Button } from '@/app/_components/ui/Button';
 import { NFTCard } from '@/app/_components/ui/NFTCard'; // Assuming NFTCard is reusable
 import { ExternalLink } from 'lucide-react';

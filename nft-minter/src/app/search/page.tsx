@@ -4,8 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Navbar } from '../_components/Navbar';
-import { Footer } from '../_components/Footer';
 import { Button } from '../_components/ui/Button';
 
 // 模拟搜索结果类型

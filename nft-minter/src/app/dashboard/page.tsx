@@ -1,61 +1,31 @@
-"use client"
-import React, { useState } from 'react';
-import { OwnedNFTsTab } from './_components/OwnedNFTsTab';
+import React, { Suspense } from 'react';
+import OwnedNFTsTab from './_components/OwnedNFTsTab';
 import { ActivityTab } from './_components/ActivityTab';
 import { OffersTab } from './_components/OffersTab';
+import { Tabs } from './_components/Tabs';
+import Spinner from '../_components/Spinner';
+import { UserProfile } from '../_lib/types';
+import { getUserInfo } from '../_lib/actions';
 
-// Placeholder for Tab Component
-interface TabButtonProps {
-  children: React.ReactNode;
-  active?: boolean;
-  onClick?: () => void;
-  hasNotification?: boolean;
-}
+export default async function DashboardPage({ searchParams }: { searchParams: { tab?: string; page?: string } }) {
+  const params = await searchParams;
+  const currentTab = params.tab || 'owned';
+  const pageParam = params.page ? parseInt(params.page) : 1;
 
-const TabButton: React.FC<TabButtonProps> = ({ children, active, onClick, hasNotification }) => (
-  <button
-    onClick={onClick}
-    className={`relative px-4 py-2 text-sm font-medium transition-colors duration-150 focus:outline-none ${active
-      ? 'text-primary border-b-2 border-primary'
-      : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
-      }`}
-  >
-    {children}
-    {hasNotification && (
-      <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-blue-500 ring-2 ring-white dark:ring-zinc-900"></span>
-    )}
-  </button>
-);
+  const currentPage = pageParam;
 
-export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState('owned');
+  const profile: UserProfile = await getUserInfo()
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center gap-6 mb-8">
-        {/* ... (Avatar, Name, Address) ... */}
-        {/* Stats might need data passed down or fetched here/in header component */}
-      </div>
+      <Tabs currentTab={currentTab} />
 
-      {/* Tab Navigation */}
-      <div className="border-b border-zinc-200 dark:border-zinc-800 mb-8">
-        <nav className="-mb-px flex space-x-6" aria-label="Tabs">
-          <TabButton active={activeTab === 'owned'} onClick={() => setActiveTab('owned')}>拥有的</TabButton>
-          <TabButton active={activeTab === 'activity'} onClick={() => setActiveTab('activity')}>活动</TabButton>
-          <TabButton
-            active={activeTab === 'offers'}
-            onClick={() => setActiveTab('offers')}
-          >
-            收到的报价
-          </TabButton>
-        </nav>
-      </div>
-
-      {/* Tab Content - Render the active tab component */}
       <div>
-        {activeTab === 'owned' && <OwnedNFTsTab />}
-        {activeTab === 'activity' && <ActivityTab />}
-        {activeTab === 'offers' && <OffersTab />}
+        <Suspense fallback={<Spinner />}>
+          {currentTab === 'owned' && <OwnedNFTsTab profile={profile} page={currentPage} />}
+          {currentTab === 'activity' && <ActivityTab />}
+          {currentTab === 'offers' && <OffersTab />}
+        </Suspense>
       </div>
     </div>
   );

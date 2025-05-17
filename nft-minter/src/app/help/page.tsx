@@ -2,8 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Navbar } from '@/app/_components/Navbar';
-import { Footer } from '@/app/_components/Footer';
 
 // 帮助中心分类和问题
 const helpCategories = [

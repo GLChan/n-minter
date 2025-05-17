@@ -1,8 +1,22 @@
 "use server";
+import { createClient } from "./supabase/server";
 
-import { createClient } from "./supabase/client";
+export async function getUserInfo() {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
+  if (!user) throw new Error("You must be logged in");
 
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single()
+
+  if (error) throw new Error("Profile could not be retrieved");
+
+  return data;
+}
 // export async function updateGuest(formData) {
 //   const session = await auth();
 //   if (!session) throw new Error("You must be logged in");

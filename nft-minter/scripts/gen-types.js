@@ -17,7 +17,7 @@ if (!projectRef) {
 console.log('SUPABASE_PROJECT_REF:', projectRef);
 
 execSync(
-  `npx supabase gen types --lang=typescript --project-id=${projectRef} > src/app/_lib/database.types.ts`,
+  `npx supabase gen types --lang=typescript --project-id=${projectRef} > src/app/_lib/types/database.types.ts`,
   { 
     stdio: 'inherit',
     env: {

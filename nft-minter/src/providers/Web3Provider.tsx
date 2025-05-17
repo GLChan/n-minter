@@ -21,11 +21,8 @@ import {
 } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
-
-const enableTestnets = process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true';
-
 // 定义支持的链
-const supportedChains = enableTestnets
+const supportedChains = process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true'
   ? [
     mainnet,
     polygon,
@@ -83,6 +80,10 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
         <RainbowKitProvider
           theme={rainbowKitTheme}
           modalSize="compact"
+          appInfo={{
+            appName: 'NFT Minter',
+            learnMoreUrl: 'http://localhost:3000',
+          }}
         >
           {children}
         </RainbowKitProvider>

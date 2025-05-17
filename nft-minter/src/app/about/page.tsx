@@ -3,8 +3,6 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Navbar } from '@/app/_components/Navbar';
-import { Footer } from '@/app/_components/Footer';
 import { Button } from '@/app/_components/ui/Button';
 
 // 平台特点数据

@@ -1,7 +1,5 @@
 'use client'
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Navbar } from '@/app/_components/Navbar';
-import { Footer } from '@/app/_components/Footer';
 import { Button } from '@/app/_components/ui/Button';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import Image from 'next/image';

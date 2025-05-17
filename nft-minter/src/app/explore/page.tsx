@@ -1,6 +1,4 @@
 import React from 'react';
-import { Navbar } from '@/app/_components/Navbar';
-import { Footer } from '@/app/_components/Footer';
 import { Button } from '@/app/_components/ui/Button';
 
 // 模拟NFT数据

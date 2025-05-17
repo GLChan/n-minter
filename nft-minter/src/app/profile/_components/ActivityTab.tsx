@@ -7,11 +7,14 @@ interface Activity {
   timestamp: string;
 }
 
-interface ActivityTabProps {
-  activities: Activity[];
-}
+const activities = [
+  { id: 'pact-1', description: `收藏了 <span class="font-medium text-primary">星际漫游者</span> 来自 <span class="font-medium">宇宙画家</span>`, timestamp: '3 天前' },
+  { id: 'pact-2', description: `创建了新的 NFT <span class="font-medium text-primary">生成线条 #08</span>`, timestamp: '1 周前' },
+  { id: 'pact-3', description: `更新了个人简介`, timestamp: '2 周前' },
+];
 
-export function ActivityTab({ activities }: ActivityTabProps) {
+
+export function ActivityTab() {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">活动记录</h2>

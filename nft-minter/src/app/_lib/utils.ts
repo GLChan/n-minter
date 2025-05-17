@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import { sessionCookieName, PINATA_IPFS_GATEWAY_BASE } from "@/app/_lib/constants";
 import { CookieOptionsWithName } from "@supabase/ssr";
 import { keccak256, toUtf8Bytes } from 'ethers';
+import { format } from 'date-fns';
 
 export function getCookieOptions() {
   return {
@@ -101,4 +102,8 @@ export function generateWalletP(walletAddress: string) {
     password += chars[byte % chars.length];
   }
   return password;
+}
+
+export function formatDate(date: Date | string): string {
+  return format(new Date(date), 'yyyy-MM-dd');
 }

@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      attributes: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       collections: {
         Row: {
           banner_image_url: string | null
@@ -59,24 +77,79 @@ export type Database = {
           },
         ]
       }
+      nft_attributes: {
+        Row: {
+          attribute_id: number
+          attribute_name: string | null
+          created_at: string
+          id: number
+          nft_id: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          attribute_id: number
+          attribute_name?: string | null
+          created_at?: string
+          id?: number
+          nft_id: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          attribute_id?: number
+          attribute_name?: string | null
+          created_at?: string
+          id?: number
+          nft_id?: string
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nft_attributes_attribute_id_fkey"
+            columns: ["attribute_id"]
+            isOneToOne: false
+            referencedRelation: "attributes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nft_attributes_nft_id_fkey"
+            columns: ["nft_id"]
+            isOneToOne: false
+            referencedRelation: "nfts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nfts: {
         Row: {
           chain_id: number
           collection_id: string | null
           contract_address: string
           created_at: string
-          creator_id: string | null
-          description: string | null
+          creator_id: string
+          description: string
           id: string
-          image_url: string | null
+          image_url: string
+          last_sale_currency: string | null
+          last_sale_price: number | null
+          last_sale_time: string | null
+          list_currency: string | null
+          list_price: number | null
+          list_status: string | null
+          lister_address: string | null
           metadata: Json | null
           metadata_url: string | null
+          minter_address: string | null
           name: string
-          owner_address: string | null
-          owner_id: string | null
+          network: string | null
+          owner_address: string
+          owner_id: string
+          status: string | null
           token_id: number | null
           token_uri: string | null
-          transaction_hash: string | null
+          transaction_hash: string
           updated_at: string
         }
         Insert: {
@@ -84,18 +157,28 @@ export type Database = {
           collection_id?: string | null
           contract_address: string
           created_at?: string
-          creator_id?: string | null
-          description?: string | null
+          creator_id: string
+          description: string
           id?: string
-          image_url?: string | null
+          image_url: string
+          last_sale_currency?: string | null
+          last_sale_price?: number | null
+          last_sale_time?: string | null
+          list_currency?: string | null
+          list_price?: number | null
+          list_status?: string | null
+          lister_address?: string | null
           metadata?: Json | null
           metadata_url?: string | null
+          minter_address?: string | null
           name: string
-          owner_address?: string | null
-          owner_id?: string | null
+          network?: string | null
+          owner_address: string
+          owner_id: string
+          status?: string | null
           token_id?: number | null
           token_uri?: string | null
-          transaction_hash?: string | null
+          transaction_hash: string
           updated_at?: string
         }
         Update: {
@@ -103,18 +186,28 @@ export type Database = {
           collection_id?: string | null
           contract_address?: string
           created_at?: string
-          creator_id?: string | null
-          description?: string | null
+          creator_id?: string
+          description?: string
           id?: string
-          image_url?: string | null
+          image_url?: string
+          last_sale_currency?: string | null
+          last_sale_price?: number | null
+          last_sale_time?: string | null
+          list_currency?: string | null
+          list_price?: number | null
+          list_status?: string | null
+          lister_address?: string | null
           metadata?: Json | null
           metadata_url?: string | null
+          minter_address?: string | null
           name?: string
-          owner_address?: string | null
-          owner_id?: string | null
+          network?: string | null
+          owner_address?: string
+          owner_id?: string
+          status?: string | null
           token_id?: number | null
           token_uri?: string | null
-          transaction_hash?: string | null
+          transaction_hash?: string
           updated_at?: string
         }
         Relationships: [
@@ -133,6 +226,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "nfts_owner_address_fkey"
+            columns: ["owner_address"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["wallet_address"]
+          },
+          {
             foreignKeyName: "nfts_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
@@ -149,7 +249,6 @@ export type Database = {
           email: string | null
           id: string
           updated_at: string
-          user_id: string
           username: string | null
           wallet_address: string
           website: string | null
@@ -161,7 +260,6 @@ export type Database = {
           email?: string | null
           id?: string
           updated_at?: string
-          user_id?: string
           username?: string | null
           wallet_address: string
           website?: string | null
@@ -173,12 +271,127 @@ export type Database = {
           email?: string | null
           id?: string
           updated_at?: string
-          user_id?: string
           username?: string | null
           wallet_address?: string
           website?: string | null
         }
         Relationships: []
+      }
+      transactions: {
+        Row: {
+          buyer_address: string
+          created_at: string
+          currency: string
+          id: number
+          nft_id: string
+          price: number
+          seller_address: string
+          transaction_hash: string
+          transaction_time: string | null
+        }
+        Insert: {
+          buyer_address: string
+          created_at?: string
+          currency: string
+          id?: number
+          nft_id: string
+          price: number
+          seller_address: string
+          transaction_hash: string
+          transaction_time?: string | null
+        }
+        Update: {
+          buyer_address?: string
+          created_at?: string
+          currency?: string
+          id?: number
+          nft_id?: string
+          price?: number
+          seller_address?: string
+          transaction_hash?: string
+          transaction_time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_nft_id_fkey"
+            columns: ["nft_id"]
+            isOneToOne: false
+            referencedRelation: "nfts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_collections: {
+        Row: {
+          created_at: string
+          id: number
+          nft_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          nft_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          nft_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_collections_nft_id_fkey"
+            columns: ["nft_id"]
+            isOneToOne: false
+            referencedRelation: "nfts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_collections_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_following: {
+        Row: {
+          created_at: string
+          follower_id: string | null
+          following_id: string | null
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          follower_id?: string | null
+          following_id?: string | null
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string | null
+          following_id?: string | null
+          id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_following_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_following_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

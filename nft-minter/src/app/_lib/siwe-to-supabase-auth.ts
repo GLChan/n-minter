@@ -15,7 +15,7 @@ export async function syncSiweToSupabaseAuth(
     // 查询是否已有该钱包地址的用户
     const { data: existingUsers, error: queryError } = await supabaseAdmin
       .from('profiles')
-      .select('user_id')
+      .select('*')
       .eq('wallet_address', walletAddress)
       .limit(1);
 
@@ -24,7 +24,7 @@ export async function syncSiweToSupabaseAuth(
       return { success: false, error: queryError };
     }
 
-    let userId = existingUsers?.[0]?.user_id;
+    let userId = existingUsers?.[0]?.id;
 
     const pwd = generateWalletP(walletAddress)
 
@@ -56,7 +56,8 @@ export async function syncSiweToSupabaseAuth(
       const { error: profileError } = await supabaseAdmin
         .from('profiles')
         .insert({
-          user_id: userId,
+          id: userId,
+          avatar_url: 'https://mzmlztcizgitmitugcdk.supabase.co/storage/v1/object/public/avatars//avatar.png',
           wallet_address: walletAddress,
           username: `user_${walletAddress.substring(2, 8)}`, // 生成临时用户名
         });

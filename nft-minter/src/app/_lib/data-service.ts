@@ -4,13 +4,13 @@ import { Collection, NFT } from './types';
 
 const supabase = createClient();
 
-export async function getCurrentUserId() {
-  const { data, error } = await supabase.auth.getUser();
+export async function getCurrentUser() {
+  const { data: { user }, error } = await supabase.auth.getUser();
   if (error) {
     console.error('获取用户失败:', error);
     notFound()
   }
-  return data;
+  return user;
 }
 
 export async function getUserProfile() {
@@ -30,7 +30,6 @@ export async function getProfileByWallet(walletAddress: string) {
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
-    // .eq('user_id', '84597181-2ff5-4742-aeee-74be03bb1d71')
     .eq('wallet_address', walletAddress)
     .single();
 
@@ -53,7 +52,6 @@ export async function getProfileByUserId(userId: string) {
     console.error('获取用户资料失败Id:', error);
     notFound()
   }
-
   return data;
 }
 
@@ -65,8 +63,9 @@ export async function getUserNFTs(page: number, pageSize: number, ownerId?: stri
   if (ownerId) {
     query = query.eq('owner_id', ownerId);
   }
-  const from = page * pageSize;
+  const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
+
   query.order('created_at', { ascending: false })
     .range(from, to);
 
