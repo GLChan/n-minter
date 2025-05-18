@@ -14,7 +14,21 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
 
   const currentPage = pageParam;
 
-  const profile: UserProfile = await getUserInfo()
+  // 获取用户资料并确保所有数据都是可序列化的
+  const userProfile = await getUserInfo();
+  
+  // 创建一个新的纯对象，避免可能包含Set或其他不可序列化的数据
+  const profile: UserProfile = {
+    id: userProfile.id,
+    username: userProfile.username,
+    bio: userProfile.bio,
+    avatar_url: userProfile.avatar_url,
+    wallet_address: userProfile.wallet_address,
+    email: userProfile.email,
+    created_at: userProfile.created_at,
+    updated_at: userProfile.updated_at,
+    website: userProfile.website
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">

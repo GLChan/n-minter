@@ -4,12 +4,8 @@ module.exports = {
   solidity: "0.8.20",
   networks: {
     hardhat: {
-      accounts: [
-        {
-          privateKey: '1816d1f299d0c62d5d1e2cb5fb48966352277393f10575965156ba290dfdc083',
-          balance: '10000000000000000000000' // 初始余额 (ETH)
-        }
-      ]
+      // 默认配置会自动创建10个测试账户，无需手动配置
+      // 删除自定义账户配置，使用默认的
     },
     // localhost: {
     //   url: "http://127.0.0.1:8545",

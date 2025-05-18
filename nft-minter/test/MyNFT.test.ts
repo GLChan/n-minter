@@ -12,20 +12,38 @@ const { ZeroAddress } = require("ethers"); // 使用 require // Ethers v6 推荐
 
 describe("MyNFT 合约", function () {
 
+  // 在测试开始前打印 Hardhat 账户数量进行调试
+  before(async function() {
+    const signers = await ethers.getSigners();
+    console.log(`测试开始: 检测到 ${signers.length} 个签名者账户`);
+    
+    if (signers.length < 2) {
+      console.warn("警告: 测试需要至少 2 个账户，请检查 Hardhat 配置");
+    }
+  });
+
   // 建议定义一个函数来处理部署逻辑，方便在多个测试中复用
   async function deployMyNFTFixture() {
-    // ethers.getSigners() 返回一个包含多个签名者对象的数组
-    // 通常第一个是部署者 (owner)，第二个及以后可用于模拟其他用户 (addr1, addr2...)
-    const [owner, addr1] = await ethers.getSigners();
+    // 获取签名者账户
+    const signers = await ethers.getSigners();
+    
+    // 确保至少有一个账户
+    if (signers.length === 0) {
+      throw new Error("没有签名者账户");
+    }
+    
+    const owner = signers[0];
+    // 如果没有第二个账户，使用第一个代替
+    const addr1 = signers.length > 1 ? signers[1] : signers[0];
+
+    console.log("Owner address:", await owner.getAddress());
+    console.log("Addr1 address:", await addr1.getAddress());
 
     // 获取合约工厂
     const MyNFTFactory = await ethers.getContractFactory("MyNFT");
 
-    // 部署合约 (如果构造函数需要参数，在这里传递)
-    // 例子: const myNFT = await MyNFTFactory.deploy("NFT Name", "SYMBOL");
-    // 如果使用了 TypeChain，可以进行类型断言或直接使用类型化的 Factory
+    // 部署合约
     const myNFT = await MyNFTFactory.deploy();
-    // const myNFT = await MyNFTFactory.deploy() as MyNFT; // 使用 TypeChain 类型断言
 
     // 等待部署完成
     await myNFT.waitForDeployment();
@@ -56,18 +74,9 @@ describe("MyNFT 合约", function () {
     it("应该设置正确的初始状态 (例如 name 和 symbol)", async function () {
       const { myNFT } = await deployMyNFTFixture();
 
-      // --- (可选) 检查初始状态 ---
-      // 确保将 "Your NFT Name" 和 "YNFT" 替换为你合约实际的返回值
-      const expectedName = "Your NFT Name";
-      const expectedSymbol = "YNFT";
-
-      // 如果你的 MyNFT.sol 实现了 name() 和 symbol()
-      // expect(await myNFT.name()).to.equal(expectedName);
-      // expect(await myNFT.symbol()).to.equal(expectedSymbol);
-
-      // 如果你的合约设置了 Owner (通常是部署者)
-      // const [deployer] = await ethers.getSigners();
-      // expect(await myNFT.owner()).to.equal(deployer.address);
+      // 检查实际的名称和符号
+      expect(await myNFT.name()).to.equal("MyNFT");
+      expect(await myNFT.symbol()).to.equal("MNFT");
     });
   });
 
@@ -79,8 +88,8 @@ describe("MyNFT 合约", function () {
     it("应该允许 owner 铸造一个新的 NFT 给指定地址，并设置正确的 Token URI", async function () {
       // 1. 准备
       const { myNFT, owner, addr1 } = await deployMyNFTFixture();
-      const recipientAddress = addr1.address;
-      const expectedTokenId = 0; // 假设第一个 token ID 是 0
+      const recipientAddress = await addr1.getAddress(); // 使用 getAddress() 获取地址
+      const expectedTokenId = 1; // 第一个 token ID 是 1 (查看合约的 _tokenIds = 1)
       const testTokenURI = "ipfs://test-metadata/0"; // 定义一个测试用的 Token URI
 
       // 2. 执行操作并检查事件
@@ -100,8 +109,8 @@ describe("MyNFT 合约", function () {
     it("应该允许任何地址调用 safeMint 来铸造 NFT (因为函数是 public)", async function () {
       // 1. 准备
       const { myNFT, owner, addr1 } = await deployMyNFTFixture();
-      const recipientAddress = addr1.address; // 让 addr1 给自己铸造
-      const expectedTokenId = 0; // 第一个 token ID
+      const recipientAddress = await addr1.getAddress(); // 使用 getAddress() 获取地址
+      const expectedTokenId = 1; // 第一个 token ID
       const testTokenURI = "ipfs://test-metadata/1";
 
       // 2. 执行操作并检查事件
@@ -115,6 +124,27 @@ describe("MyNFT 合约", function () {
       expect(await myNFT.ownerOf(expectedTokenId)).to.equal(recipientAddress);
       expect(await myNFT.balanceOf(recipientAddress)).to.equal(1);
       expect(await myNFT.tokenURI(expectedTokenId)).to.equal(testTokenURI);
+    });
+
+    it("每次铸造应该递增 tokenId", async function() {
+      const { myNFT, owner } = await deployMyNFTFixture();
+      const ownerAddress = await owner.getAddress();
+      
+      // 铸造第一个 NFT，预期 ID 为 1
+      await myNFT.safeMint(ownerAddress, "ipfs://test/1");
+      
+      // 铸造第二个 NFT，预期 ID 为 2
+      await expect(myNFT.safeMint(ownerAddress, "ipfs://test/2"))
+        .to.emit(myNFT, "Transfer")
+        .withArgs(ZeroAddress, ownerAddress, 2);
+        
+      // 验证所有权
+      expect(await myNFT.ownerOf(1)).to.equal(ownerAddress);
+      expect(await myNFT.ownerOf(2)).to.equal(ownerAddress);
+      
+      // 验证 URI
+      expect(await myNFT.tokenURI(1)).to.equal("ipfs://test/1");
+      expect(await myNFT.tokenURI(2)).to.equal("ipfs://test/2");
     });
 
     // --- 在这里添加更多铸造相关的测试 ---

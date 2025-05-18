@@ -4,6 +4,13 @@
  * 这些值可以用于追踪 NFT 从铸造到不同应用场景的生命周期。
  */
 export enum NftStatus {
+
+  /**
+   * 待处理 (Pending)
+   * NFT 正在等待处理，例如等待铸造、挂单销售等。
+   */
+  Pending = 'pending',
+
   /**
    * 已铸造 (Minted)
    * NFT 已经被成功创建并记录在区块链上，但可能尚未进行其他操作（如挂单销售或在游戏中使用）。
@@ -21,14 +28,7 @@ export enum NftStatus {
    * 已售出 (Sold)
    * NFT 已经成功售出，所有权已转移给新的买家。
    */
-  Sold = 'sold',
-
-  /**
-   * 游戏内物品 (In-Game Item)
-   * NFT 当前正在游戏或其他应用中作为可使用或可交互的物品。
-   * 这表示 NFT 可能具有特定的效用或功能。
-   */
-  InGameItem = 'in_game_item'
+  Sold = 'sold'
 }
 
 

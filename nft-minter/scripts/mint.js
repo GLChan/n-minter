@@ -13,12 +13,13 @@ async function main() {
   console.log("MyNFT deployed to:", address);
 
   const tx = await myNFT.safeMint(
-    deployer.address,
-    "ipfs://your-token-uri"
+    // deployer.address,
+    "0xc5ba100ac6572a396fFdDEA0Ef05704eaC29Ff70",
+    "ipfs://QmdEnupa3mwoq3MMhi3y9hDMPH8iALsoByTiaZttw6MkCz"
   );
 
   await tx.wait();
-  console.log("NFT minted!");
+  console.log("NFT minted!", tx);
 }
 
 main().catch((error) => {

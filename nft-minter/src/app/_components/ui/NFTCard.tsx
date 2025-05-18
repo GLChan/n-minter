@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { NFT } from '@/app/_lib/types';
+import { Collection, NFT } from '@/app/_lib/types';
 import { formatIPFSUrl } from '@/app/_lib/utils';
 
 // interface NFTCardProps {
@@ -33,7 +33,7 @@ export const NFTCard: React.FC<{
     price,
     timeAgo,
     collection,
-    collectionImage
+    collectionImage = ''
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-700 transition-transform hover:translate-y-[-4px] hover:shadow-lg">
       <Link href={`/nft/${id}`}>

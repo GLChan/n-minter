@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 contract MyNFT is ERC721URIStorage {
-    uint256 private _tokenIds;
+    uint256 private _tokenIds = 1;
 
     constructor() ERC721("MyNFT", "MNFT") {}
 
@@ -16,6 +16,7 @@ contract MyNFT is ERC721URIStorage {
         _safeMint(recipient, newItemId);
         _setTokenURI(newItemId, tokenURI);
         _tokenIds += 1;
+
         return newItemId;
     }
 }

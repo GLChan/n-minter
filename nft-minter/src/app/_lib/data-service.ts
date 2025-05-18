@@ -75,6 +75,7 @@ export async function getUserNFTs(page: number, pageSize: number, ownerId?: stri
     console.error('获取用户NFT失败:', error);
     notFound()
   }
+
   return data || [];
 };
 

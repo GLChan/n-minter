@@ -91,13 +91,15 @@ export async function POST(request: Request) {
         cidVersion: 0,
       },
     });
+    console.log("Metadata JSON pinned successfully:", metadataResult);
+
     const metadataIpfsHash = metadataResult.IpfsHash;
     console.log("Metadata JSON pinned successfully:", metadataIpfsHash);
 
     // 5. 返回最终的 Token URI
     const tokenURI = `ipfs://${metadataIpfsHash}`;
     return NextResponse.json({ tokenURI: tokenURI, imageURI: imageURI });
-
+    // 获取到 Token URI: ipfs://QmdEnupa3mwoq3MMhi3y9hDMPH8iALsoByTiaZttw6MkCz Image URI: ipfs://QmYm3B1B4yajyLgTzbVFi3GK2TecyYuscqE23ffd3pxtzz
   } catch (error) {
     console.error("IPFS 上传或处理失败:", error);
     // 检查是否是 Pinata SDK 的错误

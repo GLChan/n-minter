@@ -5,6 +5,9 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagm
 import Image from 'next/image';
 import { id as ethersId } from 'ethers'; // 用于获取事件签名的哈希
 import { contractAddress, contractAbi } from '@/app/_lib/constants'; // 引入合约信息
+import { getCollectionsByUserId } from '@/app/_lib/actions';
+import { createClient } from '../_lib/supabase/client';
+import { Collection } from '../_lib/types';
 
 export default function CreateNFT() {
   const [file, setFile] = useState<File | null>(null);
@@ -16,14 +19,12 @@ export default function CreateNFT() {
   const [explicit, setExplicit] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false); // 处理中状态 (IPFS 上传 + Minting)
   const [processingStep, setProcessingStep] = useState(''); // 显示当前步骤
-
   const [error, setError] = useState<string | null>(null);
   const [successData, setSuccessData] = useState<{ txHash: string; tokenId: string | number } | null>(null); // 成功后的交易信息
   const [mintedTokenURI, setMintedTokenURI] = useState<string | null>(null); // State for tokenURI
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null); // State for image URL from upload
-
   const { address, isConnected, chain } = useAccount(); // 获取钱包连接状态和地址
-
+  const [collections, setCollections] = useState<Collection[]>([]);
 
   // 文件选择处理
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +72,20 @@ export default function CreateNFT() {
   //     setError(null);
   //   }
   // }, []);
+
+  const getCollections = async () => {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return;
+    }
+    const collections: Collection[] = await getCollectionsByUserId(user.id);
+    setCollections(collections);
+  }
+
+  useEffect(() => {
+    getCollections();
+  }, []);
 
 
   // 属性处理
@@ -135,26 +150,25 @@ export default function CreateNFT() {
         throw new Error(errorData.error || `IPFS 上传失败: ${response.statusText}`);
       }
 
-      // 假设 API 返回 { tokenURI: string, imageUrl?: string }
-      const { tokenURI, imageUrl } = await response.json();
-      console.log("获取到 Token URI:", tokenURI, "Image URL:", imageUrl);
+      const { tokenURI, imageURI } = await response.json();
+      console.log("获取到 Token URI:", tokenURI, "Image URI:", imageURI);
       if (!tokenURI) throw new Error("未能从服务器获取 Token URI");
 
-      setMintedTokenURI(tokenURI); // <-- Save tokenURI to state
-      if (imageUrl) setUploadedImageUrl(imageUrl); // <-- Save imageUrl if returned
-
+      setMintedTokenURI(tokenURI);
+      if (imageURI) setUploadedImageUrl(imageURI);
 
       // 3. 更新处理步骤提示
       setProcessingStep('等待钱包确认铸造交易...');
 
       // 4. 调用智能合约进行铸造 (使用 writeContractAsync 返回 Promise)
-      await writeContractAsync({
+      const tx = await writeContractAsync({
         address: contractAddress,
         abi: contractAbi,
         functionName: 'safeMint',
-        args: [address, tokenURI], // recipient 是当前用户地址
-        // value: parseEther('0.01'), // 如果需要付费
+        args: [address, tokenURI],
       });
+
+      console.log("铸造交易 hash:", tx);
 
       // isPending 状态由 useWriteContract hook 管理, UI 可以用它显示"等待钱包确认"
       // isConfirming 和 isConfirmed 由 useWaitForTransactionReceipt 管理
@@ -191,49 +205,79 @@ export default function CreateNFT() {
         setError(null); // Clear previous errors
 
         console.log("交易已确认:", receipt);
+        console.log("receipt.transactionHash:", receipt.transactionHash);
+        console.log("receipt.to:", receipt.to);
+        console.log("receipt.from:", receipt.from);
+        console.log("receipt.logs:", receipt.logs);
+        
+        // 尝试解析日志，查询最后一个参数作为 tokenId
         let tokenId: string | number = '未知'; // Default value
 
         try {
-          // 解析 Transfer 事件获取 tokenId
-          const transferEventTopic = ethersId("Transfer(address,address,uint256)");
-          const transferLog = receipt.logs?.find(log =>
-            log.address.toLowerCase() === contractAddress.toLowerCase() && // Check contract address
-            log.topics[0] === transferEventTopic &&
-            log.topics.length > 3 && // Ensure tokenId exists in topics
-            log.topics[2]?.toLowerCase() === address.toLowerCase() // Check 'to' address (topic[2], 0x padded)
-          );
-
-          console.log("transferLog:", transferLog);
-          if (transferLog && transferLog.topics[3]) {
-            // tokenId is in topics[3] for Transfer event
-            tokenId = BigInt(transferLog.topics[3]).toString();
-            console.log("成功解析 Token ID:", tokenId);
+          if (!receipt.logs || receipt.logs.length === 0) {
+            console.warn("警告: 交易日志为空，无法获取 Token ID");
+            tokenId = 'pending';
           } else {
-            console.warn("在交易日志中未找到匹配的 Transfer 事件或 Token ID。", receipt.logs);
-            // Optionally try other methods or inform the user
-            tokenId = '解析失败';
+            // 寻找 Transfer 事件
+            // ERC721 Transfer 事件签名: Transfer(address,address,uint256)
+            const transferSignature = "Transfer(address,address,uint256)";
+            const transferTopic = ethersId(transferSignature);
+            
+            console.log("Transfer 事件签名:", transferSignature);
+            console.log("Transfer 事件 Topic0:", transferTopic);
+            
+            // 打印所有日志和它们的topics，帮助调试
+            receipt.logs.forEach((log, index) => {
+              console.log(`日志 ${index}:`, log);
+              console.log(`日志 ${index} topics:`, log.topics);
+              console.log(`日志 ${index} 地址:`, log.address);
+            });
+            
+            // 查找与我们合约地址匹配且包含 Transfer 事件的日志
+            const transferLog = receipt.logs.find(log => 
+              // 检查合约地址
+              log.address.toLowerCase() === contractAddress.toLowerCase() &&
+              // 检查事件签名
+              log.topics[0] === transferTopic &&
+              // Transfer 事件有 3 个参数，所以应该有 4 个 topics (包括事件签名)
+              log.topics.length === 4 &&
+              // 检查接收者地址 (to)
+              log.topics[2] && log.topics[2].toLowerCase().includes(address.slice(2).toLowerCase())
+            );
+            
+            if (transferLog && transferLog.topics[3]) {
+              console.log("找到匹配的 Transfer 事件:", transferLog);
+              // topics[3] 是 tokenId (第三个参数)
+              tokenId = BigInt(transferLog.topics[3]).toString();
+              console.log("解析得到的 Token ID:", tokenId);
+            } else {
+              console.warn("未找到匹配的 Transfer 事件");
+              tokenId = 'pending';
+            }
           }
         } catch (e) {
-          console.error("解析 Token ID 出错:", e);
-          tokenId = '解析出错';
+          console.error("解析 Token ID 时出错:", e);
+          tokenId = 'error';
         }
 
-        // Set success data even if tokenId parsing failed, to show tx hash
+        // 设置成功数据，即使 tokenId 解析失败
         setSuccessData({ txHash: receipt.transactionHash, tokenId: tokenId });
 
         // --- 调用 API 保存 NFT 数据 ---
         try {
           const nftDataToSave = {
-            tokenId: tokenId.toString(), // Ensure tokenId is a string for API consistency
+            tokenId: tokenId.toString(),
             tokenURI: mintedTokenURI,
             ownerAddress: address,
             contractAddress: contractAddress,
-            chainId: chain.id, // <-- Pass chain ID
+            chainId: chain.id,
             name: name,
+            collectionId: collection,
             description: description,
-            imageUrl: uploadedImageUrl, // <-- Pass uploaded image URL (can be null)
-            attributes: attributes.filter(attr => attr.key && attr.value), // Pass valid attributes
+            imageUrl: uploadedImageUrl,
+            attributes: attributes.filter(attr => attr.key && attr.value),
             transactionHash: receipt.transactionHash,
+            status: tokenId === 'pending' || tokenId === 'error' || tokenId === '未知' ? 'pending_tokenid' : 'completed'
           };
 
           console.log("准备保存 NFT 数据:", nftDataToSave);
@@ -246,28 +290,30 @@ export default function CreateNFT() {
 
           if (!saveResponse.ok) {
             const errorData = await saveResponse.json();
-            // Use a more specific error message if available
             throw new Error(errorData.details || errorData.error || `保存 NFT 数据失败: ${saveResponse.statusText}`);
           }
 
           const saveData = await saveResponse.json();
           console.log("NFT 数据保存成功:", saveData);
-          setProcessingStep("NFT 创建并保存成功！"); // Update final success message
+          
+          if (tokenId === 'pending' || tokenId === 'error' || tokenId === '未知') {
+            setProcessingStep("NFT 创建成功！(Token ID 将在后台处理)");
+          } else {
+            setProcessingStep("NFT 创建并保存成功！");
+          }
 
         } catch (saveError) {
           console.error("保存 NFT 数据到 Supabase 时出错:", saveError);
           setError(`铸造成功，但保存 NFT 信息失败: ${saveError instanceof Error ? saveError.message : 'error'}`);
-          setProcessingStep("铸造成功，保存信息时出错"); // Update message to inform user
+          setProcessingStep("铸造成功，保存信息时出错");
         } finally {
-          setIsProcessing(false); // End the overall processing state
-          setMintedTokenURI(null); // Clean up state after processing
-          setUploadedImageUrl(null); // Clean up state after processing
-          // Optionally clear the form here if desired
-          // clearForm();
+          setIsProcessing(false);
+          setMintedTokenURI(null);
+          setUploadedImageUrl(null);
         }
       };
 
-      processConfirmation(); // Execute the async function
+      processConfirmation();
     }
 
     if (mintError) {
@@ -447,8 +493,9 @@ export default function CreateNFT() {
                 onChange={(e) => setCollection(e.target.value)}
               >
                 <option value="">不添加到合集</option>
-                <option value="digital-life">数字生活系列</option>
-                <option value="abstract-art">抽象艺术</option>
+                {collections.map((collection) => (
+                  <option key={collection.id} value={collection.id}>{collection.name}</option>
+                ))}
               </select>
             </div>
 
@@ -469,10 +516,6 @@ export default function CreateNFT() {
           </div>
         </div>
 
-        {/* <div className="flex justify-end gap-4">
-              <Button variant="secondary" size="lg" disabled={!isConnected}>保存草稿</Button>
-              <Button size="lg" disabled={!isConnected}>创建 NFT</Button>
-            </div> */}
         {/* 操作按钮和提示信息 */}
         <div className="flex flex-col items-end gap-4">
           {/* 处理状态和错误/成功提示 */}
@@ -490,11 +533,11 @@ export default function CreateNFT() {
           )}
 
           <div className="flex justify-end gap-4">
-            <Button variant="secondary" size="lg" disabled={isProcessing}>保存草稿</Button>
+            {/* <Button variant="secondary" size="lg" disabled={isProcessing}>保存草稿</Button> */}
             <Button
               size="lg"
               onClick={handleCreateNFT}
-              disabled={isProcessing || !isConnected || !file || !name.trim()} // 完善禁用条件
+              disabled={isProcessing || !explicit || !isConnected || !file || !name.trim()}
             >
               {isMinting ? '等待钱包确认...' : isConfirming ? '交易确认中...' : isProcessing ? '处理中...' : '创建 NFT'}
             </Button>

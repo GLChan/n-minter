@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/app/_lib/supabase/server'; // <-- Corrected path
+import { createClient } from '@/app/_lib/supabase/server';
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -13,13 +13,15 @@ export async function POST(request: Request) {
       tokenURI,
       ownerAddress,
       contractAddress,
-      chainId, // 从前端获取 Chain ID
+      chainId,
       name,
       description,
-      imageUrl, // 假设前端会传递
-      // attributes,
+      imageUrl,
+      attributes,
+      collectionId,
       metadata,
       transactionHash,
+      status = 'completed'
     } = body;
 
     // --- Input Validation (Basic) ---
@@ -39,7 +41,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid chain ID format.' }, { status: 400 });
     }
 
-
     // --- Find associated profile ---
     let profileId: string | null = null;
     const { data: profileData, error: profileError } = await supabase
@@ -50,47 +51,79 @@ export async function POST(request: Request) {
 
     if (profileError && profileError.code !== 'PGRST116') { // PGRST116: Row not found, which is okay here
       console.error('Error fetching profile:', profileError);
-      // Decide if this should be a hard error or just proceed without profile_id
-      // return NextResponse.json({ error: 'Failed to fetch user profile.', details: profileError.message }, { status: 500 });
+      // 如果找不到用户资料，可以考虑创建一个
+      console.log('尝试创建新用户资料...');
+      try {
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([{
+            wallet_address: ownerAddress,
+            username: `User_${ownerAddress.slice(2, 8)}`,
+          }])
+          .select('id')
+          .single();
+          
+        if (createError) {
+          console.error('创建用户资料失败:', createError);
+        } else if (newProfile) {
+          profileId = newProfile.id;
+          console.log('创建并获取新用户ID:', profileId);
+        }
+      } catch (e) {
+        console.error('创建用户资料过程中出错:', e);
+      }
     } else if (profileData) {
       profileId = profileData.id;
       console.log('Found profile ID:', profileId, 'for address:', ownerAddress);
     } else {
       console.warn('No profile found for address:', ownerAddress);
+      return NextResponse.json({ 
+        error: '无法找到或创建用户资料。NFT必须关联到一个用户。', 
+        details: 'owner_id字段不能为空' 
+      }, { status: 400 });
     }
 
+    // 确保 profileId 不为空
+    if (!profileId) {
+      return NextResponse.json({ 
+        error: '用户资料ID不存在。NFT必须关联到一个用户。', 
+        details: 'owner_id字段不能为空' 
+      }, { status: 400 });
+    }
 
     // --- Insert NFT data ---
     const { data: nftData, error: insertError } = await supabase
       .from('nfts')
       .insert([{
-        // token_id: tokenId.toString(), // Ensure token_id is stored consistently (e.g., as string or numeric)
+        token_id: tokenId.toString(),
         token_uri: tokenURI,
-        owner_address: ownerAddress,
+        owner_address: ownerAddress, 
         contract_address: contractAddress,
         chain_id: chainId,
         name: name,
-        description: description,
+        description: description || '',
         image_url: imageUrl,
-        metadata: metadata,
-        // attributes: attributes, // Assumes attributes is already a valid JSON object or null
+        metadata: metadata || {},
         transaction_hash: transactionHash,
-        // profile_id: profileId, // Include the found profile_id (can be null)
+        owner_id: profileId, // 设置必需的owner_id字段
+        creator_id: profileId, // 设置必需的owner_id字段
+        collection_id: collectionId,
+        status: status
       }])
-      .select() // Optionally return the inserted data
-      .single(); // Expecting a single row insert
+      .select()
+      .single();
 
     if (insertError) {
       console.error('Error inserting NFT data:', insertError);
-      // Check for unique constraint violation (e.g., duplicate transaction_hash or contract/token_id/chain)
+      // Check for unique constraint violation
       if (insertError.code === '23505') { // PostgreSQL unique violation code
-        return NextResponse.json({ error: 'This NFT or transaction has already been saved.' }, { status: 409 }); // Conflict
+        return NextResponse.json({ error: 'This NFT or transaction has already been saved.' }, { status: 409 });
       }
       return NextResponse.json({ error: 'Failed to save NFT data to database.', details: insertError.message }, { status: 500 });
     }
 
     console.log('NFT data saved successfully:', nftData);
-    return NextResponse.json({ message: 'NFT data saved successfully', data: nftData }, { status: 201 }); // 201 Created
+    return NextResponse.json({ message: 'NFT data saved successfully', data: nftData }, { status: 201 });
 
   } catch (error) {
     console.error('Error in /api/nft/save:', error);
@@ -100,5 +133,6 @@ export async function POST(request: Request) {
     if (error instanceof Error) {
       return NextResponse.json({ error: 'An unexpected error occurred.', details: error.message }, { status: 500 });
     }
+    return NextResponse.json({ error: '未知错误' }, { status: 500 });
   }
 } 
