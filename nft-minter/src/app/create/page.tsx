@@ -76,6 +76,8 @@ export default function CreateNFT() {
   const getCollections = async () => {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    console.log('user', user);
     if (authError || !user) {
       return;
     }
@@ -113,11 +115,18 @@ export default function CreateNFT() {
   const { data: writeContractResult, writeContractAsync, isPending: isMinting, error: mintError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed, data: receipt } = useWaitForTransactionReceipt({
     hash: writeContractResult,
+    confirmations: 1,  // 添加确认数
+    retryDelay: 1000,
+    onReplaced: (replacement) => {
+      console.log('交易被替换:', replacement);
+    }
   });
 
 
   // --- 核心提交逻辑 ---
   const handleCreateNFT = async () => {
+    if (isProcessing) return
+
     if (!isConnected || !address) { setError("请先连接钱包"); return; }
     if (!file) { setError("请选择要上传的文件"); return; }
     if (!name.trim()) { setError("NFT 名称不能为空"); return; }
@@ -162,7 +171,7 @@ export default function CreateNFT() {
 
       // 4. 调用智能合约进行铸造 (使用 writeContractAsync 返回 Promise)
       const tx = await writeContractAsync({
-        address: contractAddress,
+        address: contractAddress as `0x${string}`,
         abi: contractAbi,
         functionName: 'safeMint',
         args: [address, tokenURI],
@@ -192,121 +201,135 @@ export default function CreateNFT() {
 
   // --- 使用 useEffect 监听交易确认状态 ---
   useEffect(() => {
+    if (!writeContractResult) return;
+
+    console.log('交易状态:', { isConfirming, isConfirmed, receipt });
+
     if (isConfirming) {
       setProcessingStep("交易确认中...");
-      setError(null); // 清除旧错误
+      setError(null);
     }
 
-    // Check for confirmed receipt, mintedTokenURI, address, and chain before proceeding
-    if (isConfirmed && receipt && mintedTokenURI && address && chain) {
+    if (isConfirmed && receipt) {
+      console.log("交易已确认，receipt:", receipt);
       const processConfirmation = async () => {
-        setIsProcessing(true); // Keep processing state while saving
-        setProcessingStep("交易已确认，正在保存 NFT 信息...");
-        setError(null); // Clear previous errors
-
-        console.log("交易已确认:", receipt);
-        console.log("receipt.transactionHash:", receipt.transactionHash);
-        console.log("receipt.to:", receipt.to);
-        console.log("receipt.from:", receipt.from);
-        console.log("receipt.logs:", receipt.logs);
-        
-        // 尝试解析日志，查询最后一个参数作为 tokenId
-        let tokenId: string | number = '未知'; // Default value
-
         try {
-          if (!receipt.logs || receipt.logs.length === 0) {
-            console.warn("警告: 交易日志为空，无法获取 Token ID");
-            tokenId = 'pending';
-          } else {
-            // 寻找 Transfer 事件
-            // ERC721 Transfer 事件签名: Transfer(address,address,uint256)
-            const transferSignature = "Transfer(address,address,uint256)";
-            const transferTopic = ethersId(transferSignature);
-            
-            console.log("Transfer 事件签名:", transferSignature);
-            console.log("Transfer 事件 Topic0:", transferTopic);
-            
-            // 打印所有日志和它们的topics，帮助调试
-            receipt.logs.forEach((log, index) => {
-              console.log(`日志 ${index}:`, log);
-              console.log(`日志 ${index} topics:`, log.topics);
-              console.log(`日志 ${index} 地址:`, log.address);
-            });
-            
-            // 查找与我们合约地址匹配且包含 Transfer 事件的日志
-            const transferLog = receipt.logs.find(log => 
-              // 检查合约地址
-              log.address.toLowerCase() === contractAddress.toLowerCase() &&
-              // 检查事件签名
-              log.topics[0] === transferTopic &&
-              // Transfer 事件有 3 个参数，所以应该有 4 个 topics (包括事件签名)
-              log.topics.length === 4 &&
-              // 检查接收者地址 (to)
-              log.topics[2] && log.topics[2].toLowerCase().includes(address.slice(2).toLowerCase())
-            );
-            
-            if (transferLog && transferLog.topics[3]) {
-              console.log("找到匹配的 Transfer 事件:", transferLog);
-              // topics[3] 是 tokenId (第三个参数)
-              tokenId = BigInt(transferLog.topics[3]).toString();
-              console.log("解析得到的 Token ID:", tokenId);
-            } else {
-              console.warn("未找到匹配的 Transfer 事件");
+          setIsProcessing(true);
+          setProcessingStep("交易已确认，正在保存 NFT 信息...");
+          setError(null);
+
+          console.log("交易已确认:", receipt);
+          console.log("receipt.transactionHash:", receipt.transactionHash);
+          console.log("receipt.to:", receipt.to);
+          console.log("receipt.from:", receipt.from);
+          console.log("receipt.logs:", receipt.logs);
+
+          // 尝试解析日志，查询最后一个参数作为 tokenId
+          let tokenId: string | number = '未知'; // Default value
+
+          try {
+            if (!receipt.logs || receipt.logs.length === 0) {
+              console.warn("警告: 交易日志为空，无法获取 Token ID");
               tokenId = 'pending';
+            } else {
+              // 寻找 Transfer 事件
+              // ERC721 Transfer 事件签名: Transfer(address,address,uint256)
+              const transferSignature = "Transfer(address,address,uint256)";
+              const transferTopic = ethersId(transferSignature);
+
+              console.log("Transfer 事件签名:", transferSignature);
+              console.log("Transfer 事件 Topic0:", transferTopic);
+
+              // 打印所有日志和它们的topics，帮助调试
+              receipt.logs.forEach((log, index) => {
+                console.log(`日志 ${index}:`, log);
+                console.log(`日志 ${index} topics:`, log.topics);
+                console.log(`日志 ${index} 地址:`, log.address);
+              });
+
+              // 查找与我们合约地址匹配且包含 Transfer 事件的日志
+              const transferLog = receipt.logs.find(log =>
+                // 检查合约地址
+                log.address.toLowerCase() === contractAddress?.toLowerCase() &&
+                // 检查事件签名
+                log.topics[0] === transferTopic &&
+                // Transfer 事件有 3 个参数，所以应该有 4 个 topics (包括事件签名)
+                log.topics.length === 4 &&
+                // 检查接收者地址 (to)
+                log.topics[2] && address && log.topics[2].toLowerCase().includes(address.slice(2).toLowerCase())
+              );
+
+              if (transferLog && transferLog.topics[3]) {
+                console.log("找到匹配的 Transfer 事件:", transferLog);
+                // topics[3] 是 tokenId (第三个参数)
+                tokenId = BigInt(transferLog.topics[3]).toString();
+                console.log("解析得到的 Token ID:", tokenId);
+              } else {
+                console.warn("未找到匹配的 Transfer 事件");
+                tokenId = 'pending';
+              }
             }
-          }
-        } catch (e) {
-          console.error("解析 Token ID 时出错:", e);
-          tokenId = 'error';
-        }
-
-        // 设置成功数据，即使 tokenId 解析失败
-        setSuccessData({ txHash: receipt.transactionHash, tokenId: tokenId });
-
-        // --- 调用 API 保存 NFT 数据 ---
-        try {
-          const nftDataToSave = {
-            tokenId: tokenId.toString(),
-            tokenURI: mintedTokenURI,
-            ownerAddress: address,
-            contractAddress: contractAddress,
-            chainId: chain.id,
-            name: name,
-            collectionId: collection,
-            description: description,
-            imageUrl: uploadedImageUrl,
-            attributes: attributes.filter(attr => attr.key && attr.value),
-            transactionHash: receipt.transactionHash,
-            status: tokenId === 'pending' || tokenId === 'error' || tokenId === '未知' ? 'pending_tokenid' : 'completed'
-          };
-
-          console.log("准备保存 NFT 数据:", nftDataToSave);
-
-          const saveResponse = await fetch('/api/nft/save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(nftDataToSave),
-          });
-
-          if (!saveResponse.ok) {
-            const errorData = await saveResponse.json();
-            throw new Error(errorData.details || errorData.error || `保存 NFT 数据失败: ${saveResponse.statusText}`);
+          } catch (e) {
+            console.error("解析 Token ID 时出错:", e);
+            tokenId = 'error';
           }
 
-          const saveData = await saveResponse.json();
-          console.log("NFT 数据保存成功:", saveData);
-          
-          if (tokenId === 'pending' || tokenId === 'error' || tokenId === '未知') {
-            setProcessingStep("NFT 创建成功！(Token ID 将在后台处理)");
-          } else {
-            setProcessingStep("NFT 创建并保存成功！");
-          }
+          // 设置成功数据，即使 tokenId 解析失败
+          setSuccessData({ txHash: receipt.transactionHash, tokenId: tokenId });
 
-        } catch (saveError) {
-          console.error("保存 NFT 数据到 Supabase 时出错:", saveError);
-          setError(`铸造成功，但保存 NFT 信息失败: ${saveError instanceof Error ? saveError.message : 'error'}`);
-          setProcessingStep("铸造成功，保存信息时出错");
+          // --- 调用 API 保存 NFT 数据 ---
+          try {
+            const nftDataToSave = {
+              tokenId: tokenId.toString(),
+              tokenURI: mintedTokenURI,
+              ownerAddress: address ?? '',
+              contractAddress: contractAddress,
+              chainId: chain?.id ?? 0,
+              name: name,
+              collectionId: collection,
+              description: description,
+              imageUrl: uploadedImageUrl,
+              attributes: attributes.filter(attr => attr.key && attr.value),
+              transactionHash: receipt.transactionHash,
+              status: tokenId === 'pending' || tokenId === 'error' || tokenId === '未知' ? 'pending' : 'completed'
+            };
+
+            console.log("准备保存 NFT 数据:", nftDataToSave);
+
+            const supabase = await createClient();
+            const saveResponse = await fetch('/api/nft/save', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+              },
+              body: JSON.stringify(nftDataToSave),
+            });
+
+            if (!saveResponse.ok) {
+              const errorData = await saveResponse.json();
+              throw new Error(errorData.details || errorData.error || `保存 NFT 数据失败: ${saveResponse.statusText}`);
+            }
+
+            const saveData = await saveResponse.json();
+            console.log("NFT 数据保存成功:", saveData);
+
+            if (tokenId === 'pending' || tokenId === 'error' || tokenId === '未知') {
+              setProcessingStep("NFT 创建成功！(Token ID 将在后台处理)");
+            } else {
+              setProcessingStep("NFT 创建并保存成功！");
+            }
+
+          } catch (saveError) {
+            console.error("保存 NFT 数据到 Supabase 时出错:", saveError);
+            setError(`铸造成功，但保存 NFT 信息失败: ${saveError instanceof Error ? saveError.message : 'error'}`);
+            setProcessingStep("铸造成功，保存信息时出错");
+          }
+        } catch (error) {
+          console.error("处理确认时出错:", error);
+          setError(error instanceof Error ? error.message : "处理确认时出错");
         } finally {
+          // 确保在所有处理完成后清理状态
           setIsProcessing(false);
           setMintedTokenURI(null);
           setUploadedImageUrl(null);
@@ -318,21 +341,18 @@ export default function CreateNFT() {
 
     if (mintError) {
       console.error("铸造交易错误:", mintError);
-      // Ensure only mintError.message is used
-      setError(mintError.message || "铸造交易失败");
+      setError((mintError as Error)?.message || "铸造交易失败");
       setIsProcessing(false);
       setProcessingStep('');
-      setMintedTokenURI(null); // Reset state on mint error
-      setUploadedImageUrl(null); // Reset state on mint error
+      setMintedTokenURI(null);
+      setUploadedImageUrl(null);
     }
 
-    // Update processing step only if the minting process is active
+    // 更新处理步骤
     if (isMinting && isProcessing) {
       setProcessingStep("请在钱包中确认交易...");
     }
-
-    // Update dependency array to include new states and variables used in the effect
-  }, [isConfirming, isConfirmed, mintError, receipt, mintedTokenURI, uploadedImageUrl, address, chain, name, description, attributes, isProcessing, isMinting]); // Added isProcessing, isMinting
+  }, [writeContractResult, isConfirming, isConfirmed, receipt, mintError]);
 
 
   return (

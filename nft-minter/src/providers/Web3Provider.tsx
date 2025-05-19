@@ -6,7 +6,7 @@ import {
   getDefaultConfig,
   darkTheme,
 } from '@rainbow-me/rainbowkit';
-import { WagmiProvider } from 'wagmi';
+import { http, WagmiProvider } from 'wagmi';
 import {
   mainnet,
   polygon,
@@ -47,6 +47,10 @@ const config = getDefaultConfig({
   appName: 'NFT Minter',
   projectId,
   chains: supportedChains,
+  // transports: {
+  //   // [sepolia.id]: http('https://lb.drpc.org/ogrpc?network=sepolia&dkey=AiE14RnsM0Vylg_ZUda7Y9StaQiENI0R8IRn2gG4MHGt')
+  //   [sepolia.id]: http('https://eth-mainnet.g.alchemy.com/v2/mukb08KnIcPKZFV3R8p4sC3Gq0ZF8f4h')
+  // },
   ssr: false,
 });
 

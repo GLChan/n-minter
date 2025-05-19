@@ -85,6 +85,7 @@ export type Database = {
           id: number
           nft_id: string
           updated_at: string | null
+          user_id: string
           value: string
         }
         Insert: {
@@ -94,6 +95,7 @@ export type Database = {
           id?: number
           nft_id: string
           updated_at?: string | null
+          user_id?: string
           value: string
         }
         Update: {
@@ -103,6 +105,7 @@ export type Database = {
           id?: number
           nft_id?: string
           updated_at?: string | null
+          user_id?: string
           value?: string
         }
         Relationships: [
@@ -147,7 +150,7 @@ export type Database = {
           owner_address: string
           owner_id: string
           status: string | null
-          token_id: number | null
+          token_id: string | null
           token_uri: string | null
           transaction_hash: string
           updated_at: string
@@ -176,7 +179,7 @@ export type Database = {
           owner_address: string
           owner_id: string
           status?: string | null
-          token_id?: number | null
+          token_id?: string | null
           token_uri?: string | null
           transaction_hash: string
           updated_at?: string
@@ -205,7 +208,7 @@ export type Database = {
           owner_address?: string
           owner_id?: string
           status?: string | null
-          token_id?: number | null
+          token_id?: string | null
           token_uri?: string | null
           transaction_hash?: string
           updated_at?: string

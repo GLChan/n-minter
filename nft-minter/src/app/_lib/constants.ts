@@ -3,7 +3,8 @@ export const secureCookieName = 'secure';
 
 export const PINATA_IPFS_GATEWAY_BASE = 'https://azure-many-sole-7.mypinata.cloud/ipfs/'
 
-export const contractAddress = '0xd1c8C87AD59f813985c5E297fBF821556672da0A';
+export const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+
 export const contractAbi = [
   {
     "inputs": [],

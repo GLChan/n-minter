@@ -3,7 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import { sessionCookieName, PINATA_IPFS_GATEWAY_BASE } from "@/app/_lib/constants";
 import { CookieOptionsWithName } from "@supabase/ssr";
 import { keccak256, toUtf8Bytes } from 'ethers';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 
 export function getCookieOptions() {
   return {

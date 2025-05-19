@@ -1,5 +1,5 @@
-// const hre = require("hardhat");
-import { hre } from "hardhat";
+const hre = require("hardhat");
+// import { hre } from "hardhat";
 
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
@@ -18,8 +18,22 @@ async function main() {
     "ipfs://QmdEnupa3mwoq3MMhi3y9hDMPH8iALsoByTiaZttw6MkCz"
   );
 
-  await tx.wait();
-  console.log("NFT minted!", tx);
+  const receipt = await tx.wait();
+  console.log("交易哈希:", receipt.hash);
+
+  // 解析 Transfer 事件获取 tokenId
+  const transferEvent = receipt.logs.find(log => {
+    const transferSignature = "Transfer(address,address,uint256)";
+    const transferTopic = hre.ethers.id(transferSignature);
+    return log.topics[0] === transferTopic;
+  });
+
+  if (transferEvent && transferEvent.topics[3]) {
+    const tokenId = BigInt(transferEvent.topics[3]).toString();
+    console.log("铸造的 Token ID:", tokenId);
+  } else {
+    console.log("未找到 Transfer 事件或无法获取 Token ID");
+  }
 }
 
 main().catch((error) => {

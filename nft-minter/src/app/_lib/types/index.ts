@@ -12,7 +12,20 @@ export type UserFollowing = Tables<"user_following">
 
 export type Transaction = Tables<"transactions">
 
-// export interface NFTInfo extends NFT {
-  // collections: Collection | null;
-  // profiles: UserProfile | null;
-// }
+// NFT列表页
+export interface NFTInfo extends NFT {
+  collection: Collection | null;
+  profile: UserProfile | null;
+}
+
+// NFT详情页
+export interface NFTDetail extends NFT {
+  collection: Collection | null;
+  owner: UserProfile | null;
+  creator: UserProfile | null;
+}
+
+// 属性键值对
+export interface AttributeKeyValue {
+  [key: string]: string; // 例如：{ "颜色": "红色", "稀有度": "史诗" }
+}

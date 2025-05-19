@@ -4,9 +4,7 @@ import Image from 'next/image';
 import { Button } from '@/app/_components/ui/Button';
 import { createClient } from '@/app/_lib/supabase/client';
 import { Camera, Upload, Loader2, CheckCircle } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { UserProfile } from '@/app/_lib/types';
-import { getUserProfile } from '@/app/_lib/data-service';
 
 // 输入字段组件
 const InputField = ({

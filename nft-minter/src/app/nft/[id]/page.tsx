@@ -65,8 +65,12 @@ export default async function NFTDetails({ params }: { params: Promise<{ id: str
 
   const imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
 
-  const creator = await getProfileByUserId(nft.creator_id || '')
-  const owner = await getProfileByWallet(nft.owner_address || '')
+  // const creator = await getProfileByUserId(nft.creator_id || '')
+  // const owner = await getProfileByWallet(nft.owner_address || '')
+
+  const creator = nft.creator!
+  const owner = nft.owner!
+  const collection = nft.collection
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -85,19 +89,19 @@ export default async function NFTDetails({ params }: { params: Promise<{ id: str
         {/* 右侧 NFT 信息 */}
         <div className="flex flex-col gap-6">
           {/* 集合信息 */}
-          {/* {nft.collection && (
-                <Link href={`/collections/${nft.collection.name}`} className="flex items-center gap-2">
-                  <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                    <Image
-                      src={nft.collection.image}
-                      alt={nft.collection.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <span className="text-sm">{nft.collection.name}</span>
-                </Link>
-              )} */}
+          {collection && (
+            <Link href={`/collections/${collection.name}`} className="flex items-center gap-2">
+              <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                <Image
+                  src={collection.logo_image_url || ''}
+                  alt={collection.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <span className="text-sm">{collection.name}</span>
+            </Link>
+          )}
 
           {/* NFT 标题 */}
           <h1 className="text-3xl font-bold">{nft.name}</h1>

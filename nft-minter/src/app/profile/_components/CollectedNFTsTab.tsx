@@ -1,12 +1,8 @@
 import React from 'react';
 import { NFTCard } from '@/app/_components/ui/NFTCard';
-import { NFT } from '@/app/_lib/types';
+import { NFT, NFTInfo } from '@/app/_lib/types';
 
-interface CollectedNFTsTabProps {
-  nfts: NFT[];
-}
-
-const nfts: NFT[] = []
+const nfts: NFTInfo[] = []
 //   {
 //     id: 'nft-c1',
 //     title: '未来都市 #001',

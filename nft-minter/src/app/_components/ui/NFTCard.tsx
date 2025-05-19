@@ -1,8 +1,8 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Collection, NFT } from '@/app/_lib/types';
-import { formatIPFSUrl } from '@/app/_lib/utils';
+import { NFTInfo } from '@/app/_lib/types';
+import { formatIPFSUrl, formatTimeAgo } from '@/app/_lib/utils';
 
 // interface NFTCardProps {
 //   nft: NFT;
@@ -22,18 +22,16 @@ import { formatIPFSUrl } from '@/app/_lib/utils';
 // };
 
 export const NFTCard: React.FC<{
-  nft: NFT;
+  nft: NFTInfo;
 }> = ({ nft }) => {
   if (!nft) return <></>
-  const { name, id } = nft
+  const { name, id, collection, profile } = nft
 
   const imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
-  let
-    creator,
-    price,
-    timeAgo,
-    collection,
-    collectionImage = ''
+  const creator = profile?.username || ''
+  const price = 0.001
+  const timeAgo = formatTimeAgo(nft.created_at)
+  const collectionImage = collection?.logo_image_url || ''
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-700 transition-transform hover:translate-y-[-4px] hover:shadow-lg">
       <Link href={`/nft/${id}`}>
@@ -53,14 +51,14 @@ export const NFTCard: React.FC<{
                   <div className="relative w-5 h-5 mr-1.5 rounded-full overflow-hidden">
                     <Image
                       src={collectionImage}
-                      alt={collection}
+                      alt={collection.name}
                       fill
                       className="object-cover"
                       sizes="20px"
                     />
                   </div>
                 )}
-                <span className="text-xs truncate max-w-[100px]">{collection}</span>
+                <span className="text-xs truncate max-w-[100px]">{collection.name}</span>
               </div>
             </div>
           )}
