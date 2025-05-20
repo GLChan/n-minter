@@ -1,108 +1,150 @@
-
-/**
- * 表示 NFT 的通用状态。
- * 这些值可以用于追踪 NFT 从铸造到不同应用场景的生命周期。
- */
-export enum NftStatus {
+// NFT 市场销售状态 (NftMarketStatus)
+export enum NFTMarketStatus {
+  /**
+   * 未上架 (Not Listed)
+   * NFT 在用户钱包中，但未主动以固定价格或拍卖形式出售。
+   * 这也可能是拍卖结束未成交、过期或卖家主动下架后的状态。
+   */
+  NotListed = 'NotListed',
 
   /**
-   * 待处理 (Pending)
-   * NFT 正在等待处理，例如等待铸造、挂单销售等。
+   * 固定价格出售 (Listed - Fixed Price)
+   * NFT 以设定的“立即购买”价格正在出售。
    */
-  Pending = 'pending',
+  ListedFixedPrice = 'ListedFixedPrice',
 
   /**
-   * 已铸造 (Minted)
-   * NFT 已经被成功创建并记录在区块链上，但可能尚未进行其他操作（如挂单销售或在游戏中使用）。
-   * 这通常是 NFT 的初始状态。
+   * 拍卖中 (Listed - Auction)
+   * NFT 正在通过限时拍卖的形式出售。
+   * (注意:  主要支持英式拍卖，即价格向上竞拍)
    */
-  Minted = 'minted',
+  ListedAuction = 'ListedAuction',
 
   /**
-   * 挂单销售中 (Listed for Sale)
-   * NFT 当前正在市场上以特定价格或通过拍卖等方式挂单出售。
+   * 为特定买家保留 (Reserved for Specific Buyer)
+   * NFT 已上架，但设置为仅供特定钱包地址购买（私下销售）。
    */
-  ListedForSale = 'listed_for_sale',
+  ReservedForBuyer = 'ReservedForBuyer',
 
   /**
-   * 已售出 (Sold)
-   * NFT 已经成功售出，所有权已转移给新的买家。
+   * 上架已过期 (Expired Listing)
+   * NFT 的上架销售期限已到，但未成功售出。
    */
-  Sold = 'sold'
+  ExpiredListing = 'ExpiredListing',
+
+  /**
+   * 非活跃上架 (Inactive Listing)
+   * 指一个曾经的上架记录（通常是固定价格）没有被正确取消，
+   * 理论上如果物品被转回原钱包，该上架仍可能被满足。
+   * 这种情况需要用户手动取消以确保安全。
+   */
+  InactiveListing = 'InactiveListing',
 }
 
-
-/**
- * 表示 NFT 的挂单或市场状态。
- * 这些值对应您在 Supabase 数据库中为 `listing_status` 字段定义的 ENUM 类型或 TEXT 值。
- */
-export enum NftListingStatus {
+// 2. NFT 可见性状态 (NftVisibilityStatus)
+export enum NFTVisibilityStatus {
   /**
-   * 未上架/未挂单
-   * NFT 存在于用户的钱包中，但当前未在平台或任何市场上挂单出售。
-   * 这是 NFT 的默认状态，或者用户取消挂单后的状态。
+   * 可见 (Visible)
+   * NFT 正常显示，可以在平台上被搜索和查看。这是默认状态。
    */
-  NotListed = 'not_listed',
+  Visible = 'Visible',
 
   /**
-   * 固定价格挂单中
-   * NFT 正在以一个固定的价格在平台或指定市场上出售。
+   * 被用户隐藏 (Hidden By User)
+   * NFT 的所有者选择从其公开的  个人资料中隐藏此项目。
+   * 其他人可能无法直接看到，但 NFT 仍在所有者钱包中。
    */
-  ListedFixedPrice = 'listed_fixed_price',
+  HiddenByUser = 'HiddenByUser',
 
   /**
-   * 拍卖中
-   * NFT 正在通过拍卖的形式在平台或指定市场上出售。
+   * 被  下架/内容不可用 (Delisted by  / Content Not Available)
+   * 由于违反服务条款、版权问题或其他原因， 已将此 NFT 从平台移除或限制其可见性。
+   * NFT 本身仍在区块链上，但在  上可能无法交易或查看。
    */
-  ListedAuction = 'listed_auction',
+  DelistedByPlatform = 'DelistedByPlatform',
+}
+
+// 3. NFT 拍卖子状态 (NftAuctionSubState)
+export enum NftAuctionSubState {
+  /**
+   * 接受出价 (Accepting Bids)
+   * 拍卖正在进行中，可以接受新的出价。
+   */
+  AcceptingBids = 'AcceptingBids',
 
   /**
-   * 有出价/有报价
-   * NFT 可能未直接挂单，或者已挂单，并且已经收到了一个或多个来自潜在购买者的出价/报价。
+   * 未达到底价 (Reserve Price Not Met)
+   * 拍卖已结束（或正在结束），但出价未达到卖家设定的底价。
+   * （注意：这通常是拍卖结束后的一个结果状态，而不是进行中的状态）
    */
-  HasOffers = 'has_offers',
+  ReserveNotMet = 'ReserveNotMet',
 
   /**
-   * 等待出售完成/交易处理中
-   * 已经达成了初步的销售协议（例如，拍卖中标，或固定价格订单已创建），
-   * 正在等待最终的交易确认（例如，买家付款、区块链交易确认等）。
+   * 拍卖即将结束 (Auction Ending Soon)
+   *  界面可能会提示拍卖即将在短时间内结束。
    */
-  PendingSale = 'pending_sale',
+  EndingSoon = 'EndingSoon',
 
   /**
-   * 已售出
-   * NFT 已经通过平台或追踪的渠道成功售出。
+   * 拍卖已成功结束 (Auction Ended Successfully)
+   * 拍卖结束，有中标者，NFT 正在或等待转移。
+   * （这通常会使NFT市场状态变为 NotListed 或进入转移流程）
    */
-  Sold = 'sold',
+  EndedSuccessfully = 'EndedSuccessfully',
 
   /**
-   * 已下架/取消挂单
-   * NFT 之前曾被挂单，但已被所有者主动从市场上下架。
+  * 拍卖未成功结束 (Auction Ended Unsuccessfully)
+  * 拍卖结束，但没有成功交易（例如无人出价或未达底价）。
+  * （这通常会使NFT市场状态变为 NotListed 或 ExpiredListing）
+  */
+  EndedUnsuccessfully = 'EndedUnsuccessfully',
+}
+
+// 交易的当前状态
+export enum TransactionStatus {
+  /**
+   * 待处理 (Pending)
+   * 交易已提交到区块链网络，但尚未被矿工打包确认。
+   * 这是交易的初始状态。
    */
-  Delisted = 'delisted',
+  Pending = 'Pending',
 
   /**
-   * 拍卖结束未售出
-   * NFT 的拍卖已结束，但没有达到底价或没有出价者，未能成功售出。
+   * 成功/已完成 (Successful / Completed)
+   * 交易已在区块链上成功确认和执行。
+   * 相关的资产转移（如 NFT 所有权、资金支付）已完成。
    */
-  AuctionEndedNoSale = 'auction_ended_no_sale',
+  Successful = 'Successful',
 
   /**
-   * 已质押/已锁定
-   * NFT 当前被质押在某个合约中（例如为了获取收益），或者因为其他应用内逻辑（如游戏中使用）
-   * 而被暂时锁定，不能进行交易。
+   * 失败/已回滚 (Failed / Reverted)
+   * 交易在区块链上执行失败。
+   * 原因可能包括：Gas 不足、智能合约逻辑错误导致回滚、超出区块 Gas 限制等。
+   * 资产状态通常会恢复到交易之前的状态（除了消耗的 Gas）。
    */
-  Staked = 'staked', // 或者 'locked'，根据您的具体用词
+  Failed = 'Failed',
 
   /**
-   * 草稿/待发布
-   * 用户已经开始创建挂单信息，但尚未最终确认并公开发布。
+   * 已取消 (Cancelled)
+   * 用户（通常是发起方，即 seller_address 或 buyer_address，取决于交易类型）
+   * 主动发起了一个取消操作，并且该取消操作成功地阻止了原始交易的执行。
+   * 这通常是通过发送一个具有相同 nonce 但更高 Gas 价格的空交易或替代交易来实现的。
+   * (注意: 并非所有交易都容易被取消，且取消本身也是一笔交易)
    */
-  Draft = 'draft',
+  Cancelled = 'Cancelled',
 
   /**
-   * 已过期
-   * 挂单有时间限制（例如限时拍卖或限时固定价格挂单），在到期后未成功交易的状态。
+   * (可选) 等待确认中/处理中 (Confirming / Processing)
+   * 交易已获得一些区块确认，但你的应用可能需要更多数量的确认才认为其“最终安全”。
+   * 或者，链上交易已成功，但你的后端正在进行相关的后续处理（如更新其他数据、发送通知等）。
+   * 如果不需要这种细粒度，可以直接从 Pending 到 Successful/Failed。
    */
-  Expired = 'expired'
+  // Confirming = 'Confirming',
+}
+
+export enum TransactionType {
+  Mint = 'MINT',        // NFT 铸造
+  Sale = 'SALE',        // NFT 销售 (你目前表结构主要针对的就是这个)
+  Transfer = 'TRANSFER',  // NFT 直接转移 (非销售)
+  // 可以根据需要扩展，例如：List, Delist, Offer, CancelOffer 等，如果这些操作也作为独立的交易记录的话
 }

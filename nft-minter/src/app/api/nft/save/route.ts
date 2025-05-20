@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/app/_lib/supabase/server';
-import { AttributeKeyValue, NFT, UserProfile } from '@/app/_lib/types';
-import { getUserProfile, saveNFT, saveNFTAttributes } from '@/app/_lib/data-service';
+import { NFT, Transaction } from '@/app/_lib/types';
+import { saveNFT, saveNFTAttributes, saveTransaction } from '@/app/_lib/actions';
+import { NFTMarketStatus, NFTVisibilityStatus, TransactionStatus, TransactionType } from '@/app/_lib/types/enums';
 
 export async function POST(request: Request) {
   const supabase = await createClient();
-  
+
   try {
     // 1. 验证用户身份
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    console.log('user', user);
     if (authError || !user) {
       return NextResponse.json({ error: '未授权' }, { status: 401 });
     }
@@ -31,7 +31,6 @@ export async function POST(request: Request) {
       collectionId,
       metadata,
       transactionHash,
-      status = 'completed'
     } = body;
 
     // --- Input Validation (Basic) ---
@@ -66,7 +65,8 @@ export async function POST(request: Request) {
       owner_id: user.id, // 设置必需的owner_id字段
       creator_id: user.id, // 设置必需的owner_id字段
       collection_id: collectionId,
-      status: status
+      status: NFTVisibilityStatus.HiddenByUser,
+      list_status: NFTMarketStatus.NotListed
     }
 
     const nftData = await saveNFT(partialNFT)
@@ -77,6 +77,19 @@ export async function POST(request: Request) {
     console.log('NFT attributes 保存成功:', nftAttributes);
 
     // --- 插入交易数据 ---
+    const transaction: Partial<Transaction> = {
+      transaction_hash: transactionHash,
+      transaction_type: TransactionType.Mint,
+      status: TransactionStatus.Pending,
+      transaction_time: new Date().toISOString(),
+      nft_id: nftData.id,
+      buyer_address: ownerAddress, // to
+      seller_address: contractAddress, // from
+      price: 0,
+      currency: 'ETH',
+    }
+    const transactionData = await saveTransaction(transaction)
+    console.log('交易数据保存成功:', transactionData);
 
     return NextResponse.json({ message: 'NFT 保存成功', data: nftData }, { status: 201 });
 

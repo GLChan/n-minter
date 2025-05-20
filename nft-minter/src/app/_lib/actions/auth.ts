@@ -2,7 +2,8 @@
 
 import { cookies } from 'next/headers';
 import { COOKIE_KEYS } from '../constants';
-// import { createClient } from '../supabase/server';
+import { createClient } from '../supabase/server';
+import { generateWalletP } from '../utils';
 
 // {
 //   "alg": "HS256"
@@ -16,16 +17,38 @@ import { COOKIE_KEYS } from '../constants';
 //   "iss": "YOUR_ISSUER",
 //   "aud": "YOUR_AUDIENCE"
 // }
-export async function signInAction({ jwt }: { jwt: string }) {
-  // const supabase = await createClient()
+export async function signInAction({ address, chainId, nonce }: { address: string, chainId: number, nonce: string }) {
+  const supabase = await createClient()
 
-  console.log('signInAction', jwt);
-  (await cookies()).set(COOKIE_KEYS.JWT, jwt, { secure: true });
+  const pwd = generateWalletP(address)
+  const data = {
+    email: `${address.toLowerCase()}@ethereum.wallet`,
+    password: pwd
+  }
+  const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword(data)
+
+  if (sessionError) {
+    console.error('创建会话失败:', sessionError);
+    return { success: false, error: sessionError };
+  }
+
+  console.log('signInAction', sessionData);
+
+  if (sessionData) {
+    await supabase.auth.setSession({
+      access_token: sessionData.session.access_token,
+      refresh_token: sessionData.session.refresh_token,
+    });
+  }
+  // (await cookies()).set(COOKIE_KEYS.JWT, jwt, { secure: true });
+  (await cookies()).set(COOKIE_KEYS.JWT, sessionData.session.access_token, { secure: true });
 }
 
 export async function signOutAction() {
   console.log('signOutAction');
   (await cookies()).delete(COOKIE_KEYS.JWT);
+  const supabase = await createClient()
+  await supabase.auth.signOut()
 }
 
 export async function isAuthAction() {

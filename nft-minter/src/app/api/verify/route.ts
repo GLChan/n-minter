@@ -22,14 +22,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'Invalid nonce.' }, { status: 422 });
   }
 
-  const jwt = await generateJwt({
+  // const jwt = await generateJwt({
+  //   address: fields.address,
+  //   chainId: fields.chainId,
+  //   domain: fields.domain,
+  //   nonce: fields.nonce,
+  // });
+
+  // return NextResponse.json({ jwt });
+
+  return NextResponse.json({
     address: fields.address,
     chainId: fields.chainId,
     domain: fields.domain,
     nonce: fields.nonce,
   });
-
-  return NextResponse.json({ jwt });
 }
 
 async function generateJwt(payload: { address: string; chainId: number; domain: string; nonce: string }) {

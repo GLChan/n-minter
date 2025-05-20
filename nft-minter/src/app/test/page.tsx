@@ -5,7 +5,7 @@ import { Button } from '../_components/ui/Button';
 import { createClient } from '../_lib/supabase/client';
 
 
-export default function TestNFTAttributes() {
+export default function TestPage() {
   const [result, setResult] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
@@ -35,22 +35,22 @@ export default function TestNFTAttributes() {
 
       const supabase = await createClient();
 
-      const { data: { session } } = await supabase.auth.getSession()
-      console.log(session)
+      // const { data: { user }, error: userError } = await supabase.auth.getUser()
+      // console.log('user', user)
+      // console.log('userError', userError)
+
       const response = await fetch('/api/nft/save', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        },
         body: JSON.stringify(testData),
       });
 
       const data = await response.json();
       setResult(JSON.stringify(data, null, 2));
     } catch (error) {
+      console.log('error', error)
       setResult(`错误: ${error instanceof Error ? error.message : '未知错误'}`);
     } finally {
+      console.log('finally')
       setLoading(false);
     }
   };
@@ -59,12 +59,12 @@ export default function TestNFTAttributes() {
     <div className="p-4">
       <h2 className="text-xl font-semibold mb-4">测试 NFT 属性保存</h2>
       <Button
-        onClick={testSaveNFT} 
+        onClick={testSaveNFT}
         disabled={loading}
       >
         {loading ? '保存中...' : '测试保存 NFT'}
       </Button>
-      
+
       {result && (
         <div className="mt-4">
           <h3 className="font-medium mb-2">结果：</h3>

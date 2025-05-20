@@ -289,8 +289,10 @@ export type Database = {
           nft_id: string
           price: number
           seller_address: string
+          status: string
           transaction_hash: string
           transaction_time: string | null
+          transaction_type: string
         }
         Insert: {
           buyer_address: string
@@ -300,8 +302,10 @@ export type Database = {
           nft_id: string
           price: number
           seller_address: string
+          status: string
           transaction_hash: string
           transaction_time?: string | null
+          transaction_type: string
         }
         Update: {
           buyer_address?: string
@@ -311,8 +315,10 @@ export type Database = {
           nft_id?: string
           price?: number
           seller_address?: string
+          status?: string
           transaction_hash?: string
           transaction_time?: string | null
+          transaction_type?: string
         }
         Relationships: [
           {

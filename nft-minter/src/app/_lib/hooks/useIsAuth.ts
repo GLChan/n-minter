@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import useAsyncEffect from './useAsyncEffect';
 import { isAuthAction } from '../actions/auth';
-import { Optional } from '../types/common';
+import { Optional } from '../types';
 
 export default function useIsAuth() {
   const [isAuth, setIsAuth] = useState<Optional<boolean>>();

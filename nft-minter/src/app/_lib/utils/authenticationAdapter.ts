@@ -38,7 +38,13 @@ export const authenticationAdapter = createAuthenticationAdapter({
     }
     const data = await response.json();
 
-    await signInAction({ jwt: data.jwt });
+    console.log('verify', data)
+
+    await signInAction({
+      address: data.address,
+      chainId: data.chainId,
+      nonce: data.nonce
+    });
 
     eventEmitter.emit(EMITTER_EVENTS.SIGN_IN);
 
