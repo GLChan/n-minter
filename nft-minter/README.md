@@ -145,3 +145,9 @@ npx hardhat test ./test/MyNFT.test.ts
 npx hardhat compile
 npx hardhat run scripts/deploy.js --network localhost
 ```
+
+React
+Nextjs - App Router
+Supabase SSR
+RainbowKit wagmi viem
+Next-Auth

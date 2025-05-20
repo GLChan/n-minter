@@ -1,97 +1,22 @@
-'use client';
+import { ReactNode } from 'react';
+import RainbowKitProvider from './RainbowKitProvider';
+import { cookieToInitialState } from 'wagmi';
+import wagmiConfig from '@/app/_lib/config/wagmi';
+import { headers } from 'next/headers';
 
-import * as React from 'react';
-import {
-  RainbowKitProvider,
-  getDefaultConfig,
-  darkTheme,
-} from '@rainbow-me/rainbowkit';
-import { http, WagmiProvider } from 'wagmi';
-import {
-  mainnet,
-  polygon,
-  optimism,
-  arbitrum,
-  base,
-  zora,
-  sepolia,
-  holesky,
-  // hoodi,
-  // localhost
-} from 'wagmi/chains';
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+type ProvidersProps = {
+  children: ReactNode;
+};
 
-// 定义支持的链
-const supportedChains = process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true'
-  ? [
-    mainnet,
-    polygon,
-    optimism,
-    arbitrum,
-    base,
-    zora,
-    sepolia,
-    holesky,
-    // hoodi,
-    // localhost,
-  ] as const
-  : [mainnet, polygon, optimism, arbitrum, base, zora] as const;
+export default async function Providers({ children }: ProvidersProps) {
+  const headersStore = await headers();
+  const cookie = headersStore.get('cookie');
 
-
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
-if (!projectId) {
-  throw new Error("Error: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set in .env.local");
-}
-// 创建配置
-const config = getDefaultConfig({
-  appName: 'NFT Minter',
-  projectId,
-  chains: supportedChains,
-  // transports: {
-  //   // [sepolia.id]: http('https://lb.drpc.org/ogrpc?network=sepolia&dkey=AiE14RnsM0Vylg_ZUda7Y9StaQiENI0R8IRn2gG4MHGt')
-  //   [sepolia.id]: http('https://eth-mainnet.g.alchemy.com/v2/mukb08KnIcPKZFV3R8p4sC3Gq0ZF8f4h')
-  // },
-  ssr: false,
-});
-
-// 安全地检查 config 结构
-// console.log('Wagmi config keys:', Object.keys(config));
-// console.log('Wagmi config chains:', config.chains);
-
-const queryClient = new QueryClient();
-
-export function Web3Provider({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const rainbowKitTheme = darkTheme({
-    accentColor: '#3b82f6',
-    accentColorForeground: 'white',
-    borderRadius: 'medium',
-    fontStack: 'system',
-  });
-
-  if (!mounted) {
-    return null;
-  }
+  const initialState = cookieToInitialState(wagmiConfig, cookie);
 
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider
-          theme={rainbowKitTheme}
-          modalSize="compact"
-          appInfo={{
-            appName: 'NFT Minter',
-            learnMoreUrl: 'http://localhost:3000',
-          }}
-        >
-          {children}
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <RainbowKitProvider initialState={initialState}>
+      {children}
+    </RainbowKitProvider>
   );
-} 
+}

@@ -38,6 +38,19 @@ export async function getProfileByWallet(walletAddress: string) {
   return data;
 }
 
+
+export async function createGuest(profile: Partial<UserProfile>) {
+  const { data, error } = await supabase.from("profiles").insert(profile as UserProfile);
+
+  if (error) {
+    console.error(error);
+    throw new Error("Profiles could not be created");
+  }
+
+  return data;
+}
+
+
 export async function getProfileByUserId(userId: string): Promise<UserProfile> {
   const { data: profile, error } = await supabase
     .from('profiles')

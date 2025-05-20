@@ -2,17 +2,13 @@
 
 import React from 'react'; // Simplified React import
 import Link from 'next/link';
-// Removed useRouter, Loader2 as they are now in SearchNavbarItem
-// Removed Button from ./ui/Button as it might not be used directly in Navbar anymore
-import { WalletConnectWrapper } from './WalletConnectWrapper';
-import { SearchNavbarItem } from './SearchNavbarItem'; // Import the new search component
+
+// import { WalletConnectWrapper } from './WalletConnectWrapper';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+
+import { SearchNavbarItem } from './SearchNavbarItem';
 
 export const Navbar = () => {
-  // Removed search-related states: isSearchOpen, searchQuery, isSearching, searchRef
-  // Removed search-related useEffect for handleClickOutside
-  // Removed search-related functions: handleSearchSubmit, handleTagSearch
-  // Removed quickTags array
-
   const navLinks = [
     { title: '探索', href: '/explore' },
     { title: '创建', href: '/create' },
@@ -49,7 +45,8 @@ export const Navbar = () => {
           <SearchNavbarItem />
           
           {/* 钱包连接组件 */}
-          <WalletConnectWrapper />
+          {/* <WalletConnectWrapper /> */}
+          <ConnectButton />
           
           {/* 移动端菜单按钮 */}
           <button 

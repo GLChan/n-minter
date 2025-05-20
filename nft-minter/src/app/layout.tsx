@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "@rainbow-me/rainbowkit/styles.css";
-import { Web3Provider } from "@/providers/Web3Provider";
+import Web3Provider from "@/providers/Web3Provider";
 import "./globals.css";
-import { AuthProvider } from '@/contexts/AuthContext';
 import { Navbar } from "./_components/Navbar";
 import { Footer } from "./_components/Footer";
 
@@ -26,7 +25,7 @@ export default function RootLayout({
       >
 
         <Web3Provider>
-          <AuthProvider>
+          {/* <AuthProvider> */}
             <div className="min-h-screen flex flex-col">
               <Navbar />
 
@@ -37,7 +36,7 @@ export default function RootLayout({
               <Footer />
             </div>
 
-          </AuthProvider>
+          {/* </AuthProvider> */}
         </Web3Provider>
       </body>
     </html>

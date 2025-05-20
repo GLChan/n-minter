@@ -1,5 +1,6 @@
 import { Tables } from "./database.types";
 
+export type Optional<T> = T | undefined | null;
 
 export type NFT = Tables<"nfts">
 export type Collection = Tables<"collections">

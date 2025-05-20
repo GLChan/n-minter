@@ -3,6 +3,18 @@ export const secureCookieName = 'secure';
 
 export const PINATA_IPFS_GATEWAY_BASE = 'https://azure-many-sole-7.mypinata.cloud/ipfs/'
 
+export const COOKIE_KEYS = {
+  JWT: 'jwt'
+};
+export const EMITTER_EVENTS = {
+  SIGN_IN: 'sign_in',
+  SIGN_OUT: 'sign_out'
+};
+export const JWT_CONFIG = {
+  ISSUER: 'YOUR_ISSUER',
+  AUDIENCE: 'YOUR_AUDIENCE',
+}
+
 export const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 
 export const contractAbi = [
