@@ -34,17 +34,12 @@ export default function RainbowKitProvider({
     setIsAuth(isAuth);
     setIsLoading(false);
 
-    // 监听登录事件
     eventEmitter.on(EMITTER_EVENTS.SIGN_IN, () => setIsAuth(true));
 
-    // 监听登出事件
     eventEmitter.on(EMITTER_EVENTS.SIGN_OUT, () => setIsAuth(false));
 
     return () => {
-      // 移除登录事件监听
       eventEmitter.removeListener(EMITTER_EVENTS.SIGN_IN);
-      // 移除登出事件监听
-      eventEmitter.removeListener(EMITTER_EVENTS.SIGN_OUT);
     };
   }, []);
 

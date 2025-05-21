@@ -3,6 +3,7 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Button } from '@/app/_components/ui/Button';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { id as ethersId } from 'ethers'; // 用于获取事件签名的哈希
 import { contractAddress, contractAbi } from '@/app/_lib/constants'; // 引入合约信息
 import { getCollectionsByUserId } from '@/app/_lib/actions';
@@ -10,6 +11,7 @@ import { createClient } from '../_lib/supabase/client';
 import { Collection } from '../_lib/types';
 
 export default function CreateNFT() {
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -319,6 +321,10 @@ export default function CreateNFT() {
             } else {
               setProcessingStep("NFT 创建并保存成功！");
             }
+            
+            // NFT 创建成功后跳转到成功页面
+            const successUrl = `/create/success?id=${tokenId}&image=${encodeURIComponent(uploadedImageUrl || '')}&name=${encodeURIComponent(name)}`;
+            router.push(successUrl);
 
           } catch (saveError) {
             console.error("保存 NFT 数据到 Supabase 时出错:", saveError);
@@ -541,9 +547,9 @@ export default function CreateNFT() {
           {/* 处理状态和错误/成功提示 */}
           {isProcessing && <p className="text-sm text-blue-600 dark:text-blue-400">{processingStep || '处理中...'}</p>}
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          {successData && (
+          {successData && !isProcessing && (
             <div className="text-green-600 dark:text-green-400 text-sm text-right">
-              <p>铸造成功！</p>
+              <p>铸造成功！正在跳转到成功页面...</p>
               <p>Token ID: {successData.tokenId}</p>
               {/* 可以添加区块浏览器链接 */}
               <a href={`https://sepolia.etherscan.io/tx/${successData.txHash}`} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">

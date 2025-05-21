@@ -1,4 +1,5 @@
 "use server";
+import { redirect } from "next/navigation";
 import { createClient } from "./supabase/server";
 import { AttributeKeyValue, NFT, NFTAttribute, Transaction } from './types';
 
@@ -14,7 +15,10 @@ export async function getUserInfo() {
     .eq("id", user.id)
     .single()
 
-  if (error) throw new Error("Profile could not be retrieved");
+  if (error) {
+    console.error('获取用户信息时出错:', error);
+    redirect('/');
+  }
 
   return data;
 }

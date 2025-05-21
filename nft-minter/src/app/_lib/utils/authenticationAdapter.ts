@@ -3,6 +3,7 @@ import { SiweMessage } from 'siwe';
 import { signInAction, signOutAction } from '@/app/_lib/actions/auth';
 import { eventEmitter } from '../config/clients/eventEmitter';
 import { EMITTER_EVENTS } from '../constants';
+import { redirect } from 'next/navigation';
 
 export const authenticationAdapter = createAuthenticationAdapter({
   getNonce: async () => {
@@ -47,8 +48,8 @@ export const authenticationAdapter = createAuthenticationAdapter({
     });
 
     eventEmitter.emit(EMITTER_EVENTS.SIGN_IN);
-
-    return true;
+    
+    return true
   },
   signOut: async () => {
     await fetch('/api/logout');

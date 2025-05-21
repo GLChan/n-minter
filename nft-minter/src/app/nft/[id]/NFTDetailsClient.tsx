@@ -1,86 +1,29 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/app/_components/ui/Button';
 import { formatAddress, formatDate, formatIPFSUrl } from '@/app/_lib/utils'; // formatPrice
-import { getNFTAttributes, getNFTById, getNFTHistory, getProfileByUserId } from '@/app/_lib/data-service';
+import { useUnlistNFTModal } from '@/app/_components/context/UnlistNFTModalContext';
 import { NFTAttribute, Transaction, UserProfile } from '@/app/_lib/types';
-import { getUserInfo } from '@/app/_lib/actions';
-import { getTranslations } from 'next-intl/server';
 
-export default async function NFTDetails({ params }: { params: Promise<{ id: string }> }) {
-  const t = await getTranslations('NFT');
+interface NFTDetailsProps {
+  nft: any;
+  attributes: NFTAttribute[];
+  history: Transaction[];
+  creator: any;
+  owner: any;
+  collection: any;
+  userProfile: UserProfile | null;
+  t: any;
+}
 
-  const user = await getUserInfo()
-  const userProfile = user ? await getProfileByUserId(user.id) : null
-
-  // const nft = {
-  //   id: '1',
-  //   title: '数字生活 #457',
-  //   description: '这是一个数字生活系列NFT，展示了未来世界中的日常场景，结合了科技与自然元素，呈现出独特的艺术风格。',
-  //   image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80',
-  //   creator: {
-  //     name: '@digitalartist',
-  //     address: '0x1234567890123456789012345678901234567890',
-  //     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop'
-  //   },
-  //   owner: {
-  //     name: '@collector',
-  //     address: '0x9876543210987654321098765432109876543210',
-  //     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop'
-  //   },
-  //   collection: {
-  //     name: '数字生活系列',
-  //     image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80'
-  //   },
-  //   price: 2.5,
-  //   currency: 'ETH',
-  //   mintDate: '2023-08-15',
-  //   tokenId: 457,
-  //   history: 
-  // };
-
-
-  // const attributes = [
-  //   { trait_type: '背景', value: '蓝色' },
-  //   { trait_type: '风格', value: '赛博朋克' },
-  //   { trait_type: '材质', value: '金属' },
-  //   { trait_type: '稀有度', value: '稀有' }
-  // ]
-  // const history = [
-  //   { event: '铸造', from: '0x00000', to: '0x1234...7890', price: 0, date: '2023-08-15' },
-  //   { event: '出售', from: '0x1234...7890', to: '0x9876...3210', price: 2.5, date: '2023-09-21' },
-  //   { event: '上架', from: '0x9876...3210', to: '0x9876...3210', price: 3.0, date: '2023-10-05' },
-  //   { event: '出价', from: '0x7654...2109', to: '0x9876...3210', price: 2.8, date: '2023-10-08' },
-  //   { event: '出价', from: '0xabcd...ef01', to: '0x9876...3210', price: 3.1, date: '2023-10-12' },
-  //   { event: '接受出价', from: '0x9876...3210', to: '0xabcd...ef01', price: 3.1, date: '2023-10-15' },
-  //   { event: '转让', from: '0xabcd...ef01', to: '0x4567...890a', price: 0, date: '2023-11-03' },
-  //   { event: '上架', from: '0x4567...890a', to: '0x4567...890a', price: 4.5, date: '2023-12-01' },
-  //   { event: '降价', from: '0x4567...890a', to: '0x4567...890a', price: 3.8, date: '2023-12-20' },
-  //   { event: '购买', from: '0x4567...890a', to: '0xfedc...ba98', price: 3.8, date: '2024-01-10' },
-  //   { event: '拍卖开始', from: '0xfedc...ba98', to: '0xfedc...ba98', price: 4.0, date: '2024-02-05' },
-  //   { event: '出价', from: '0x1357...2468', to: '0xfedc...ba98', price: 4.2, date: '2024-02-07' },
-  //   { event: '出价', from: '0x8642...7531', to: '0xfedc...ba98', price: 4.5, date: '2024-02-08' },
-  //   { event: '拍卖结束', from: '0xfedc...ba98', to: '0x8642...7531', price: 4.5, date: '2024-02-10' }
-  // ]
-
-  // 'not_listed', 'listed', 'sold', 'cancelled'
-  const { id } = await params;
-
-  const nft = await getNFTById(id)
-
-  const attributes: NFTAttribute[] = await getNFTAttributes(id)
-
-  const history: Transaction[] = await getNFTHistory(id)
-
-  const imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
-
-  // const creator = await getProfileByUserId(nft.creator_id || '')
-  // const owner = await getProfileByWallet(nft.owner_address || '')
-
-  const creator = nft.creator!
-  const owner = nft.owner!
-  const collection = nft.collection
+export default function NFTDetailsClient({ nft, attributes, history, creator, owner, collection, userProfile, t }: NFTDetailsProps) {
+  const { openUnlistModal } = useUnlistNFTModal();
+  
+  const imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : '';
+  const isOwner = userProfile && nft.owner_address === userProfile.wallet_address;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -165,11 +108,11 @@ export default async function NFTDetails({ params }: { params: Promise<{ id: str
                   <span className="text-lg">{nft.list_currency || 'ETH'}</span>
                 </div>
               </div>
-              {userProfile && nft.owner_address === userProfile.wallet_address ? (
-                <Button size="lg">下架</Button>
-              ) : (
+              {isOwner && nft.list_price ? (
+                <Button size="lg" variant="destructive" onClick={() => openUnlistModal(nft)}>下架</Button>
+              ) : !isOwner && nft.list_price ? (
                 <Button size="lg">购买此 NFT</Button>
-              )}
+              ) : null}
             </div>
           </div>
 

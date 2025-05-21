@@ -28,7 +28,6 @@ export default function CompatibleRainbowKit({ children, ...props }: CompatibleR
     appInfo={{
       appName: 'NFT Minter',
       disclaimer: Disclaimer,
-
     }}>
     {compatibleChildren}
   </RainbowKitProvider>;

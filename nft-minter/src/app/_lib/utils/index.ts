@@ -105,5 +105,6 @@ export function generateWalletP(walletAddress: string) {
 }
 
 export function formatDate(date: Date | string): string {
+  if (!date) return '';
   return format(new Date(date), 'yyyy-MM-dd');
 }

@@ -25,6 +25,15 @@ export async function signInAction({ address, chainId, nonce }: { address: strin
     email: `${address.toLowerCase()}@ethereum.wallet`,
     password: pwd
   }
+
+  // 判断是否存在用户
+  // const { data: userData, error: userError } = await supabase.auth.getUser()
+  // if (userError) {
+  //   console.error('获取用户失败:', userError);
+  //   return { success: false, error: userError };
+  // }
+
+
   const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword(data)
 
   if (sessionError) {

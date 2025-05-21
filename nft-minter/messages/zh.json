@@ -1,0 +1,36 @@
+{
+  "HomePage": {
+    "title": "Hello world!"
+  },
+  "NFT": {
+    "transaction_type": {
+      "MINT": "铸造",
+      "SALE": "出售",
+      "TRANSFER": "转移",
+      "UNLIST": "下架"
+    },
+    "attributes": {
+      "background": "背景",
+      "style": "风格",
+      "material": "材质",
+      "rarity": "稀有度",
+      "content": "内容"
+    },
+    "attributes_value": {
+      "blue": "蓝色",
+      "red": "红色",
+      "green": "绿色",
+      "yellow": "黄色",
+      "purple": "紫色",
+      "orange": "橙色",
+      "pink": "粉色",
+      "white": "白色",
+      "black": "黑色",
+      "gray": "灰色",
+      "brown": "棕色",
+      "gold": "金色",
+      "silver": "银色",
+      "ipod": "iPod"
+    }
+  }
+}

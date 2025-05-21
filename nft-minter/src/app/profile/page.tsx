@@ -7,6 +7,8 @@ import { CopyButton } from './_components/CopyButton';
 import { formatDate } from '../_lib/utils';
 import { CollectedNFTsTab, CreatedNFTsTab, ActivityTab, SettingsTab } from './_components';
 import Spinner from '../_components/Spinner';
+import OwnedNFTsTab from '../dashboard/_components/OwnedNFTsTab';
+import { OffersTab } from '../dashboard/_components/OffersTab';
 
 export default async function ProfilePage({
   searchParams,
@@ -19,7 +21,7 @@ export default async function ProfilePage({
 
   const profile: UserProfile = await getUserInfo()
 
-  const currentTab = tabParam || 'collected'; // 默认标签页
+  const currentTab = tabParam || 'nft'; // 默认标签页
   const currentPage = Number(pageParam) || 1;
 
   return (
@@ -65,9 +67,11 @@ export default async function ProfilePage({
       {/* Tab Content */}
       <div className="container mx-auto px-4 py-8">
         <Suspense fallback={<Spinner />}>
+          {currentTab === 'nft' && <OwnedNFTsTab profile={profile} page={currentPage} />}
           {currentTab === 'collected' && <CollectedNFTsTab/>}
           {currentTab === 'created' && <CreatedNFTsTab/>}
           {currentTab === 'activity' && <ActivityTab />}
+          {currentTab === 'offers' && <OffersTab />}
           {currentTab === 'settings' && (
             <SettingsTab profile={profile} />
           )}

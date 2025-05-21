@@ -146,5 +146,6 @@ export enum TransactionType {
   Mint = 'MINT',        // NFT 铸造
   Sale = 'SALE',        // NFT 销售 (你目前表结构主要针对的就是这个)
   Transfer = 'TRANSFER',  // NFT 直接转移 (非销售)
-  // 可以根据需要扩展，例如：List, Delist, Offer, CancelOffer 等，如果这些操作也作为独立的交易记录的话
+  Unlist = 'UNLIST',      // NFT 下架
+  // 可以根据需要扩展，例如：Offer, CancelOffer 等，如果这些操作也作为独立的交易记录的话
 }

@@ -3,6 +3,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { NFTInfo } from '@/app/_lib/types';
 import { formatIPFSUrl, formatTimeAgo } from '@/app/_lib/utils';
+import { NFTMarketStatus } from '@/app/_lib/types/enums';
+import { useListNFTModal } from '../context/ListNFTModalContext';
+import { useUnlistNFTModal } from '../context/UnlistNFTModalContext';
 
 // interface NFTCardProps {
 //   nft: NFT;
@@ -23,17 +26,22 @@ import { formatIPFSUrl, formatTimeAgo } from '@/app/_lib/utils';
 
 export const NFTCard: React.FC<{
   nft: NFTInfo;
-}> = ({ nft }) => {
+  isOwner?: boolean;
+}> = ({ nft, isOwner = false }) => {
+  const { openListModal } = useListNFTModal();
+  const { openUnlistModal } = useUnlistNFTModal();
+
   if (!nft) return <></>
   const { name, id, collection, profile } = nft
 
   const imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
   const creator = profile?.username || ''
-  const price = 0.001
+  const price = nft.list_price || 0
   const timeAgo = formatTimeAgo(nft.created_at)
   const collectionImage = collection?.logo_image_url || ''
+
   return (
-    <div className="bg-white dark:bg-zinc-800 rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-700 transition-transform hover:translate-y-[-4px] hover:shadow-lg">
+    <div className="bg-white dark:bg-zinc-800 rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-700 transition-transform hover:translate-y-[-4px] hover:shadow-lg relative group">
       <Link href={`/nft/${id}`}>
         <div className="relative aspect-square overflow-hidden group">
           {imageUrl ? <Image
@@ -97,22 +105,31 @@ export const NFTCard: React.FC<{
         </div>
 
         <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="text-zinc-500 dark:text-zinc-400 mr-1"
-            >
-              <path
-                d="M8.00033 1.33334L5.17033 6.00668L0.00033328 6.82668L4.00033 10.514L3.00033 15.3333L8.00033 13L13.0003 15.3333L12.0003 10.514L16.0003 6.82668L10.8303 6.00668L8.00033 1.33334Z"
-                fill="currentColor"
-              />
-            </svg>
-            <span className="font-bold">{price} ETH</span>
-          </div>
+          {
+            nft.list_status === NFTMarketStatus.NotListed &&
+            <div className="flex items-center">
+              <span className="font-bold">未上架</span>
+            </div>
+          }
+          {
+            nft.list_status !== NFTMarketStatus.NotListed &&
+            <div className="flex items-center">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-zinc-500 dark:text-zinc-400 mr-1"
+              >
+                <path
+                  d="M8.00033 1.33334L5.17033 6.00668L0.00033328 6.82668L4.00033 10.514L3.00033 15.3333L8.00033 13L13.0003 15.3333L12.0003 10.514L16.0003 6.82668L10.8303 6.00668L8.00033 1.33334Z"
+                  fill="currentColor"
+                />
+              </svg>
+              <span className="font-bold">{price} ETH</span>
+            </div>
+          }
           <Link
             href={`/nft/${id}`}
             className="text-xs px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20"
@@ -121,6 +138,39 @@ export const NFTCard: React.FC<{
           </Link>
         </div>
       </div>
+
+      {/* 鼠标悬停时从底部滑出的上架按钮 */}
+      {isOwner && (
+        <div className="absolute bottom-0 left-0 right-0 to-transparent transform translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-in-out flex justify-center">
+          {nft.list_status === NFTMarketStatus.NotListed && 
+          <button 
+            className="text-sm font-medium px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-lg w-1/2 cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              openListModal(nft);
+            }}
+          >
+            上架出售
+          </button>
+          }
+          {/* 下架按钮 */}
+          {nft.list_status !== NFTMarketStatus.NotListed &&
+            <button className="text-sm font-medium px-6 py-3 bg-red-600 text-white hover:bg-red-700 transition-colors shadow-lg w-1/2 cursor-pointer" onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              openUnlistModal(nft);
+            }}>
+              下架
+            </button>
+          }
+
+          {/* 转让按钮 */}
+          <button className="text-sm font-medium px-6 py-3 bg-green-600 text-white hover:bg-green-700 transition-colors shadow-lg w-1/2 cursor-pointer">
+            转让
+          </button>
+        </div>
+      )}
     </div>
   );
 }; 
