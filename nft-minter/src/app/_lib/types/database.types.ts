@@ -85,6 +85,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          id?: number
           name: string
         }
         Update: {
