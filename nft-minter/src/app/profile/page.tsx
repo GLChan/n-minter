@@ -5,7 +5,7 @@ import { getUserInfo } from '../_lib/actions';
 import { Tabs } from './_components/Tabs';
 import { CopyButton } from './_components/CopyButton';
 import { formatDate } from '../_lib/utils';
-import { CollectedNFTsTab, CreatedNFTsTab, ActivityTab, SettingsTab } from './_components';
+import { CollectedNFTsTab, CreatedNFTsTab, ActivityTab, SettingsTab, CollectionsTab } from './_components';
 import Spinner from '../_components/Spinner';
 import OwnedNFTsTab from '../dashboard/_components/OwnedNFTsTab';
 import { OffersTab } from '../dashboard/_components/OffersTab';
@@ -70,6 +70,7 @@ export default async function ProfilePage({
           {currentTab === 'nft' && <OwnedNFTsTab profile={profile} page={currentPage} />}
           {currentTab === 'collected' && <CollectedNFTsTab/>}
           {currentTab === 'created' && <CreatedNFTsTab/>}
+          {currentTab === 'collections' && <CollectionsTab />}
           {currentTab === 'activity' && <ActivityTab />}
           {currentTab === 'offers' && <OffersTab />}
           {currentTab === 'settings' && (

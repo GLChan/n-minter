@@ -159,7 +159,7 @@ const mockCollections: Collection[] = [
       name: '@gamenft',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces&q=80'
     },
-    description: '游戏内物品、武器、皮肤和角色的NFT集合',
+    description: '游戏内物品、武器、皮肤和角色的NFT合集',
     itemCount: 2800,
     volume: 5670000,
     floorPrice: 320000,
@@ -200,9 +200,12 @@ export default function CollectionsPage() {
       <div className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold mb-2">探索NFT合集</h1>
-          <p className="text-zinc-600 dark:text-zinc-400">
+          <p className="text-zinc-600 dark:text-zinc-400 mb-4">
             发现最热门的NFT合集，从艺术到游戏，这里有各种类型的数字资产
           </p>
+          <Link href="/create-collection">
+            <Button>创建新合集</Button>
+          </Link>
         </div>
       </div>
 

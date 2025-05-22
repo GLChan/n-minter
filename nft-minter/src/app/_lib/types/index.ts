@@ -4,6 +4,7 @@ export type Optional<T> = T | undefined | null;
 
 export type NFT = Tables<"nfts">
 export type Collection = Tables<"collections">
+export type CollectionCategory = Tables<"collections_categories">
 export type Attribute = Tables<"attributes"> // attributes key
 export type NFTAttribute = Tables<"nft_attributes"> // attributes value 
 

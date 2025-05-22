@@ -9,6 +9,7 @@ import { contractAddress, contractAbi } from '@/app/_lib/constants'; // 引入�
 import { getCollectionsByUserId } from '@/app/_lib/actions';
 import { createClient } from '../_lib/supabase/client';
 import { Collection } from '../_lib/types';
+import { X } from 'lucide-react';
 
 export default function CreateNFT() {
   const router = useRouter();
@@ -379,10 +380,10 @@ export default function CreateNFT() {
                 <Image src={previewUrl} alt="Preview" width={150} height={150} className="object-contain rounded-lg max-h-40" />
                 <button
                   onClick={clearFile}
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs hover:bg-red-600 transition-colors duration-200 ease-in-out "
+                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors duration-200 ease-in-out flex items-center justify-center"
                   aria-label="清除文件"
                 >
-                  ✕
+                  <X size={16} />
                 </button>
               </div>
             ) : (

@@ -1,6 +1,6 @@
 import { createClient } from '@/app/_lib/supabase/client';
 import { notFound } from "next/navigation";
-import { Attribute, AttributeKeyValue, Collection, NFT, NFTAttribute, NFTDetail, NFTInfo, Transaction, UserProfile } from './types';
+import { Attribute, AttributeKeyValue, Collection, CollectionCategory, NFT, NFTAttribute, NFTDetail, NFTInfo, Transaction, UserProfile } from './types';
 import { NFTMarketStatus, NFTVisibilityStatus, TransactionStatus, TransactionType } from './types/enums';
 
 const supabase = createClient();
@@ -225,6 +225,20 @@ export async function unlistNFT(nftId: string, walletAddress: string) {
     console.error('记录下架交易失败:', transactionError);
     // 不抛出异常，因为NFT已经成功下架
     console.warn('NFT已下架，但未能记录交易历史');
+  }
+
+  return data;
+}
+
+export async function getCollectionCategories(): Promise<CollectionCategory[]> {
+  const { data, error } = await supabase
+    .from('collections_categories')
+    .select('*')
+    .order('name', { ascending: true });
+
+  if (error) {
+    console.error('获取合集类别失败:', error);
+    return [];
   }
 
   return data;

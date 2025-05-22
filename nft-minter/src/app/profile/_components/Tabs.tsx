@@ -31,7 +31,8 @@ const TabButton = ({ children, active, href }: TabButtonProps) => (
 const TABS = [
   { name: 'NFT', slug: 'nft' },
   { name: '已收藏', slug: 'collected' },
-  { name: '已创建', slug: 'created' },
+  { name: '已铸造', slug: 'created' },
+  { name: '合集', slug: 'collections' },
   { name: '活动', slug: 'activity' },
   { name: '出价', slug: 'offers' },
   { name: '设置', slug: 'settings' },

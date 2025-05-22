@@ -58,7 +58,7 @@ export default async function NFTDetails({ params }: { params: Promise<{ id: str
 
         {/* 右侧 NFT 信息 */}
         <div className="flex flex-col gap-6">
-          {/* 集合信息 */}
+          {/* 合集信息 */}
           <div className="flex justify-between items-center">
 
             {collection && (

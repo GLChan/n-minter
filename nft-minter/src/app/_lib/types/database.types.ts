@@ -77,6 +77,23 @@ export type Database = {
           },
         ]
       }
+      collections_categories: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       featured_nft_banners: {
         Row: {
           created_at: string
@@ -111,7 +128,7 @@ export type Database = {
           id: number
           nft_id: string
           updated_at: string | null
-          user_id: string
+          user_id: string | null
           value: string
         }
         Insert: {
@@ -121,7 +138,7 @@ export type Database = {
           id?: number
           nft_id: string
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
           value: string
         }
         Update: {
@@ -131,7 +148,7 @@ export type Database = {
           id?: number
           nft_id?: string
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
           value?: string
         }
         Relationships: [
