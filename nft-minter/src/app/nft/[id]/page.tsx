@@ -2,85 +2,45 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/app/_components/ui/Button';
-import { formatAddress, formatDate, formatIPFSUrl } from '@/app/_lib/utils'; // formatPrice
+import { formatAddress, formatDateTime, formatIPFSUrl } from '@/app/_lib/utils'; // formatPrice
 import { getNFTAttributes, getNFTById, getNFTHistory, getProfileByUserId } from '@/app/_lib/data-service';
 import { NFTAttribute, Transaction, UserProfile } from '@/app/_lib/types';
 import { getUserInfo } from '@/app/_lib/actions';
 import { getTranslations } from 'next-intl/server';
+import { isAuthAction } from '@/app/_lib/actions/auth';
+import { FavoriteButton } from '@/app/_components/ui/FavoriteButton';
 
 export default async function NFTDetails({ params }: { params: Promise<{ id: string }> }) {
   const t = await getTranslations('NFT');
 
-  const user = await getUserInfo()
-  const userProfile = user ? await getProfileByUserId(user.id) : null
+  const { isAuth } = await isAuthAction();
+  let userProfile: UserProfile | null = null;
+  if (isAuth) {
+    const user = await getUserInfo()
+    userProfile = user ? await getProfileByUserId(user.id) : null
+  }
 
-  // const nft = {
-  //   id: '1',
-  //   title: '数字生活 #457',
-  //   description: '这是一个数字生活系列NFT，展示了未来世界中的日常场景，结合了科技与自然元素，呈现出独特的艺术风格。',
-  //   image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80',
-  //   creator: {
-  //     name: '@digitalartist',
-  //     address: '0x1234567890123456789012345678901234567890',
-  //     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop'
-  //   },
-  //   owner: {
-  //     name: '@collector',
-  //     address: '0x9876543210987654321098765432109876543210',
-  //     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop'
-  //   },
-  //   collection: {
-  //     name: '数字生活系列',
-  //     image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80'
-  //   },
-  //   price: 2.5,
-  //   currency: 'ETH',
-  //   mintDate: '2023-08-15',
-  //   tokenId: 457,
-  //   history: 
-  // };
+  // const tokenId = '457'
 
-
-  // const attributes = [
-  //   { trait_type: '背景', value: '蓝色' },
-  //   { trait_type: '风格', value: '赛博朋克' },
-  //   { trait_type: '材质', value: '金属' },
-  //   { trait_type: '稀有度', value: '稀有' }
-  // ]
-  // const history = [
-  //   { event: '铸造', from: '0x00000', to: '0x1234...7890', price: 0, date: '2023-08-15' },
-  //   { event: '出售', from: '0x1234...7890', to: '0x9876...3210', price: 2.5, date: '2023-09-21' },
-  //   { event: '上架', from: '0x9876...3210', to: '0x9876...3210', price: 3.0, date: '2023-10-05' },
-  //   { event: '出价', from: '0x7654...2109', to: '0x9876...3210', price: 2.8, date: '2023-10-08' },
-  //   { event: '出价', from: '0xabcd...ef01', to: '0x9876...3210', price: 3.1, date: '2023-10-12' },
-  //   { event: '接受出价', from: '0x9876...3210', to: '0xabcd...ef01', price: 3.1, date: '2023-10-15' },
-  //   { event: '转让', from: '0xabcd...ef01', to: '0x4567...890a', price: 0, date: '2023-11-03' },
-  //   { event: '上架', from: '0x4567...890a', to: '0x4567...890a', price: 4.5, date: '2023-12-01' },
-  //   { event: '降价', from: '0x4567...890a', to: '0x4567...890a', price: 3.8, date: '2023-12-20' },
-  //   { event: '购买', from: '0x4567...890a', to: '0xfedc...ba98', price: 3.8, date: '2024-01-10' },
-  //   { event: '拍卖开始', from: '0xfedc...ba98', to: '0xfedc...ba98', price: 4.0, date: '2024-02-05' },
-  //   { event: '出价', from: '0x1357...2468', to: '0xfedc...ba98', price: 4.2, date: '2024-02-07' },
-  //   { event: '出价', from: '0x8642...7531', to: '0xfedc...ba98', price: 4.5, date: '2024-02-08' },
-  //   { event: '拍卖结束', from: '0xfedc...ba98', to: '0x8642...7531', price: 4.5, date: '2024-02-10' }
-  // ]
-
-  // 'not_listed', 'listed', 'sold', 'cancelled'
+  // history 的 event 类型
+  // 铸造, 出售, 上架, 出价, 接受出价, 转让, 降价, 购买, 拍卖开始, 拍卖结束
+  
   const { id } = await params;
 
   const nft = await getNFTById(id)
+  const imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
+
+  const creator = nft.creator!
+  const owner = nft.owner!
+  const collection = nft.collection
 
   const attributes: NFTAttribute[] = await getNFTAttributes(id)
 
   const history: Transaction[] = await getNFTHistory(id)
 
-  const imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
-
-  // const creator = await getProfileByUserId(nft.creator_id || '')
-  // const owner = await getProfileByWallet(nft.owner_address || '')
-
-  const creator = nft.creator!
-  const owner = nft.owner!
-  const collection = nft.collection
+  function getT(key: string, defaultValue?: string) {
+    return t.has(key) ? t(key) : (defaultValue || key)
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -99,19 +59,29 @@ export default async function NFTDetails({ params }: { params: Promise<{ id: str
         {/* 右侧 NFT 信息 */}
         <div className="flex flex-col gap-6">
           {/* 集合信息 */}
-          {collection && (
-            <Link href={`/collections/${collection.name}`} className="flex items-center gap-2">
-              <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                <Image
-                  src={collection.logo_image_url || ''}
-                  alt={collection.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <span className="text-sm">{collection.name}</span>
-            </Link>
-          )}
+          <div className="flex justify-between items-center">
+
+            {collection && (
+              <Link href={`/collections/${collection.name}`} className="flex items-center gap-2">
+                <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                  <Image
+                    src={collection.logo_image_url || ''}
+                    alt={collection.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <span className="text-sm">{collection.name}</span>
+              </Link>
+            )}
+
+
+            {/* 收藏按钮 */}
+            <FavoriteButton
+              nftId={nft.id}
+              isAuth={isAuth}
+            />
+          </div>
 
           {/* NFT 标题 */}
           <h1 className="text-3xl font-bold">{nft.name}</h1>
@@ -182,8 +152,8 @@ export default async function NFTDetails({ params }: { params: Promise<{ id: str
                   key={index}
                   className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-3 flex flex-col items-center"
                 >
-                  <span className="text-xs text-zinc-500 mb-1">{t(`attributes.${attr.attribute_name}`)}</span>
-                  <span className="text-sm font-medium">{t(`attributes_value.${attr.value}`)}</span>
+                  <span className="text-xs text-zinc-500 mb-1">{getT(`attributes.${attr.attribute_name}`, attr.attribute_name || '')}</span>
+                  <span className="text-sm font-medium">{getT(`attributes_value.${attr.value}`, attr.value || '')}</span>
                 </div>
               ))}
             </div>
@@ -207,11 +177,11 @@ export default async function NFTDetails({ params }: { params: Promise<{ id: str
                   <tbody>
                     {history.map((event, index) => (
                       <tr key={index} className="border-t border-zinc-200 dark:border-zinc-800">
-                        <td className="p-3 text-sm">{t(`transaction_type.${event.transaction_type}`)}</td>
+                        <td className="p-3 text-sm">{getT(`transaction_type.${event.transaction_type}`, event.transaction_type)}</td>
                         <td className="p-3 text-sm">{event.price > 0 ? `${event.price} ETH` : '-'}</td>
                         <td className="p-3 text-sm">{formatAddress(event.seller_address) || '-'}</td>
                         <td className="p-3 text-sm">{formatAddress(event.buyer_address) || '-'}</td>
-                        <td className="p-3 text-sm">{formatDate(event.transaction_time || '') || '-'}</td>
+                        <td className="p-3 text-sm">{formatDateTime(event.transaction_time || '') || '-'}</td>
                       </tr>
                     ))}
                   </tbody>

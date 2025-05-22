@@ -14,7 +14,14 @@
       "style": "风格",
       "material": "材质",
       "rarity": "稀有度",
-      "content": "内容"
+      "content": "内容",
+      "mood": "氛围",
+      "theme": "主题",
+      "artist": "艺术家",
+      "collection": "系列",
+      "series": "系列",
+      "series_number": "系列编号",
+      "series_name": "系列名称"
     },
     "attributes_value": {
       "blue": "蓝色",

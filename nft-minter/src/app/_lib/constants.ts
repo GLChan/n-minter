@@ -15,7 +15,7 @@ export const JWT_CONFIG = {
   AUDIENCE: 'YOUR_AUDIENCE',
 }
 
-export const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+export const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '';
 
 export const contractAbi = [
   {

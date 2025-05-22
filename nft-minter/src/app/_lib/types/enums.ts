@@ -144,6 +144,7 @@ export enum TransactionStatus {
 
 export enum TransactionType {
   Mint = 'MINT',        // NFT 铸造
+  List = 'LIST',      // NFT 上架
   Sale = 'SALE',        // NFT 销售 (你目前表结构主要针对的就是这个)
   Transfer = 'TRANSFER',  // NFT 直接转移 (非销售)
   Unlist = 'UNLIST',      // NFT 下架

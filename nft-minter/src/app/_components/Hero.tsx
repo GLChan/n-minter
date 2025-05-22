@@ -1,9 +1,9 @@
-"use client"
-
 import React from 'react';
 import Image from 'next/image';
 import { Button, ButtonVariantDefault, ButtonVariantSecondary } from './ui/Button';
 import Link from 'next/link';
+import { getFeaturedNFT } from '../_lib/actions';
+import { formatIPFSUrl } from '../_lib/utils';
 
 // Hero部分数据对象
 const heroData = {
@@ -12,10 +12,6 @@ const heroData = {
     highlightedLine: '和铸造 NFT'
   },
   description: '简单几步，将您的创意铸造为 NFT，立即加入 Web3 数字艺术的世界。',
-  buttons: [
-    { text: '开始创建', variant: ButtonVariantDefault, url: '/create' },
-    { text: '探索收藏品', variant: ButtonVariantSecondary, url: '/explore' }
-  ],
   community: {
     count: '3.5k+',
     description: '创作者社区',
@@ -24,19 +20,20 @@ const heroData = {
       { src: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=64&h=64&fit=crop&crop=faces', alt: 'User 2' },
       { src: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=64&h=64&fit=crop&crop=faces', alt: 'User 3' }
     ]
-  },
-  featuredNFT: {
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80',
-    title: '数字生活 #457',
-    creator: {
-      name: '@digitalartist',
-      avatar: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=64&h=64&fit=crop&crop=faces'
-    },
-    price: '2.5 ETH'
   }
 };
 
-export const Hero = () => {
+
+
+export const Hero = async () => {
+
+  const featuredNFTObject = await getFeaturedNFT()
+
+  const featuredNFT = featuredNFTObject.nfts
+  
+  const owner = featuredNFT.profiles
+
+
   return (
     <section className="relative w-full overflow-hidden py-12 md:py-20">
       {/* 背景装饰 */}
@@ -61,16 +58,23 @@ export const Hero = () => {
             </p>
 
             <div className="flex flex-wrap gap-4 mt-2">
-              {heroData.buttons.map((button, index) => (
+
+              <Link href="/create">
                 <Button
-                  key={index}
-                  variant={button.variant}
+                  variant={ButtonVariantDefault}
                   size="lg"
-                  onClick={() => window.location.href = button.url}
                 >
-                  {button.text}
+                  开始创建
                 </Button>
-              ))}
+              </Link>
+              <Link href="/explore">
+                <Button
+                  variant={ButtonVariantSecondary}
+                  size="lg"
+                >
+                  探索收藏品
+                </Button>
+              </Link>
             </div>
 
             <div className="flex items-center gap-4 mt-4">
@@ -88,10 +92,10 @@ export const Hero = () => {
           </div>
 
           {/* 右侧图片 */}
-          <Link href="/nft/1">
+          {featuredNFT && owner && <Link href={`/nft/${featuredNFT.id}`}>
             <div className="relative h-[480px] rounded-2xl overflow-hidden shadow-xl">
               <Image
-                src={heroData.featuredNFT.image}
+                src={formatIPFSUrl(featuredNFT.image_url) || ''}
                 alt="Featured NFT artwork"
                 fill
                 className="object-cover"
@@ -102,22 +106,22 @@ export const Hero = () => {
               <div className="absolute bottom-6 left-6 right-6 bg-white/80 dark:bg-black/80 backdrop-blur-md rounded-xl p-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-lg">{heroData.featuredNFT.title}</h3>
+                    <h3 className="font-semibold text-lg">{featuredNFT.name}</h3>
                     <div className="flex items-center gap-2 mt-1">
                       <div className="w-5 h-5 rounded-full overflow-hidden relative">
-                        <Image src={heroData.featuredNFT.creator.avatar} alt="Creator" fill className="object-cover" />
+                        <Image src={owner.avatar_url || ''} alt="Creator" fill className="object-cover" />
                       </div>
-                      <span className="text-sm text-zinc-700 dark:text-zinc-300">{heroData.featuredNFT.creator.name}</span>
+                      <span className="text-sm text-zinc-700 dark:text-zinc-300">{owner.username}</span>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-zinc-500">当前价格</p>
-                    <p className="font-semibold">{heroData.featuredNFT.price}</p>
+                    <p className="font-semibold">{featuredNFT.last_sale_price || featuredNFT.list_price} {featuredNFT.last_sale_currency || featuredNFT.list_currency}</p>
                   </div>
                 </div>
               </div>
             </div>
-          </Link>
+          </Link>}
         </div>
       </div>
     </section>

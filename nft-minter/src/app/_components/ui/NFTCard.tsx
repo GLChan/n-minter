@@ -3,10 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { NFTInfo } from '@/app/_lib/types';
 import { formatIPFSUrl, formatTimeAgo } from '@/app/_lib/utils';
-import { NFTMarketStatus } from '@/app/_lib/types/enums';
-import { useListNFTModal } from '../context/ListNFTModalContext';
-import { useUnlistNFTModal } from '../context/UnlistNFTModalContext';
-
+import { NFTMarketStatus, TransactionType } from '@/app/_lib/types/enums';
 // interface NFTCardProps {
 //   nft: NFT;
 // }
@@ -27,9 +24,8 @@ import { useUnlistNFTModal } from '../context/UnlistNFTModalContext';
 export const NFTCard: React.FC<{
   nft: NFTInfo;
   isOwner?: boolean;
-}> = ({ nft, isOwner = false }) => {
-  const { openListModal } = useListNFTModal();
-  const { openUnlistModal } = useUnlistNFTModal();
+  openModal?: (modalType: string, nft: NFTInfo) => void;
+}> = ({ nft, isOwner = false, openModal }) => {
 
   if (!nft) return <></>
   const { name, id, collection, profile } = nft
@@ -142,31 +138,35 @@ export const NFTCard: React.FC<{
       {/* 鼠标悬停时从底部滑出的上架按钮 */}
       {isOwner && (
         <div className="absolute bottom-0 left-0 right-0 to-transparent transform translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-in-out flex justify-center">
-          {nft.list_status === NFTMarketStatus.NotListed && 
-          <button 
-            className="text-sm font-medium px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-lg w-1/2 cursor-pointer"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              openListModal(nft);
-            }}
-          >
-            上架出售
-          </button>
+          {nft.list_status === NFTMarketStatus.NotListed &&
+            <button
+              className="text-sm font-medium px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-lg w-1/2 cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openModal?.(TransactionType.List, nft);
+              }}
+            >
+              上架出售
+            </button>
           }
           {/* 下架按钮 */}
           {nft.list_status !== NFTMarketStatus.NotListed &&
             <button className="text-sm font-medium px-6 py-3 bg-red-600 text-white hover:bg-red-700 transition-colors shadow-lg w-1/2 cursor-pointer" onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              openUnlistModal(nft);
+              openModal?.(TransactionType.Unlist, nft);
             }}>
               下架
             </button>
           }
 
           {/* 转让按钮 */}
-          <button className="text-sm font-medium px-6 py-3 bg-green-600 text-white hover:bg-green-700 transition-colors shadow-lg w-1/2 cursor-pointer">
+          <button className="text-sm font-medium px-6 py-3 bg-green-600 text-white hover:bg-green-700 transition-colors shadow-lg w-1/2 cursor-pointer" onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openModal?.(TransactionType.Transfer, nft);
+          }}>
             转让
           </button>
         </div>

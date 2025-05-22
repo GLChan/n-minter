@@ -1,7 +1,7 @@
 "use server";
 import { redirect } from "next/navigation";
 import { createClient } from "./supabase/server";
-import { AttributeKeyValue, NFT, NFTAttribute, Transaction } from './types';
+import { Attribute, AttributeKeyValue, Collection, NFT, NFTAttribute, NFTDetail, NFTInfo, Transaction, UserProfile } from './types';
 
 export async function getUserInfo() {
   const supabase = await createClient();
@@ -19,6 +19,33 @@ export async function getUserInfo() {
     console.error('获取用户信息时出错:', error);
     redirect('/');
   }
+
+  return data;
+}
+
+export async function getFeaturedNFT() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("featured_nft_banners")
+    .select("*, nfts!nft_id(*, profiles!owner_id(*))")
+    .single()
+
+  if (error) throw new Error("Featured NFT could not be retrieved");
+
+  return data;
+}
+
+// Top Today
+export async function getTopTodayNFTs() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("nfts")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(10)
+
+  // Score = (w1 * 24h_交易额) + (w2 * 24h_独立买家数) + (w3 * 24h_地板价涨幅) + ...
+  if (error) throw new Error("Top Today NFTs could not be retrieved");
 
   return data;
 }
@@ -186,4 +213,133 @@ export async function saveTransaction(transaction: Partial<Transaction>) {
     throw new Error(`保存交易数据失败: ${transactionError.message}`);
   }
   return transactionData;
+}
+
+
+/**
+ * 检查用户是否已收藏指定NFT
+ * @param userId 用户ID
+ * @param nftId NFT ID
+ * @returns 布尔值，表示是否已收藏
+ */
+export async function isNFTFavorited(userId: string, nftId: string): Promise<boolean> {
+  const supabase = await createClient();
+
+  if (!userId || !nftId) return false;
+  
+  const { data, error } = await supabase
+    .from('user_collections')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('nft_id', nftId)
+    .single();
+  
+  if (error && error.code !== 'PGRST116') { // PGRST116是未找到记录的错误代码
+    console.error('检查NFT收藏状态失败:', error);
+  }
+  
+  return !!data; // 如果data存在，表示已收藏
+}
+
+/**
+ * 添加NFT到用户收藏
+ * @param userId 用户ID
+ * @param nftId NFT ID
+ * @returns 添加的收藏记录
+ */
+export async function addNFTToFavorites(userId: string, nftId: string) {
+  const supabase = await createClient();
+
+  if (!userId || !nftId) {
+    throw new Error('用户ID和NFT ID不能为空');
+  }
+  
+  // 先检查是否已收藏，避免重复添加
+  const alreadyFavorited = await isNFTFavorited(userId, nftId);
+  if (alreadyFavorited) {
+    return { success: true, message: 'NFT已在收藏中' };
+  }
+  
+  const { data, error } = await supabase
+    .from('user_collections')
+    .insert({
+      user_id: userId,
+      nft_id: nftId
+    })
+    .select();
+    
+  if (error) {
+    console.error('添加NFT到收藏失败:', error);
+    throw new Error('添加NFT到收藏失败');
+  }
+  
+  return { success: true, data };
+}
+
+/**
+ * 从用户收藏中移除NFT
+ * @param userId 用户ID
+ * @param nftId NFT ID
+ * @returns 操作结果
+ */
+export async function removeNFTFromFavorites(userId: string, nftId: string) {
+  const supabase = await createClient();
+
+  if (!userId || !nftId) {
+    throw new Error('用户ID和NFT ID不能为空');
+  }
+  
+  const { error } = await supabase
+    .from('user_collections')
+    .delete()
+    .eq('user_id', userId)
+    .eq('nft_id', nftId);
+    
+  if (error) {
+    console.error('从收藏中移除NFT失败:', error);
+    throw new Error('从收藏中移除NFT失败');
+  }
+  
+  return { success: true };
+}
+
+/**
+ * 获取用户收藏的NFT列表
+ * @param userId 用户ID
+ * @returns 收藏的NFT列表
+ */
+export async function getUserFavoriteNFTs(userId: string): Promise<NFTInfo[]> {
+  const supabase = await createClient();
+
+  if (!userId) return [];
+  
+  const { data, error } = await supabase
+    .from('user_collections')
+    .select('nft_id, nfts!nft_id(*, collection:collections(*), profile:profiles!owner_id(*))')
+    .eq('user_id', userId);
+    
+  if (error) {
+    console.error('获取用户收藏NFT失败:', error);
+    return [];
+  }
+  
+  if (!data || data.length === 0) {
+    return [];
+  }
+  
+  // 获取所有收藏NFT的ID
+  const nftIds = data.map(item => item.nft_id);
+  
+  // 查询这些NFT的详细信息
+  const { data: nfts, error: nftsError } = await supabase
+    .from('nfts')
+    .select('*, collection:collections(*), profile:profiles!owner_id(*)')
+    .in('id', nftIds);
+    
+  if (nftsError) {
+    console.error('获取收藏NFT详情失败:', nftsError);
+    return [];
+  }
+  
+  return nfts || [];
 }

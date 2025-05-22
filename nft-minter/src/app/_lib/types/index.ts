@@ -12,6 +12,7 @@ export type UserCollection = Tables<"user_collections">
 export type UserFollowing = Tables<"user_following">
 
 export type Transaction = Tables<"transactions">
+export type FeaturedNFTBanner = Tables<"featured_nft_banners">
 
 // NFT列表页
 export interface NFTInfo extends NFT {

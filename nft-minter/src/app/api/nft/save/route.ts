@@ -64,7 +64,7 @@ export async function POST(request: Request) {
       transaction_hash: transactionHash,
       owner_id: user.id, // 设置必需的owner_id字段
       creator_id: user.id, // 设置必需的owner_id字段
-      collection_id: collectionId,
+      collection_id: collectionId || null,
       status: NFTVisibilityStatus.HiddenByUser,
       list_status: NFTMarketStatus.NotListed
     }

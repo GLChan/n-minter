@@ -77,6 +77,32 @@ export type Database = {
           },
         ]
       }
+      featured_nft_banners: {
+        Row: {
+          created_at: string
+          id: number
+          nft_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          nft_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          nft_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_nft_banners_nft_id_fkey"
+            columns: ["nft_id"]
+            isOneToOne: false
+            referencedRelation: "nfts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nft_attributes: {
         Row: {
           attribute_id: number

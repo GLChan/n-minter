@@ -173,7 +173,7 @@ export async function listNFT(nftId: string, price: number, walletAddress: strin
       price,
       status: TransactionStatus.Successful,
       transaction_time: new Date().toISOString(),
-      transaction_type: TransactionType.Sale,
+      transaction_type: TransactionType.List,
       buyer_address: '',
       seller_address: walletAddress,
       currency: currency,

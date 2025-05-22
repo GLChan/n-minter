@@ -323,7 +323,7 @@ export default function CreateNFT() {
             }
             
             // NFT 创建成功后跳转到成功页面
-            const successUrl = `/create/success?id=${tokenId}&image=${encodeURIComponent(uploadedImageUrl || '')}&name=${encodeURIComponent(name)}`;
+            const successUrl = `/create/success?id=${saveData.id}`;
             router.push(successUrl);
 
           } catch (saveError) {

@@ -1,9 +1,9 @@
 import React from 'react';
 import { NFTCard } from '@/app/_components/ui/NFTCard';
-import { NFT } from '@/app/_lib/types';
+import { NFTInfo } from '@/app/_lib/types';
 
 
-const nfts: NFT[] = [
+const nfts: NFTInfo[] = [
   // {
   //   id: 'nft-cr1',
   //   title: '生成线条 #08',

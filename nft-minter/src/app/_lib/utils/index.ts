@@ -108,3 +108,9 @@ export function formatDate(date: Date | string): string {
   if (!date) return '';
   return format(new Date(date), 'yyyy-MM-dd');
 }
+
+export function formatDateTime(date: Date | string): string {
+  if (!date) return '';
+  return format(new Date(date), 'yyyy-MM-dd HH:mm');
+}
+

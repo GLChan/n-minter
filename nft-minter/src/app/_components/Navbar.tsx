@@ -6,8 +6,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { SearchNavbarItem } from './SearchNavbarItem';
 import useAsyncEffect from '../_lib/hooks/useAsyncEffect';
 import { isAuthAction } from '../_lib/actions/auth';
-import { getUserProfile } from '../_lib/data-service';
-import { UserProfile } from '../_lib/types';
+
 export const Navbar = () => {
   const navLinks = [
     { title: '探索', href: '/explore' },
@@ -15,17 +14,11 @@ export const Navbar = () => {
     { title: '合集', href: '/collections' },
   ];
 
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isAuth, setIsAuth] = useState(false);
 
   useAsyncEffect(async () => {
     const { isAuth } = await isAuthAction();
-    if (isAuth) {
-      const userProfile = await getUserProfile();
-      console.log('userProfile', userProfile);
-      setUserProfile(userProfile);
-    } else {
-      setUserProfile(null);
-    }
+    setIsAuth(isAuth)
   }, []);
 
   return (
@@ -50,7 +43,7 @@ export const Navbar = () => {
               </Link>
             ))}
 
-            {userProfile && (
+            {isAuth && (
               <>
                 <Link href="/profile" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
                   个人中心
