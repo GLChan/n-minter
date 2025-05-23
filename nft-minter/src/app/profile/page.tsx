@@ -70,7 +70,7 @@ export default async function ProfilePage({
           {currentTab === 'nft' && <OwnedNFTsTab profile={profile} page={currentPage} />}
           {currentTab === 'collected' && <CollectedNFTsTab/>}
           {currentTab === 'created' && <CreatedNFTsTab/>}
-          {currentTab === 'collections' && <CollectionsTab />}
+          {currentTab === 'collections' && <CollectionsTab profile={profile}/>}
           {currentTab === 'activity' && <ActivityTab />}
           {currentTab === 'offers' && <OffersTab />}
           {currentTab === 'settings' && (

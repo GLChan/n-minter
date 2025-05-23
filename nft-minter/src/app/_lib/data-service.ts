@@ -338,6 +338,7 @@ export async function getNFTsByCollectionIdAndPage(
 
   return data;
 }
+
 export async function getNFTsByCollectionId(
   collectionId: string,
   page: number,

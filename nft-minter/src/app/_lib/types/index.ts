@@ -37,6 +37,14 @@ export interface CollectionInfo extends Collection {
   creator: UserProfile | null;
 }
 
+export interface CollectionListItem extends Collection {
+  creator: UserProfile | null;
+  floorPrice: number;
+  volume: number;
+  itemCount: number;
+  ownerCount: number;
+}
+
 export interface CollectionStats {
   volume: number;
   floorPrice: number;

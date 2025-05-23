@@ -1,7 +1,7 @@
 "use server";
 import { redirect } from "next/navigation";
 import { createClient } from "./supabase/server";
-import { Attribute, AttributeKeyValue, Collection, NFT, NFTAttribute, NFTDetail, NFTInfo, Transaction, UserProfile } from './types';
+import { Attribute, AttributeKeyValue, Collection, CollectionListItem, NFT, NFTAttribute, NFTDetail, NFTInfo, Transaction, UserProfile } from './types';
 
 export async function getUserInfo() {
   const supabase = await createClient();
@@ -342,4 +342,23 @@ export async function getUserFavoriteNFTs(userId: string): Promise<NFTInfo[]> {
   }
   
   return nfts || [];
+}
+
+// 获取用户的collections
+export async function getUserCollections(userId: string): Promise<CollectionListItem[]> {
+  const supabase = await createClient();
+
+  if (!userId) return [];
+  
+  const { data, error } = await supabase
+    .from('collections')
+    .select('*')
+    .eq('creator_id', userId);
+    
+  if (error) {
+    console.error('获取用户收藏合集失败:', error);
+    return [];
+  }
+  
+  return data || [];
 }
