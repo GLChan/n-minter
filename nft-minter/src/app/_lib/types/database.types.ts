@@ -30,6 +30,7 @@ export type Database = {
       collections: {
         Row: {
           banner_image_url: string | null
+          category_id: number | null
           chain_id: number | null
           contract_address: string | null
           created_at: string
@@ -43,6 +44,7 @@ export type Database = {
         }
         Insert: {
           banner_image_url?: string | null
+          category_id?: number | null
           chain_id?: number | null
           contract_address?: string | null
           created_at?: string
@@ -56,6 +58,7 @@ export type Database = {
         }
         Update: {
           banner_image_url?: string | null
+          category_id?: number | null
           chain_id?: number | null
           contract_address?: string | null
           created_at?: string
@@ -68,6 +71,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "collections_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "collections_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "collections_creator_id_fkey"
             columns: ["creator_id"]
@@ -451,7 +461,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_unique_holders_for_collection: {
+        Args: { target_collection_id: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

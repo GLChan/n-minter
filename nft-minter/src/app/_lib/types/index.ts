@@ -32,3 +32,14 @@ export interface NFTDetail extends NFT {
 export interface AttributeKeyValue {
   [key: string]: string; // 例如：{ "颜色": "红色", "稀有度": "史诗" }
 }
+
+export interface CollectionInfo extends Collection {
+  creator: UserProfile | null;
+}
+
+export interface CollectionStats {
+  volume: number;
+  floorPrice: number;
+  itemCount: number;
+  ownerCount: number;
+}

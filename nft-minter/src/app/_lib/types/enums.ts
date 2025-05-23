@@ -150,3 +150,10 @@ export enum TransactionType {
   Unlist = 'UNLIST',      // NFT 下架
   // 可以根据需要扩展，例如：Offer, CancelOffer 等，如果这些操作也作为独立的交易记录的话
 }
+
+export enum SORT_OPTIONS {
+  RECENT_LISTED = 'recent_listed',
+  PRICE_ASC = 'price_asc',
+  PRICE_DESC = 'price_desc',
+  RECENT_CREATED = 'recent_created',
+}
