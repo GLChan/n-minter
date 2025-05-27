@@ -144,6 +144,7 @@ npx hardhat node
 npx hardhat test ./test/MyNFT.test.ts
 npx hardhat compile
 npx hardhat run scripts/deploy.js --network localhost
+npx hardhat run scripts/deploy.js --network sepolia
 ```
 
 React

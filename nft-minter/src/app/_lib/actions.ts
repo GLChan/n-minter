@@ -349,16 +349,27 @@ export async function getUserCollections(userId: string): Promise<CollectionList
   const supabase = await createClient();
 
   if (!userId) return [];
-  
-  const { data, error } = await supabase
-    .from('collections')
-    .select('*')
-    .eq('creator_id', userId);
-    
+
+  // 调用我们创建的 PostgreSQL 函数
+  const { data, error } = await supabase.rpc('get_user_collections_with_stats', {
+    p_user_id: userId, // 传递参数，键名与函数参数名一致
+  });
+
   if (error) {
-    console.error('获取用户收藏合集失败:', error);
+    console.error('获取用户合集及统计数据失败:', error);
     return [];
   }
-  
-  return data || [];
+
+  // Supabase RPC 返回的数据可能需要映射到我们定义的类型
+  const mappedData = data.map((item: any) => ({
+      ...item, 
+      floorPrice: item.floor_price,
+      volume: item.volume,
+      itemCount: item.item_count,
+      ownerCount: item.owner_count,
+      creator: item.creator as UserProfile | null,
+  }));
+
+
+  return mappedData || [];
 }

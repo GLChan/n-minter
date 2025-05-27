@@ -45,10 +45,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '您不是该NFT的所有者，无权转移' }, { status: 403 });
     }
 
-    // TODO: tokenid
-    await transferNFT(receiverAddress, nft.token_id)
-
-
+    // await transferNFT(receiverAddress, nft.token_id)
 
     // 如果NFT处于上架状态，需要先取消上架
     if (nft.list_status === NFTMarketStatus.ListedFixedPrice) {
@@ -163,6 +160,8 @@ async function transferNFT(toAddress: string, tokenId: string) {
     // 如果你的合约或接收方需要 data 参数，可以使用第二种：
     // const data = '0x'; // 或者实际的 bytes 数据
     // const transaction = await nftContract.safeTransferFrom(userAddress, toAddress, tokenId, data);
+
+    console.log('发送交易到区块链...', transaction);
 
     console.log('交易已发送，等待确认...', transaction.hash);
 

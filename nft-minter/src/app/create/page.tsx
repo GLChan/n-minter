@@ -324,7 +324,7 @@ export default function CreateNFT() {
             }
             
             // NFT 创建成功后跳转到成功页面
-            const successUrl = `/create/success?id=${saveData.id}`;
+            const successUrl = `/create/success?id=${saveData.data.id}`;
             router.push(successUrl);
 
           } catch (saveError) {

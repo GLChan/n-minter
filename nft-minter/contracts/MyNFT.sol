@@ -7,7 +7,7 @@ contract MyNFT is ERC721URIStorage {
     uint256 private _tokenIds = 1;
 
     // 添加一个明确的事件来记录铸造的 tokenId
-    event NFTMinted(address indexed recipient, uint256 indexed tokenId, string tokenURI);
+    // event NFTMinted(address indexed recipient, uint256 indexed tokenId, string tokenURI);
 
     constructor() ERC721("MyNFT", "MNFT") {}
 
@@ -20,7 +20,7 @@ contract MyNFT is ERC721URIStorage {
         _setTokenURI(newItemId, tokenURI);
 
         // 触发事件
-        emit NFTMinted(recipient, newItemId, tokenURI);
+        // emit NFTMinted(recipient, newItemId, tokenURI);
         
         _tokenIds += 1;
 

@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/cgl/Documents/GitHub/n-minter/nft-minter/contracts/MyNFT.sol": {
-      "lastModificationDate": 1747570796272,
-      "contentHash": "a9affcf01347d868ff52c319fc74446e",
+      "lastModificationDate": 1748347978969,
+      "contentHash": "edded2eae66c480b275cbd34a33f95be",
       "sourceName": "contracts/MyNFT.sol",
       "solcConfig": {
         "version": "0.8.20",
