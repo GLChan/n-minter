@@ -24,9 +24,16 @@ export default function NFTsTab({ collectionId }: { collectionId: string }) {
       setIsLoading(true); // 开始加载
       setError(null);
       try {
-        const newItems = await getNFTsByCollectionId(collectionId, page, 10, sortBy);
+        const newItems = await getNFTsByCollectionId(
+          collectionId,
+          page,
+          10,
+          sortBy
+        );
         console.log("NFTsTab newItems", newItems);
-        setCollectionNFTs(prevItems => page === 1 ? newItems : [...prevItems, ...newItems]); // 如果是第一页则替换，否则追加
+        setCollectionNFTs((prevItems) =>
+          page === 1 ? newItems : [...prevItems, ...newItems]
+        ); // 如果是第一页则替换，否则追加
       } catch (err) {
         setError("加载数据失败，请稍后再试。");
         console.error(err);
@@ -37,11 +44,10 @@ export default function NFTsTab({ collectionId }: { collectionId: string }) {
     loadData();
   }, [page, sortBy]); // 当 page 变化时重新加载
 
-
-  if (error) { // 初始加载就出错
-    return <p style={{ color: 'red' }}>{error}</p>;
+  if (error) {
+    // 初始加载就出错
+    return <p style={{ color: "red" }}>{error}</p>;
   }
-
 
   // 初始加载且没有数据时显示主加载器
   if (isLoading && collectionNFTs.length === 0 && page === 0) {
@@ -54,7 +60,7 @@ export default function NFTsTab({ collectionId }: { collectionId: string }) {
       <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
         <div className="flex items-center gap-3">
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
-            0 个物品
+            {collectionNFTs.length} 个物品
           </span>
         </div>
 
@@ -66,7 +72,7 @@ export default function NFTsTab({ collectionId }: { collectionId: string }) {
             className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             value={sortBy}
             onChange={(e) => {
-              setSortBy(e.target.value as SORT_OPTIONS)
+              setSortBy(e.target.value as SORT_OPTIONS);
               setPage(1); // 重置页码
             }}
           >

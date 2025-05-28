@@ -15,6 +15,9 @@ export type UserFollowing = Tables<"user_following">
 export type Transaction = Tables<"transactions">
 export type FeaturedNFTBanner = Tables<"featured_nft_banners">
 
+export type ActivityLog = Tables<"activity_log">
+
+
 // NFT列表页
 export interface NFTInfo extends NFT {
   collection: Collection | null;
@@ -50,4 +53,17 @@ export interface CollectionStats {
   floorPrice: number;
   itemCount: number;
   ownerCount: number;
+}
+
+export interface ActivityLogItem extends ActivityLog {
+  user?: UserProfile | null;
+  related_user?: UserProfile | null;
+  nft?: NFT | null;
+  collection?: Collection | null;
+}
+
+export interface UserFollowStats {
+  followersCount: number;
+  followingCount: number;
+  error?: string;
 }

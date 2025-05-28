@@ -1,6 +1,7 @@
 import { createClient } from "@/app/_lib/supabase/client";
 import { notFound } from "next/navigation";
 import {
+  ActivityLogItem,
   Attribute,
   AttributeKeyValue,
   Collection,
@@ -12,6 +13,7 @@ import {
   NFTDetail,
   NFTInfo,
   Transaction,
+  UserFollowStats,
   UserProfile,
 } from "./types";
 import {
@@ -88,17 +90,26 @@ export async function getProfileByUserId(userId: string): Promise<UserProfile> {
   return profile;
 }
 
-export async function getUserNFTs(
-  page: number,
-  pageSize: number,
-  ownerId?: string
-): Promise<NFTInfo[]> {
+export async function getUserNFTs({
+  page,
+  pageSize,
+  ownerId,
+  creatorId,
+}: {
+  page: number;
+  pageSize: number;
+  ownerId?: string;
+  creatorId?: string;
+}): Promise<NFTInfo[]> {
   let query = supabase
     .from("nfts")
     .select("*, collection:collections(*), profile:profiles!owner_id(*)");
 
   if (ownerId) {
     query = query.eq("owner_id", ownerId);
+  }
+  if (creatorId) {
+    query = query.eq("creator_id", creatorId);
   }
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -349,7 +360,7 @@ export async function getNFTsByCollectionId(
     .from("nfts")
     .select("*, collection:collections(*), profile:profiles!owner_id(*)")
     .eq("collection_id", collectionId)
-    .eq("status", NFTVisibilityStatus.Visible)
+    .eq("status", NFTVisibilityStatus.Visible);
 
   switch (sortBy) {
     case SORT_OPTIONS.RECENT_LISTED:
@@ -379,4 +390,30 @@ export async function getNFTsByCollectionId(
   }
 
   return data;
+}
+
+export async function getUserActivityLog(
+  userId: string,
+  page: number,
+  pageSize: number
+): Promise<ActivityLogItem[]> {
+  const supabase = await createClient();
+  const query = supabase
+    .from("activity_log")
+    .select(
+      "*, collection:collections!collection_id(*), nft:nfts!nft_id(*), user:profiles!user_id(*), relateUser:profiles!related_user_id(*)"
+    )
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  query.range((page - 1) * pageSize, page * pageSize - 1);
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching activity logs:", error);
+    return [];
+  }
+
+  return data || [];
 }

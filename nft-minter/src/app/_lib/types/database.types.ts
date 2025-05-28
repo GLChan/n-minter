@@ -9,6 +9,68 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          action_type: string
+          collection_id: string | null
+          created_at: string
+          details: Json | null
+          id: number
+          nft_id: string | null
+          related_user_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          collection_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: number
+          nft_id?: string | null
+          related_user_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          collection_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: number
+          nft_id?: string | null
+          related_user_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_log_nft_id_fkey"
+            columns: ["nft_id"]
+            isOneToOne: false
+            referencedRelation: "nfts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_log_related_user_id_fkey"
+            columns: ["related_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attributes: {
         Row: {
           created_at: string
@@ -304,6 +366,8 @@ export type Database = {
           bio: string | null
           created_at: string
           email: string | null
+          followers_count: number
+          following_count: number
           id: string
           updated_at: string
           username: string | null
@@ -315,6 +379,8 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email?: string | null
+          followers_count?: number
+          following_count?: number
           id?: string
           updated_at?: string
           username?: string | null
@@ -326,6 +392,8 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email?: string | null
+          followers_count?: number
+          following_count?: number
           id?: string
           updated_at?: string
           username?: string | null
@@ -464,6 +532,23 @@ export type Database = {
       get_unique_holders_for_collection: {
         Args: { target_collection_id: string }
         Returns: number
+      }
+      get_user_collections_with_stats: {
+        Args: { p_user_id: string }
+        Returns: {
+          id: string
+          created_at: string
+          name: string
+          description: string
+          logo_image_url: string
+          banner_image_url: string
+          creator_id: string
+          creator: Json
+          floor_price: number
+          volume: number
+          item_count: number
+          owner_count: number
+        }[]
       }
     }
     Enums: {

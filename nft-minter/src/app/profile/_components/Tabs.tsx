@@ -26,20 +26,7 @@ const TabButton = ({ children, active, href }: TabButtonProps) => (
   </Link>
 );
 
-
-
-const TABS = [
-  { name: 'NFT', slug: 'nft' },
-  { name: '已收藏', slug: 'collected' },
-  { name: '已铸造', slug: 'created' },
-  { name: '合集', slug: 'collections' },
-  { name: '活动', slug: 'activity' },
-  { name: '出价', slug: 'offers' },
-  { name: '设置', slug: 'settings' },
-];
-
-
-export function Tabs({ currentTab }: { currentTab: string }) {
+export function Tabs({ currentTab, tabs }: { currentTab: string, tabs: { name: string, slug: string }[] }) {
   const pathname = usePathname(); // 获取当前路径，例如 /profile
 
   return (
@@ -50,7 +37,7 @@ export function Tabs({ currentTab }: { currentTab: string }) {
         <div className="container mx-auto px-4">
           <div className="flex space-x-2 overflow-x-auto pb-px">
             {
-              TABS.map((tab) => (
+              tabs.map((tab) => (
                 <TabButton
                   key={tab.slug}
                   href={`${pathname}?tab=${tab.slug}`}
