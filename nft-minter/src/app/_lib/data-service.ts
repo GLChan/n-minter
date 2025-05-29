@@ -7,7 +7,6 @@ import {
   CollectionInfo,
   CollectionListItem,
   CollectionStats,
-  NFT,
   NFTAttribute,
   NFTDetail,
   NFTInfo,

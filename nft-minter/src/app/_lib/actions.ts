@@ -11,16 +11,18 @@ import {
   UserProfile,
 } from "./types";
 
-export async function doesUserExistByWalletAddress(address: string): Promise<boolean> {
+export async function doesUserExistByWalletAddress(
+  address: string
+): Promise<boolean> {
   const supabase = await createClient();
   if (!address) return false;
 
   try {
     // 注意：直接访问 auth.users 表需要 service_role 权限
     const { data: existingUser, error } = await supabase
-      .from('profiles') // Supabase 内部的 auth.users 表
-      .select('id') // 只需要检查是否存在，选择一个最小的列
-      .eq('wallet_address', address) // 邮箱通常不区分大小写存储，或查询时转换为小写
+      .from("profiles") // Supabase 内部的 auth.users 表
+      .select("id") // 只需要检查是否存在，选择一个最小的列
+      .eq("wallet_address", address) // 邮箱通常不区分大小写存储，或查询时转换为小写
       .maybeSingle(); // 如果找到则返回该行，否则返回 null
 
     if (error) {
@@ -30,7 +32,6 @@ export async function doesUserExistByWalletAddress(address: string): Promise<boo
     }
 
     return existingUser !== null;
-
   } catch (e) {
     console.error(`通过wallet_address检查用户时发生意外错误: ${address}`, e);
     return false; // 或 throw e;
@@ -68,21 +69,6 @@ export async function getFeaturedNFT() {
     .single();
 
   if (error) throw new Error("Featured NFT could not be retrieved");
-
-  return data;
-}
-
-// Top Today
-export async function getTopTodayNFTs() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("nfts")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(10);
-
-  // Score = (w1 * 24h_交易额) + (w2 * 24h_独立买家数) + (w3 * 24h_地板价涨幅) + ...
-  if (error) throw new Error("Top Today NFTs could not be retrieved");
 
   return data;
 }
@@ -422,7 +408,7 @@ export async function getUserCollections(
     return [];
   }
 
-  // Supabase RPC 返回的数据可能需要映射到我们定义的类型
+  // Supabase RPC 返回的数据可能需要映射到定义的类型
   // const mappedData = data.map((item: any) => ({
   //   ...item,
   //   floorPrice: item.floor_price,
@@ -598,4 +584,21 @@ export async function removeUserFollow(targetUserId: string) {
     console.error("取消关注用户时发生意外错误:", error);
     return { success: false, error };
   }
+}
+
+// get suggested users
+export async function getSuggestedUsers(): Promise<UserProfile[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .limit(10) // 限制返回的用户数量
+    .order("created_at", { ascending: false }); // 按创建时间降序
+
+  if (error) {
+    console.error("获取推荐用户失败:", error);
+    return [];
+  }
+
+  return data || [];
 }
