@@ -5,6 +5,7 @@ import {
   Collection,
   CollectionCategory,
   CollectionInfo,
+  CollectionListItem,
   CollectionStats,
   NFT,
   NFTAttribute,
@@ -183,7 +184,7 @@ export async function getCollectionByUserId(
 
   if (error) {
     console.error("获取用户合集失败:", error);
-    notFound();
+    return [];
   }
 
   return data;
@@ -488,5 +489,59 @@ export async function getNftsByCollectionCategoryId({
   } catch (error) {
     console.error("通过合集分类获取NFT时发生错误:", error);
     return [];
+  }
+}
+
+export interface FetchCollectionsParams {
+  categoryId?: string | null; // 对应 SQL p_category_id
+  userId?: string | null; // 对应 SQL p_user_id
+  timeRange?: "24h" | "7d" | "30d" | "all" | string; // 对应 SQL p_time_range
+  sortBy?: "volume" | "floor" | "newest" | "owners" | string; // 对应 SQL p_sort_by
+  sortDirection?: "ASC" | "DESC"; // 对应 SQL p_sort_direction
+  page?: number; // 对应 SQL p_limit
+  pageSize?: number; // 对应 SQL p_offset
+}
+export async function fetchCollectionsWithFilters(
+  params: FetchCollectionsParams = {} // 设置默认值为空对象，使所有参数可选
+): Promise<CollectionListItem[]> {
+  // 准备传递给 RPC 函数的参数对象
+  // SQL 函数中的参数名以 'p_' 开头
+  const rpcParams: { [key: string]: any } = {};
+
+  if (params.categoryId !== undefined)
+    rpcParams.p_category_id = params.categoryId;
+  if (params.userId !== undefined) rpcParams.p_user_id = params.userId;
+  if (params.timeRange !== undefined) rpcParams.p_time_range = params.timeRange;
+  if (params.sortBy !== undefined) rpcParams.p_sort_by = params.sortBy;
+  if (params.sortDirection !== undefined)
+    rpcParams.p_sort_direction = params.sortDirection;
+  if (params.pageSize !== undefined) rpcParams.p_limit = params.pageSize || 10; 
+  if (params.page !== undefined) rpcParams.p_offset = params.page
+    ? (params.page - 1) * (params.pageSize || 10)
+    : 0;
+
+  console.log('rpcParams', rpcParams)
+  try {
+    const { data, error } = await supabase.rpc(
+      "get_collections_with_filters_and_sort", // 你的 SQL 函数名
+      rpcParams
+    );
+
+    if (error) {
+      console.error(
+        "Supabase RPC call (get_collections_with_filters_and_sort) failed:",
+        error
+      );
+      throw error; // 或者你可以返回一个包含错误的对象，例如 { data: [], error }
+    }
+
+    // RPC 调用返回的 data 就是一个数组，其元素结构应与 SQL 函数的 RETURNS TABLE 定义匹配
+    return (data as CollectionListItem[]) || []; // 类型断言，并确保在 data 为 null 时返回空数组
+  } catch (error) {
+    console.error("Error in fetchCollectionsWithFilters:", error);
+    // 根据你的错误处理策略，决定是抛出错误还是返回一个错误状态
+    // 例如: return Promise.reject(error);
+    // 或者: return []; (如果希望静默失败并返回空列表)
+    throw error; // 简单起见，先抛出
   }
 }

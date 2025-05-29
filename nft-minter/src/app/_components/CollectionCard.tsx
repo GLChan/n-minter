@@ -59,7 +59,7 @@ export default function CollectionCard({
           <div className="flex flex-col">
             <span className="text-zinc-500 dark:text-zinc-400">地板价</span>
             <span className="font-medium">
-              ${formatPrice(collection.floorPrice)}
+              ${formatPrice(collection.floor_price)}
             </span>
           </div>
           <div className="flex flex-col">
@@ -71,13 +71,13 @@ export default function CollectionCard({
           <div className="flex flex-col">
             <span className="text-zinc-500 dark:text-zinc-400">物品数量</span>
             <span className="font-medium">
-              {collection.itemCount}
+              {collection.item_count}
             </span>
           </div>
           <div className="flex flex-col">
             <span className="text-zinc-500 dark:text-zinc-400">持有者</span>
             <span className="font-medium">
-              {collection.ownerCount}
+              {collection.owner_count}
             </span>
           </div>
         </div>

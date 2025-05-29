@@ -529,6 +529,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_collections_with_filters_and_sort: {
+        Args: {
+          p_category_id?: string
+          p_user_id?: string
+          p_time_range?: string
+          p_sort_by?: string
+          p_sort_direction?: string
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          id: string
+          created_at: string
+          name: string
+          description: string
+          logo_image_url: string
+          banner_image_url: string
+          creator_id: string
+          creator: Json
+          floor_price: number
+          volume: number
+          item_count: number
+          owner_count: number
+        }[]
+      }
       get_unique_holders_for_collection: {
         Args: { target_collection_id: string }
         Returns: number

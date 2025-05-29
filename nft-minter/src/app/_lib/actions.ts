@@ -423,16 +423,16 @@ export async function getUserCollections(
   }
 
   // Supabase RPC 返回的数据可能需要映射到我们定义的类型
-  const mappedData = data.map((item: any) => ({
-    ...item,
-    floorPrice: item.floor_price,
-    volume: item.volume,
-    itemCount: item.item_count,
-    ownerCount: item.owner_count,
-    creator: item.creator as UserProfile | null,
-  }));
+  // const mappedData = data.map((item: any) => ({
+  //   ...item,
+  //   floorPrice: item.floor_price,
+  //   volume: item.volume,
+  //   itemCount: item.item_count,
+  //   ownerCount: item.owner_count,
+  //   creator: item.creator as UserProfile | null,
+  // }));
 
-  return mappedData || [];
+  return data || [];
 }
 
 export async function isUserFollow(targetUserId: string): Promise<boolean> {

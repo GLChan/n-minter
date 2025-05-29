@@ -42,10 +42,10 @@ export interface CollectionInfo extends Collection {
 
 export interface CollectionListItem extends Collection {
   creator: UserProfile | null;
-  floorPrice: number;
+  floor_price: number;
   volume: number;
-  itemCount: number;
-  ownerCount: number;
+  item_count: number;
+  owner_count: number;
 }
 
 export interface CollectionStats {
