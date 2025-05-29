@@ -2,17 +2,40 @@
 import { redirect } from "next/navigation";
 import { createClient } from "./supabase/server";
 import {
-  Attribute,
   AttributeKeyValue,
-  Collection,
   CollectionListItem,
   NFT,
   NFTAttribute,
-  NFTDetail,
   NFTInfo,
   Transaction,
   UserProfile,
 } from "./types";
+
+export async function doesUserExistByWalletAddress(address: string): Promise<boolean> {
+  const supabase = await createClient();
+  if (!address) return false;
+
+  try {
+    // 注意：直接访问 auth.users 表需要 service_role 权限
+    const { data: existingUser, error } = await supabase
+      .from('profiles') // Supabase 内部的 auth.users 表
+      .select('id') // 只需要检查是否存在，选择一个最小的列
+      .eq('wallet_address', address) // 邮箱通常不区分大小写存储，或查询时转换为小写
+      .maybeSingle(); // 如果找到则返回该行，否则返回 null
+
+    if (error) {
+      console.error(`通过wallet_address检查用户时出错: ${address}`, error);
+      // 你可能想根据错误类型决定是否抛出错误或返回 false
+      return false; // 或 throw error;
+    }
+
+    return existingUser !== null;
+
+  } catch (e) {
+    console.error(`通过wallet_address检查用户时发生意外错误: ${address}`, e);
+    return false; // 或 throw e;
+  }
+}
 
 export async function getUserInfo() {
   const supabase = await createClient();

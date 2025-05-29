@@ -40,6 +40,7 @@ export default function OwnedNFTsTab({ page, profile }: OwnedNFTsTabProps) {
           page,
           pageSize: 10,
           ownerId: profile.id,
+          status: "",
         });
         setNfts(nftData);
       } catch (error) {

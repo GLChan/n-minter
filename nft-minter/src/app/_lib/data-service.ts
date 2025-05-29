@@ -2,8 +2,6 @@ import { createClient } from "@/app/_lib/supabase/client";
 import { notFound } from "next/navigation";
 import {
   ActivityLogItem,
-  Attribute,
-  AttributeKeyValue,
   Collection,
   CollectionCategory,
   CollectionInfo,
@@ -13,7 +11,6 @@ import {
   NFTDetail,
   NFTInfo,
   Transaction,
-  UserFollowStats,
   UserProfile,
 } from "./types";
 import {
@@ -95,11 +92,13 @@ export async function getUserNFTs({
   pageSize,
   ownerId,
   creatorId,
+  status = NFTVisibilityStatus.Visible,
 }: {
   page: number;
   pageSize: number;
   ownerId?: string;
   creatorId?: string;
+  status?: string;
 }): Promise<NFTInfo[]> {
   let query = supabase
     .from("nfts")
@@ -110,6 +109,9 @@ export async function getUserNFTs({
   }
   if (creatorId) {
     query = query.eq("creator_id", creatorId);
+  }
+  if (status) {
+    query = query.eq("status", status);
   }
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -334,10 +336,10 @@ export async function getNFTsByCollectionIdAndPage(
   collectionId: string,
   page: number,
   pageSize: number
-): Promise<NFT[]> {
+): Promise<NFTInfo[]> {
   const { data, error } = await supabase
     .from("nfts")
-    .select("*, collection:collections(*)")
+    .select("*, collection:collections(*), profile:profiles!owner_id(*)")
     .eq("collection_id", collectionId)
     .order("created_at", { ascending: false })
     .range((page - 1) * pageSize, page * pageSize - 1);
@@ -416,4 +418,75 @@ export async function getUserActivityLog(
   }
 
   return data || [];
+}
+
+export async function getNftsByCollectionCategoryId({
+  categoryId,
+  page,
+  pageSize,
+  sortBy,
+}: {
+  categoryId: number;
+  page: number;
+  pageSize: number;
+  sortBy: string;
+}): Promise<NFTInfo[]> {
+  try {
+    // 1. 获取该分类下的所有合集 ID
+    const { data: collectionCategoryLinks, error: ccError } = await supabase
+      .from("collections")
+      .select("id")
+      .eq("category_id", categoryId);
+
+    if (ccError) {
+      console.error("获取合集分类关联失败:", ccError);
+      throw ccError;
+    }
+
+    const collectionIds = collectionCategoryLinks.map((link) => link.id);
+
+    // 2. 获取这些合集下的所有 NFT
+    let query = supabase
+      .from("nfts")
+      .select("*, collection:collections(*), profile:profiles!owner_id(*)")
+      .eq("status", NFTVisibilityStatus.Visible);
+
+    if (categoryId !== 0) {
+      query.in("collection_id", collectionIds);
+    }
+
+    switch (sortBy) {
+      case SORT_OPTIONS.RECENT_LISTED:
+        query.order("updated_at", { ascending: false });
+        break;
+      case SORT_OPTIONS.PRICE_ASC:
+        query.order("list_price", { ascending: true });
+        break;
+      case SORT_OPTIONS.PRICE_DESC:
+        query.order("list_price", { ascending: false });
+        break;
+      case SORT_OPTIONS.RECENT_CREATED:
+        query.order("created_at", { ascending: false });
+        break;
+      default:
+        query.order("created_at", { ascending: false });
+        break;
+    }
+
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    query.range(from, to);
+
+    const { data: nfts, error: nftsError } = await query;
+    if (nftsError) {
+      console.error("获取NFT失败:", nftsError);
+      throw nftsError;
+    }
+
+    return (nfts as NFTInfo[]) || [];
+  } catch (error) {
+    console.error("通过合集分类获取NFT时发生错误:", error);
+    return [];
+  }
 }
