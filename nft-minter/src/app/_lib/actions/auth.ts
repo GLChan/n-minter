@@ -28,6 +28,8 @@ export async function signInAction({
   chainId: number;
   nonce: string;
 }) {
+  console.log("signInAction", address, chainId, nonce);
+  
   const supabaseAdmin = getSupabaseAdmin();
   const supabase = await createClient();
 

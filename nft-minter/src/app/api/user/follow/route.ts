@@ -84,6 +84,13 @@ export async function POST(request: NextRequest) {
       result = await removeUserFollow(user.id);
     }
 
+    if (!result) {
+      return NextResponse.json(
+        { error: "操作失败，请稍后再试" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
       action: action,

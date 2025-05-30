@@ -2,7 +2,7 @@ import { NFTCard } from "@/app/_components/ui/NFTCard";
 import { getNFTsByCollectionId } from "@/app/_lib/data-service";
 import { NFTInfo } from "@/app/_lib/types";
 import { SORT_OPTIONS } from "@/app/_lib/types/enums";
-import { NFTSkeleton } from "@/app/dashboard/_components/NFTSkeleton";
+import { NFTSkeleton } from "./NFTSkeleton";
 import React, { useEffect, useState } from "react";
 
 const sortOptions = [
@@ -42,7 +42,7 @@ export default function NFTsTab({ collectionId }: { collectionId: string }) {
       }
     }
     loadData();
-  }, [page, sortBy]); // 当 page 变化时重新加载
+  }, [collectionId, page, sortBy]); // 当 page 变化时重新加载
 
   if (error) {
     // 初始加载就出错

@@ -8,6 +8,7 @@ import { CollectionCategory } from "@/app/_lib/types";
 import { createClient } from "../_lib/supabase/client";
 import { useRouter } from "next/navigation";
 import imageCompression from "browser-image-compression";
+import Image from "next/image";
 
 export default function CreateCollectionPage() {
   const [collectionName, setCollectionName] = useState("");
@@ -88,7 +89,10 @@ export default function CreateCollectionPage() {
       formData.append("creatorId", user.id);
       if (collectionImage) {
         setProcessingStep("正在压缩封面图片...");
-        const compressedImage = await imageCompression(collectionImage, options);
+        const compressedImage = await imageCompression(
+          collectionImage,
+          options
+        );
         formData.append("image", compressedImage);
       }
       if (collectionBanner) {
@@ -140,7 +144,7 @@ export default function CreateCollectionPage() {
           <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl p-8 flex flex-col items-center justify-center">
             {collectionImagePreview ? (
               <div className="relative mb-4">
-                <img
+                <Image
                   src={collectionImagePreview}
                   alt="合集图片预览"
                   className="object-contain rounded-lg max-h-40"
@@ -251,7 +255,7 @@ export default function CreateCollectionPage() {
               <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl p-8 flex flex-col items-center justify-center">
                 {collectionBannerPreview ? (
                   <div className="relative mb-4 w-full h-48">
-                    <img
+                    <Image
                       src={collectionBannerPreview}
                       alt="合集横幅预览"
                       className="object-cover w-full h-full rounded-lg"
@@ -336,6 +340,13 @@ export default function CreateCollectionPage() {
         </div>
 
         <div className="flex justify-end gap-4">
+          {processingStep && (
+            <div className="text-sm text-zinc-600 dark:text-zinc-400">
+              {processingStep}
+            </div>
+          )}
+          {error && <div className="text-sm text-red-500 mb-4">{error}</div>}
+
           <Button
             type="submit"
             size="lg"

@@ -31,7 +31,7 @@ export default async function CollectionsPage({
 }: {
   searchParams: { tab?: string; page?: string; sortBy?: string; time?: string };
 }) {
-  const params = await searchParams;
+  const params = searchParams;
   const pageParam = params.page ? parseInt(params.page) : 1;
   const tabParam = params.tab;
   const sortBy = params.sortBy || SORT_OPTIONS.RECENT_LISTED; // 默认排序方式

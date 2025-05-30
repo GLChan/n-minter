@@ -3,9 +3,6 @@ import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { SiweMessage } from 'siwe';
-import { SignJWT } from 'jose';
-import { env } from '@/app/_lib/config/env';
-import { JWT_CONFIG } from '@/app/_lib/constants';
 
 export async function POST(request: Request) {
   const session = await getIronSession<{ nonce: string }>(
@@ -37,13 +34,4 @@ export async function POST(request: Request) {
     domain: fields.domain,
     nonce: fields.nonce,
   });
-}
-
-async function generateJwt(payload: { address: string; chainId: number; domain: string; nonce: string }) {
-  return await new SignJWT(payload)
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setIssuer(JWT_CONFIG.ISSUER)
-    .setAudience(JWT_CONFIG.AUDIENCE)
-    .sign(new TextEncoder().encode(env.JWT_SECRET_KEY));
 }

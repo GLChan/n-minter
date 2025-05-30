@@ -20,7 +20,7 @@ const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
 
 // 这个组件用于解决React 19与RainbowKit的类型兼容性问题
 export default function CompatibleRainbowKit({ children, ...props }: CompatibleRainbowKitProps) {
-  // 使用类型断言来解决React 19中ReactNode包含bigint类型的问题
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const compatibleChildren = children as any;
 
   return <RainbowKitProvider {...props}

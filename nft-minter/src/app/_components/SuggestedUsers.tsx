@@ -49,7 +49,7 @@ export const SuggestedUsers: React.FC<{ children: React.ReactNode }> = ({
     <section className="w-full py-8">
       <h2 className="text-xl font-semibold mb-6">推荐关注</h2>
 
-      <div
+      <button
         className="relative h-80 overflow-hidden"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -61,7 +61,7 @@ export const SuggestedUsers: React.FC<{ children: React.ReactNode }> = ({
         >
           {children}
         </div>
-      </div>
+      </button>
     </section>
   );
 };

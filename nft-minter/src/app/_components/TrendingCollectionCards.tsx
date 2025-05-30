@@ -4,125 +4,6 @@ import Link from "next/link";
 import { formatPrice } from "@/app/_lib/utils";
 import { fetchCollectionsWithFilters } from "../_lib/data-service";
 
-interface Collection {
-  id: string;
-  name: string;
-  image: string;
-  volume: number;
-  floorPrice: number;
-  timeFrame: string;
-}
-
-const mockCollections: Collection[] = [
-  {
-    id: "1",
-    name: "base",
-    image:
-      "https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=400&auto=format&fit=crop&q=80",
-    volume: 6300000,
-    floorPrice: 2303730,
-    timeFrame: "6d",
-  },
-  {
-    id: "2",
-    name: "frog",
-    image:
-      "https://images.unsplash.com/photo-1502780402662-acc01c084a25?w=400&auto=format&fit=crop&q=80",
-    volume: 185500,
-    floorPrice: 257814,
-    timeFrame: "1d",
-  },
-  {
-    id: "3",
-    name: "$cum",
-    image:
-      "https://images.unsplash.com/photo-1639762681057-408e52192e55?w=400&auto=format&fit=crop&q=80",
-    volume: 198800,
-    floorPrice: 257074,
-    timeFrame: "5d",
-  },
-  {
-    id: "4",
-    name: "base",
-    image:
-      "https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=400&auto=format&fit=crop&q=80",
-    volume: 6300000,
-    floorPrice: 2303730,
-    timeFrame: "6d",
-  },
-  {
-    id: "5",
-    name: "frog",
-    image:
-      "https://images.unsplash.com/photo-1502780402662-acc01c084a25?w=400&auto=format&fit=crop&q=80",
-    volume: 185500,
-    floorPrice: 257814,
-    timeFrame: "1d",
-  },
-  {
-    id: "6",
-    name: "$cum",
-    image:
-      "https://images.unsplash.com/photo-1639762681057-408e52192e55?w=400&auto=format&fit=crop&q=80",
-    volume: 198800,
-    floorPrice: 257074,
-    timeFrame: "5d",
-  },
-  {
-    id: "7",
-    name: "base",
-    image:
-      "https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=400&auto=format&fit=crop&q=80",
-    volume: 6300000,
-    floorPrice: 2303730,
-    timeFrame: "6d",
-  },
-  {
-    id: "8",
-    name: "frog",
-    image:
-      "https://images.unsplash.com/photo-1502780402662-acc01c084a25?w=400&auto=format&fit=crop&q=80",
-    volume: 185500,
-    floorPrice: 257814,
-    timeFrame: "1d",
-  },
-  {
-    id: "9",
-    name: "$cum",
-    image:
-      "https://images.unsplash.com/photo-1639762681057-408e52192e55?w=400&auto=format&fit=crop&q=80",
-    volume: 198800,
-    floorPrice: 257074,
-    timeFrame: "5d",
-  },
-  {
-    id: "10",
-    name: "base",
-    image:
-      "https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=400&auto=format&fit=crop&q=80",
-    volume: 6300000,
-    floorPrice: 2303730,
-    timeFrame: "6d",
-  },
-  {
-    id: "11",
-    name: "frog",
-    image:
-      "https://images.unsplash.com/photo-1502780402662-acc01c084a25?w=400&auto=format&fit=crop&q=80",
-    volume: 185500,
-    floorPrice: 257814,
-    timeFrame: "1d",
-  },
-  {
-    id: "12",
-    name: "$cum",
-    image:
-      "https://images.unsplash.com/photo-1639762681057-408e52192e55?w=400&auto=format&fit=crop&q=80",
-    volume: 198800,
-    floorPrice: 257074,
-    timeFrame: "5d",
-  },
-];
 export default async function TrendingCollectionCards() {
   const collections = await fetchCollectionsWithFilters({
     sortBy: "volume",
@@ -145,7 +26,7 @@ export default async function TrendingCollectionCards() {
             <div className="flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden hover:shadow-md transition-all duration-300">
               <div className="relative h-48 w-full">
                 <Image
-                  src={collection.logo_image_url || ""}
+                  src={collection.logo_image_url ?? ""}
                   alt={collection.name}
                   fill
                   className="object-cover"

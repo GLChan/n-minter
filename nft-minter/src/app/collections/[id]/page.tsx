@@ -56,7 +56,7 @@ export default async function CollectionPage({
           <div className="w-40 h-40 rounded-xl overflow-hidden border-4 border-background bg-white shadow-xl">
             <div className="relative w-full h-full">
               <Image
-                src={collection.logo_image_url || ""}
+                src={collection.logo_image_url ?? ""}
                 alt={collection.name}
                 fill
                 className="object-cover"

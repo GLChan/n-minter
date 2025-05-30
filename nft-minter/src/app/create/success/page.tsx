@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Share2, ExternalLink, ArrowLeft, Eye, Sparkles } from 'lucide-react';
-import { NFT } from '@/app/_lib/types';
-import useAsyncEffect from '@/app/_lib/hooks/useAsyncEffect';
-import { getNFTById } from '@/app/_lib/data-service';
-import { formatIPFSUrl } from '@/app/_lib/utils';
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Share2, ExternalLink, ArrowLeft, Eye, Sparkles } from "lucide-react";
+import { NFT } from "@/app/_lib/types";
+import useAsyncEffect from "@/app/_lib/hooks/useAsyncEffect";
+import { getNFTById } from "@/app/_lib/data-service";
+import { formatIPFSUrl } from "@/app/_lib/utils";
 
 export default function MintSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nftId = searchParams.get('id');
+  const nftId = searchParams.get("id");
   // const imageUrl = searchParams.get('image');
   // const name = searchParams.get('name');
 
@@ -41,9 +41,9 @@ export default function MintSuccessPage() {
 
   useAsyncEffect(async () => {
     if (!nftId) return;
-    const nft = await getNFTById(nftId)
-    setNft(nft)
-  }, [nftId])
+    const nft = await getNFTById(nftId);
+    setNft(nft);
+  }, [nftId]);
 
   if (!nftId) {
     return (
@@ -74,9 +74,7 @@ export default function MintSuccessPage() {
               铸造成功！
             </h1>
             <div className="flex items-center text-sm font-medium">
-              {countdown > 0 && (
-                <span>{countdown}秒后自动跳转</span>
-              )}
+              {countdown > 0 && <span>{countdown}秒后自动跳转</span>}
             </div>
           </div>
         </div>
@@ -89,8 +87,8 @@ export default function MintSuccessPage() {
               <div className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
                 {nft.image_url ? (
                   <Image
-                    src={formatIPFSUrl(nft.image_url) || ''}
-                    alt={nft.name || 'NFT作品'}
+                    src={formatIPFSUrl(nft.image_url) || ""}
+                    alt={nft.name || "NFT作品"}
                     fill
                     className="object-cover"
                   />
@@ -104,7 +102,7 @@ export default function MintSuccessPage() {
               {/* 成功信息 */}
               <div className="flex-1 text-center sm:text-left">
                 <h2 className="text-xl font-semibold mb-2">
-                  {nft.name || 'NFT作品'}
+                  {nft.name || "NFT作品"}
                 </h2>
                 <p className="text-gray-600 mb-4">
                   您的NFT已成功铸造并将永久存储在区块链上！现在您可以查看、分享或将其添加到您的收藏中。
@@ -112,7 +110,12 @@ export default function MintSuccessPage() {
 
                 {/* 交易ID简写 */}
                 <div className="text-sm text-gray-500 mb-1">
-                  交易ID：{nftId ? `${nftId.substring(0, 8)}...${nftId.substring(nftId.length - 8)}` : 'Processing...'}
+                  交易ID：
+                  {nftId
+                    ? `${nftId.substring(0, 8)}...${nftId.substring(
+                        nftId.length - 8
+                      )}`
+                    : "Processing..."}
                 </div>
               </div>
             </div>
@@ -145,17 +148,20 @@ export default function MintSuccessPage() {
               </a>
 
               <button
-                onClick={() => {
+                onClick={async () => {
                   try {
                     navigator.share({
-                      title: `${nft.name || 'NFT作品'} - 刚刚铸造的NFT`,
-                      text: '看看我刚刚铸造的NFT！',
-                      url: `${window.location.origin}/nft/${nftId}`
+                      title: `${nft.name || "NFT作品"} - 刚刚铸造的NFT`,
+                      text: "看看我刚刚铸造的NFT！",
+                      url: `${window.location.origin}/nft/${nftId}`,
                     });
                   } catch (err) {
                     // 如果分享API不可用，则简单地复制链接到剪贴板
-                    navigator.clipboard.writeText(`${window.location.origin}/nft/${nftId}`);
-                    alert('链接已复制到剪贴板');
+                    navigator.clipboard.writeText(
+                      `${window.location.origin}/nft/${nftId}`
+                    );
+                    console.log(err);
+                    alert("链接已复制到剪贴板");
                   }
                 }}
                 className="flex items-center justify-center px-4 py-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
@@ -180,4 +186,4 @@ export default function MintSuccessPage() {
       </div>
     </div>
   );
-} 
+}

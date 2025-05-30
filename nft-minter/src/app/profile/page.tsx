@@ -13,20 +13,19 @@ import {
   CollectionsTab,
 } from "./_components";
 import Spinner from "../_components/Spinner";
-import OwnedNFTsTab from "../dashboard/_components/OwnedNFTsTab";
-import { OffersTab } from "../dashboard/_components/OffersTab";
+import OwnedNFTsTab from "./_components/OwnedNFTsTab";
+import { OffersTab } from "./_components/OffersTab";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 
-
 const TABS = [
-  { name: 'NFT', slug: 'nft' },
-  { name: '已收藏', slug: 'collected' },
-  { name: '已铸造', slug: 'created' },
-  { name: '合集', slug: 'collections' },
-  { name: '活动', slug: 'activity' },
-  { name: '出价', slug: 'offers' },
-  { name: '设置', slug: 'settings' },
+  { name: "NFT", slug: "nft" },
+  { name: "已收藏", slug: "collected" },
+  { name: "已铸造", slug: "created" },
+  { name: "合集", slug: "collections" },
+  { name: "活动", slug: "activity" },
+  { name: "出价", slug: "offers" },
+  { name: "设置", slug: "settings" },
 ];
 
 export default async function ProfilePage({
@@ -34,7 +33,7 @@ export default async function ProfilePage({
 }: {
   searchParams: { tab?: string; page?: string };
 }) {
-  const params = await searchParams;
+  const params = searchParams;
   const pageParam = params.page ? parseInt(params.page) : 1;
   const tabParam = params.tab;
 
@@ -102,7 +101,7 @@ export default async function ProfilePage({
         </div>
       </div>
 
-      <Tabs currentTab={currentTab} tabs={TABS}/>
+      <Tabs currentTab={currentTab} tabs={TABS} />
 
       {/* Tab Content */}
       <div className="container mx-auto px-4 py-8">

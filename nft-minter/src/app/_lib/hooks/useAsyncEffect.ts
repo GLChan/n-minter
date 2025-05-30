@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 
 export default function useAsyncEffect<T>(
   callback: (isMounted: () => boolean) => T | Promise<T>,
-  onDestroyOrDependencies: null | ((result?: T) => void) | any[] = [],
-  dependencies: any[] = []
+  onDestroyOrDependencies: null | ((result?: T) => void) | ReadonlyArray<unknown> = [],
+  dependencies: ReadonlyArray<unknown> = []
 ) {
-  let deps: any[];
+  let deps: ReadonlyArray<unknown>;
   let destroy: (result?: T) => void;
 
   // simulating args overloading

@@ -15,7 +15,7 @@ export async function CollectionsTab({ profile }: { profile: UserProfile }) {
       {collections.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {collections.map((collection) => (
-            <CollectionCard collection={collection} />
+            <CollectionCard key={collection.id} collection={collection} />
           ))}
         </div>
       )}

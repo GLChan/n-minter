@@ -1,7 +1,6 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/app/_components/ui/Button";
 import { ExternalLink } from "lucide-react";
 import { getProfileByUserId } from "@/app/_lib/data-service";
 import { Tabs } from "@/app/profile/_components/Tabs";

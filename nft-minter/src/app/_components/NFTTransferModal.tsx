@@ -6,8 +6,11 @@ import { NFTInfo } from "@/app/_lib/types";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/Button";
-import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { writeContract } from "viem/actions";
+import {
+  useAccount,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 import { contractAbi, contractAddress } from "@/app/_lib/constants";
 
 export const NFTTransferModal = ({
@@ -19,7 +22,7 @@ export const NFTTransferModal = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
-  const { address: senderAddress, isConnected, chain } = useAccount(); // 获取钱包连接状态和地址
+  const { address: senderAddress } = useAccount(); // 获取钱包连接状态和地址  , isConnected, chain
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [receiverAddress, setReceiverAddress] = useState("");
@@ -30,13 +33,13 @@ export const NFTTransferModal = ({
   const {
     data: writeContractResult,
     writeContractAsync,
-    isPending: isMinting,
-    error: mintError,
+    // isPending: isMinting,
+    // error: mintError,
   } = useWriteContract();
   const {
     isLoading: isConfirming,
     isSuccess: isConfirmed,
-    data: receipt,
+    // data: receipt,
   } = useWaitForTransactionReceipt({
     hash: writeContractResult,
     confirmations: 1, // 添加确认数
@@ -88,7 +91,7 @@ export const NFTTransferModal = ({
 
       if (response.ok) {
         // 成功提示
-        toast.success("NFT已成功转移");
+        toast.success("NFT已成功转移:" + successHash);
 
         // 刷新页面或跳转
         router.push(`/nft/${selectedNFT.id}`);
@@ -100,14 +103,13 @@ export const NFTTransferModal = ({
         console.error("转移NFT失败:", error);
         throw new Error("转移NFT时发生错误");
       }
-
     } catch (err) {
       console.error("转移失败:", err);
       if (err instanceof Error) {
         setError(err.message || "转移过程中发生未知错误。");
       }
       // --- UI 更新: 显示错误 ---
-      toast.error(`转移失败: ${err instanceof Error ? err.message : "未知错误"}`);
+      toast.error(`转移失败: ${error}`);
     }
   };
 
@@ -116,7 +118,7 @@ export const NFTTransferModal = ({
 
     if (isConfirming) {
       setIsSubmitting(true);
-      setError('');
+      setError("");
     }
 
     if (isConfirmed) {
@@ -129,22 +131,14 @@ export const NFTTransferModal = ({
       router.push(`/nft/${nft?.id}`);
       onClose();
     }
-
-    // // 2. 等待确认
-    // const receipt = await waitForTransactionReceipt(config, { hash });
-
-    // console.log("交易回执:", receipt);
-
-    // // 3. 检查状态
-    // if (receipt.status === "success") {
-    //   setSuccessHash(hash);
-    //   console.log("转移成功!");
-    //   // --- UI 更新: 显示成功 ---
-    //   // --- 可能需要重新获取用户的 NFT 列表 ---
-    // } else {
-    //   throw new Error("交易失败 (Reverted)!");
-    // }
-  }, [writeContractResult]);
+  }, [
+    writeContractResult,
+    onClose,
+    isConfirming,
+    isConfirmed,
+    router,
+    nft?.id,
+  ]);
 
   return (
     <>

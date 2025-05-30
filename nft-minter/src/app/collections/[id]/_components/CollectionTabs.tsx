@@ -1,16 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
-import { NFTCard } from "@/app/_components/ui/NFTCard";
-import { CollectionInfo, NFTInfo } from "@/app/_lib/types";
+import { CollectionInfo } from "@/app/_lib/types";
 import CollectionDetail from "./CollectionDetail";
 import ActivityTab from "./ActivityTab";
 import NFTsTab from "./NFTsTab";
 
 const DEFAULT_TAB_ID = "items";
-export function CollectionTabs({id, collection} : { id: string, collection: CollectionInfo }) {
-
+export function CollectionTabs({
+  id,
+  collection,
+}: {
+  id: string;
+  collection: CollectionInfo;
+}) {
   const [activeTab, setActiveTab] = useState(DEFAULT_TAB_ID);
 
   return (
@@ -52,17 +55,11 @@ export function CollectionTabs({id, collection} : { id: string, collection: Coll
       </div>
 
       {/* 内容区域 */}
-      {activeTab === "items" && (
-        <NFTsTab collectionId={id} />
-      )}
+      {activeTab === "items" && <NFTsTab collectionId={id} />}
 
-      {activeTab === "activity" && (
-        <ActivityTab collectionId={id} />
-      )}
+      {activeTab === "activity" && <ActivityTab collectionId={id} />}
 
-      {activeTab === "about" && (
-        <CollectionDetail collection={collection} />
-      )}
+      {activeTab === "about" && <CollectionDetail collection={collection} />}
     </>
   );
 }

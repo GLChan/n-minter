@@ -1,15 +1,12 @@
-import React from 'react';
-import { NFTCard } from '@/app/_components/ui/NFTCard';
-import { NFT, NFTInfo } from '@/app/_lib/types';
-import { getUserFavoriteNFTs, getUserInfo } from '@/app/_lib/actions';
-
-const nfts: NFTInfo[] = []
+import React from "react";
+import { NFTCard } from "@/app/_components/ui/NFTCard";
+import { getUserFavoriteNFTs, getUserInfo } from "@/app/_lib/actions";
 
 export async function CollectedNFTsTab() {
-  const user = await getUserInfo()
-  const favs = await getUserFavoriteNFTs(user.id)
+  const user = await getUserInfo();
+  const favs = await getUserFavoriteNFTs(user.id);
 
-  console.log('favs', favs)
+  console.log("favs", favs);
 
   return (
     <div>
@@ -22,8 +19,10 @@ export async function CollectedNFTsTab() {
           ))}
         </div>
       ) : (
-        <p className="text-zinc-500 dark:text-zinc-400 mt-6">还没有收藏任何 NFT。</p>
+        <p className="text-zinc-500 dark:text-zinc-400 mt-6">
+          还没有收藏任何 NFT。
+        </p>
       )}
     </div>
   );
-} 
+}

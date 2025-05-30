@@ -6,9 +6,9 @@ import { formatPrice } from "../_lib/utils";
 
 export default function CollectionCard({
   collection,
-}: {
+}: Readonly<{
   collection: CollectionListItem;
-}) {
+}>) {
   return (
     <Link
       key={collection.id}
@@ -34,8 +34,8 @@ export default function CollectionCard({
         <div className="flex items-center gap-2 mb-3">
           <div className="relative w-6 h-6 rounded-full overflow-hidden">
             <Image
-              src={collection.creator?.avatar_url || ""}
-              alt={collection.creator?.username || ""}
+              src={collection.creator?.avatar_url ?? ""}
+              alt={collection.creator?.username ?? ""}
               fill
               className="object-cover"
               sizes="24px"
@@ -70,15 +70,11 @@ export default function CollectionCard({
           </div>
           <div className="flex flex-col">
             <span className="text-zinc-500 dark:text-zinc-400">物品数量</span>
-            <span className="font-medium">
-              {collection.item_count}
-            </span>
+            <span className="font-medium">{collection.item_count}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-zinc-500 dark:text-zinc-400">持有者</span>
-            <span className="font-medium">
-              {collection.owner_count}
-            </span>
+            <span className="font-medium">{collection.owner_count}</span>
           </div>
         </div>
       </div>

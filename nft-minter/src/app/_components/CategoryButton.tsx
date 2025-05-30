@@ -7,11 +7,11 @@ export default function CategoryButton({
   categoryId,
   categoryName,
   currentTab,
-}: {
+}: Readonly<{
   categoryId: number;
   categoryName: string;
   currentTab: string;
-}) {
+}>) {
   const pathname = usePathname();
   return (
     <Link href={`${pathname}?tab=${categoryId}`}>

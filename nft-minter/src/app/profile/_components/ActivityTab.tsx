@@ -1,7 +1,6 @@
 import ActivityLogInfo from "@/app/_components/ActivityLogInfo";
 import { getUserActivityLog } from "@/app/_lib/data-service";
 import { ActivityLogItem, UserProfile } from "@/app/_lib/types";
-import { formatDate } from "@/app/_lib/utils";
 import React from "react";
 
 // 活动记录接口定义

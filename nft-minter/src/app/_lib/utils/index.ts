@@ -3,7 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import { sessionCookieName, PINATA_IPFS_GATEWAY_BASE } from "@/app/_lib/constants";
 import { CookieOptionsWithName } from "@supabase/ssr";
 import { keccak256, toUtf8Bytes } from 'ethers';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 
 export function getCookieOptions() {
   return {
@@ -114,3 +114,16 @@ export function formatDateTime(date: Date | string): string {
   return format(new Date(date), 'yyyy-MM-dd HH:mm');
 }
 
+export function getFilePrefixAndExtension(filePath: string): { prefix: string; extension: string } {
+  const fileName = filePath.split('/').pop() ?? '';
+  const lastDotIndex = fileName.lastIndexOf('.');
+
+  if (lastDotIndex === -1) {
+    return { prefix: fileName, extension: '' };
+  }
+
+  const prefix = fileName.substring(0, lastDotIndex);
+  const extension = fileName.substring(lastDotIndex + 1).toLowerCase();
+
+  return { prefix, extension };
+}

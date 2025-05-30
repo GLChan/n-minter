@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 
 export default function ActivityTab({collectionId} : { collectionId: string }) {
+  console.log("ActivityTab collectionId", collectionId);
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 overflow-hidden">
       <div className="p-6">
@@ -28,7 +29,7 @@ export default function ActivityTab({collectionId} : { collectionId: string }) {
                     抽象波形 #{100 + item}
                   </span>
                   <span className="text-sm font-medium">
-                    {(Math.random() * 5).toFixed(2)} ETH
+                    {1} ETH
                   </span>
                 </div>
                 <div className="flex justify-between">

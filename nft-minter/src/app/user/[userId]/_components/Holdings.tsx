@@ -1,6 +1,6 @@
 import { NFTCard } from "@/app/_components/ui/NFTCard";
 import { getUserNFTs } from "@/app/_lib/data-service";
-import { NFTInfo, UserProfile } from "@/app/_lib/types";
+import { UserProfile } from "@/app/_lib/types";
 import React from "react";
 
 export default async function Holdings({

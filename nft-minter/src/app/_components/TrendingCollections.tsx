@@ -52,16 +52,16 @@ export const TrendingCollections: React.FC<{ children: React.ReactNode }> = ({
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {children}
+
+          {/* 添加自定义滚动条样式 */}
+          <style jsx>{`
+            /* 隐藏 webkit 的默认滚动条 */
+            div::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
         </div>
       </div>
-
-      {/* 添加自定义滚动条样式 */}
-      <style jsx>{`
-        /* 隐藏 webkit 的默认滚动条 */
-        div::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </section>
   );
 };

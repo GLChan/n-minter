@@ -1,10 +1,11 @@
-"use client"
-import React, { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
-import { Button } from '@/app/_components/ui/Button';
-import { createClient } from '@/app/_lib/supabase/client';
-import { Camera, Upload, Loader2, CheckCircle } from 'lucide-react';
-import { UserProfile } from '@/app/_lib/types';
+"use client";
+import React, { useState, useRef } from "react";
+import Image from "next/image";
+import { Button } from "@/app/_components/ui/Button";
+import { createClient } from "@/app/_lib/supabase/client";
+import { Camera, Upload, Loader2, CheckCircle } from "lucide-react";
+import { UserProfile } from "@/app/_lib/types";
+import { getFilePrefixAndExtension } from "@/app/_lib/utils";
 
 // 输入字段组件
 const InputField = ({
@@ -13,10 +14,13 @@ const InputField = ({
   ...props
 }: {
   label: string;
-  id: string
+  id: string;
 } & React.InputHTMLAttributes<HTMLInputElement>) => (
   <div>
-    <label htmlFor={id} className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+    <label
+      htmlFor={id}
+      className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+    >
       {label}
     </label>
     <input
@@ -27,27 +31,31 @@ const InputField = ({
   </div>
 );
 
-export function SettingsTab({ profile }: { profile: UserProfile }) { 
+export function SettingsTab({ profile }: { profile: UserProfile }) {
   const supabase = createClient();
   // 文件输入引用
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 表单状态
   const [formData, setFormData] = React.useState<UserProfile>({
-    id: profile.id || '',
-    username: profile.username || '',
-    bio: profile.bio || '',
-    email: profile.email || '',
-    avatar_url: profile.avatar_url || '',
-    website: profile.website || '',
-    wallet_address: profile.wallet_address || '',
-    created_at: profile.created_at || '',
-    updated_at: profile.updated_at || '',
+    id: profile.id ?? "",
+    username: profile.username ?? "",
+    bio: profile.bio ?? "",
+    email: profile.email ?? "",
+    avatar_url: profile.avatar_url ?? "",
+    website: profile.website ?? "",
+    wallet_address: profile.wallet_address ?? "",
+    created_at: profile.created_at ?? "",
+    updated_at: profile.updated_at ?? "",
+    following_count: profile.following_count ?? 0,
+    followers_count: profile.followers_count ?? 0,
   });
 
   // 头像上传状态
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>(profile.avatar_url || '');
+  const [avatarPreview, setAvatarPreview] = useState<string>(
+    profile.avatar_url ?? ""
+  );
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -56,9 +64,11 @@ export function SettingsTab({ profile }: { profile: UserProfile }) {
   const [saveError, setSaveError] = useState<string | null>(null);
 
   // 处理输入变化
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { id, value } = e.target;
-    setFormData(prev => ({ ...prev, [id]: value }));
+    setFormData((prev) => ({ ...prev, [id]: value }));
     // 清除成功/错误状态
     setSaveSuccess(false);
     setSaveError(null);
@@ -70,14 +80,14 @@ export function SettingsTab({ profile }: { profile: UserProfile }) {
     if (!file) return;
 
     // 验证文件类型
-    if (!file.type.startsWith('image/')) {
-      setUploadError('请选择图片文件');
+    if (!file.type.startsWith("image/")) {
+      setUploadError("请选择图片文件");
       return;
     }
 
     // 验证文件大小（不超过2MB）
     if (file.size > 2 * 1024 * 1024) {
-      setUploadError('图片大小不能超过2MB');
+      setUploadError("图片大小不能超过2MB");
       return;
     }
 
@@ -106,74 +116,76 @@ export function SettingsTab({ profile }: { profile: UserProfile }) {
       setUploadError(null); // 清除之前的错误信息
 
       // 创建唯一文件名
-      const fileExt = avatarFile.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+      const { prefix, extension } = getFilePrefixAndExtension(avatarFile.name);
+      const fileName = `${prefix}_${Date.now()}.${extension}`;
       const filePath = `${fileName}`;
 
-      console.log('开始上传头像:', {
-        bucket: 'avatars',
+      console.log("开始上传头像:", {
+        bucket: "avatars",
         filePath,
         fileSize: avatarFile.size,
-        fileType: avatarFile.type
+        fileType: avatarFile.type,
       });
 
       // 获取当前Supabase会话
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Current session:', session);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      console.log("Current session:", session);
 
       // 如果没有Supabase会话，尝试刷新会话
       if (!session) {
-        console.log('没有找到Supabase会话，尝试刷新...');
+        console.log("没有找到Supabase会话，尝试刷新...");
 
         // 检查SIWE会话是否有效
-        const siweResponse = await fetch('/api/auth/check', {
-          method: 'GET',
-          credentials: 'include',
-          cache: 'no-store',
+        const siweResponse = await fetch("/api/auth/check", {
+          method: "GET",
+          credentials: "include",
+          cache: "no-store",
         });
 
         if (!siweResponse.ok) {
-          setUploadError('身份验证失败，无法上传图片');
+          setUploadError("身份验证失败，无法上传图片");
           return null;
         }
 
         const siweData = await siweResponse.json();
 
         if (!siweData.authenticated) {
-          setUploadError('未登录，请先连接钱包并登录');
+          setUploadError("未登录，请先连接钱包并登录");
           return null;
         }
 
-        console.log('SIWE会话有效，但Supabase会话缺失，请重新登录或刷新页面');
-        setUploadError('会话状态异常，请刷新页面后重试');
+        console.log("SIWE会话有效，但Supabase会话缺失，请重新登录或刷新页面");
+        setUploadError("会话状态异常，请刷新页面后重试");
         return null;
       }
 
       // 上传到Supabase storage
       const { data, error } = await supabase.storage
-        .from('avatars')
+        .from("avatars")
         .upload(filePath, avatarFile, {
-          cacheControl: '3600',
-          upsert: true  // 更改为true，允许覆盖
+          cacheControl: "3600",
+          upsert: true, // 更改为true，允许覆盖
         });
 
       if (error) {
-        console.error('头像上传失败:', error);
+        console.error("头像上传失败:", error);
         setUploadError(`头像上传失败: ${JSON.stringify(error)}`);
         return null;
       }
 
-      console.log('头像上传成功:', data);
+      console.log("头像上传成功:", data);
 
       // 获取公共URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
-      console.log('获取到的公共URL:', publicUrl);
+      console.log("获取到的公共URL:", publicUrl);
       return publicUrl;
     } catch (error) {
-      console.error('上传过程中出错:', error);
+      console.error("上传过程中出错:", error);
       setUploadError(`上传过程发生错误: ${JSON.stringify(error)}`);
       return null;
     } finally {
@@ -214,27 +226,26 @@ export function SettingsTab({ profile }: { profile: UserProfile }) {
 
       // 更新或插入用户资料
       const { error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update(updates)
-        .eq('id', profile.id)
+        .eq("id", profile.id);
 
       if (error) {
-        console.error('更新资料失败:', error);
+        console.error("更新资料失败:", error);
         setSaveError(`保存资料失败: ${JSON.stringify(error)}`);
         return;
       }
 
       // 更新本地状态
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         avatar: avatarUrl,
       }));
 
       // 设置成功状态
       setSaveSuccess(true);
-
     } catch (error) {
-      console.error('保存设置时出错:', error);
+      console.error("保存设置时出错:", error);
       setSaveError(`保存资料时发生错误: ${JSON.stringify(error)}`);
     } finally {
       setIsUploading(false);
@@ -262,12 +273,12 @@ export function SettingsTab({ profile }: { profile: UserProfile }) {
                   <Camera size={40} />
                 </div>
               )}
-              <div
+              <button
                 className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                 onClick={triggerFileInput}
               >
                 <Upload size={24} className="text-white" />
-              </div>
+              </button>
             </div>
             <input
               type="file"
@@ -292,18 +303,21 @@ export function SettingsTab({ profile }: { profile: UserProfile }) {
         <InputField
           label="用户名"
           id="username"
-          value={formData.username || ''}
+          value={formData.username ?? ""}
           onChange={handleChange}
         />
         <div>
-          <label htmlFor="bio" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          <label
+            htmlFor="bio"
+            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+          >
             个人简介
           </label>
           <textarea
             id="bio"
             rows={3}
             className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-            value={formData.bio || ''}
+            value={formData.bio ?? ""}
             onChange={handleChange}
           ></textarea>
         </div>
@@ -312,7 +326,7 @@ export function SettingsTab({ profile }: { profile: UserProfile }) {
           id="email"
           type="email"
           placeholder="you@example.com"
-          value={formData.email || ''}
+          value={formData.email ?? ""}
           onChange={handleChange}
         />
         <InputField
@@ -320,7 +334,7 @@ export function SettingsTab({ profile }: { profile: UserProfile }) {
           id="website"
           type="url"
           placeholder="https://yourwebsite.com"
-          value={formData.website || ''}
+          value={formData.website ?? ""}
           onChange={handleChange}
         />
 
@@ -332,11 +346,7 @@ export function SettingsTab({ profile }: { profile: UserProfile }) {
           </div>
         )}
 
-        {saveError && (
-          <div className="text-red-500 text-sm">
-            {saveError}
-          </div>
-        )}
+        {saveError && <div className="text-red-500 text-sm">{saveError}</div>}
 
         <Button
           type="submit"
@@ -350,11 +360,10 @@ export function SettingsTab({ profile }: { profile: UserProfile }) {
               保存中...
             </>
           ) : (
-            '保存更改'
+            "保存更改"
           )}
         </Button>
       </div>
     </form>
   );
-
-} 
+}

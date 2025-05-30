@@ -1,6 +1,4 @@
 "use client"
-import { useState } from "react"
-import { NFT, UserProfile } from "@/app/_lib/types";
 import { usePathname } from "next/navigation";
 import Link from 'next/link';
 

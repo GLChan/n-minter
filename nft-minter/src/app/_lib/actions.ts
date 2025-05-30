@@ -45,6 +45,10 @@ export async function getUserInfo() {
     error: authError,
   } = await supabase.auth.getUser();
 
+  if (authError) {
+    console.error("获取用户信息时出错:", authError);
+    redirect("/");
+  }
   if (!user) throw new Error("You must be logged in");
 
   const { data, error } = await supabase
@@ -186,6 +190,11 @@ export async function saveNFTAttributes(
     .eq("id", nftId)
     .single();
 
+  if (nftError) {
+    console.error("获取 NFT 时出错:", nftError);
+    throw new Error(`获取 NFT 失败: ${nftError.message}`);
+  }
+
   // 遍历属性名称, 获取属性值
   for (const name of attributeNames) {
     const attribute = attributes.find((attr) => attr.key === name);
@@ -215,7 +224,7 @@ export async function saveNFTAttributes(
     console.log(`准备插入 ${nftAttributesToInsert.length} 条 nft_attributes。`);
     const { error: nftAttrInsertError } = await supabase
       .from("nft_attributes")
-      .insert(nftAttributesToInsert as any[]);
+      .insert(nftAttributesToInsert);
 
     if (nftAttrInsertError) {
       console.error("插入 nft_attributes 时出错:", nftAttrInsertError);
@@ -462,7 +471,7 @@ export async function isUserFollow(targetUserId: string): Promise<boolean> {
 
     // 4. 如果 data 不是 null，说明找到了记录，即已关注
     return followRelationship !== null;
-  } catch (error: any) {
+  } catch (error) {
     console.error("检查关注状态时发生意外错误:", error);
     // 根据你的错误处理策略，你可以选择抛出错误或返回 false
     // throw error;
@@ -534,7 +543,7 @@ export async function addUserFollow(targetUserId: string) {
 
     console.log("关注成功:", data);
     return { success: true, data };
-  } catch (error: any) {
+  } catch (error) {
     console.error("关注用户时发生意外错误:", error);
     return { success: false, error };
   }
@@ -580,7 +589,7 @@ export async function removeUserFollow(targetUserId: string) {
 
     console.log(`用户 ${currentUserId} 已成功取消关注 ${targetUserId}`);
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error("取消关注用户时发生意外错误:", error);
     return { success: false, error };
   }

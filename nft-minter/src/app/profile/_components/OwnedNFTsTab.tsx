@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { NFTCard } from "@/app/_components/ui/NFTCard";
 import { getUserNFTs } from "@/app/_lib/data-service";
 import { NFTInfo, UserProfile } from "@/app/_lib/types";
@@ -27,10 +27,10 @@ export default function OwnedNFTsTab({ page, profile }: OwnedNFTsTabProps) {
     setCurrentItemData(nft);
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setActiveModalType(null);
     setCurrentItemData(null);
-  };
+  }, []);
 
   useEffect(() => {
     async function loadNFTs() {

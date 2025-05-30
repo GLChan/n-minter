@@ -206,6 +206,7 @@ export async function listNFT(
       updated_at: new Date().toISOString(),
     })
     .eq("id", nftId);
+  console.log("listNFT data", data);
 
   if (error) {
     console.error("上架NFT失败:", error);
@@ -268,6 +269,8 @@ export async function unlistNFT(nftId: string, walletAddress: string) {
       transaction_hash: "",
     });
 
+  console.log("unlistNFT data", transaction);
+
   if (transactionError) {
     console.error("记录下架交易失败:", transactionError);
     // 不抛出异常，因为NFT已经成功下架
@@ -323,6 +326,10 @@ export async function getCollectionStatsById(
       target_collection_id: id, // 将参数名与函数定义中的参数名匹配
     }
   );
+
+  if (error) {
+    console.error("获取合集统计数据失败:", error);
+  }
 
   return {
     volume: 0,
@@ -399,7 +406,7 @@ export async function getUserActivityLog(
   page: number,
   pageSize: number
 ): Promise<ActivityLogItem[]> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const query = supabase
     .from("activity_log")
     .select(
@@ -446,7 +453,7 @@ export async function getNftsByCollectionCategoryId({
     const collectionIds = collectionCategoryLinks.map((link) => link.id);
 
     // 2. 获取这些合集下的所有 NFT
-    let query = supabase
+    const query = supabase
       .from("nfts")
       .select("*, collection:collections(*), profile:profiles!owner_id(*)")
       .eq("status", NFTVisibilityStatus.Visible);
@@ -500,12 +507,13 @@ export interface FetchCollectionsParams {
   page?: number; // 对应 SQL p_limit
   pageSize?: number; // 对应 SQL p_offset
 }
+
 export async function fetchCollectionsWithFilters(
   params: FetchCollectionsParams = {} // 设置默认值为空对象，使所有参数可选
 ): Promise<CollectionListItem[]> {
   // 准备传递给 RPC 函数的参数对象
   // SQL 函数中的参数名以 'p_' 开头
-  const rpcParams: { [key: string]: any } = {};
+  const rpcParams: Record<string, unknown> = {};
 
   if (params.categoryId !== undefined)
     rpcParams.p_category_id = params.categoryId;
@@ -514,12 +522,13 @@ export async function fetchCollectionsWithFilters(
   if (params.sortBy !== undefined) rpcParams.p_sort_by = params.sortBy;
   if (params.sortDirection !== undefined)
     rpcParams.p_sort_direction = params.sortDirection;
-  if (params.pageSize !== undefined) rpcParams.p_limit = params.pageSize || 10; 
-  if (params.page !== undefined) rpcParams.p_offset = params.page
-    ? (params.page - 1) * (params.pageSize || 10)
-    : 0;
+  if (params.pageSize !== undefined) rpcParams.p_limit = params.pageSize || 10;
+  if (params.page !== undefined)
+    rpcParams.p_offset = params.page
+      ? (params.page - 1) * (params.pageSize || 10)
+      : 0;
 
-  console.log('rpcParams', rpcParams)
+  // console.log('rpcParams', rpcParams)
   try {
     const { data, error } = await supabase.rpc(
       "get_collections_with_filters_and_sort", // 你的 SQL 函数名

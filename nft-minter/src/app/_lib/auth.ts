@@ -1,4 +1,4 @@
-import NextAuth, { AuthOptions } from "next-auth";
+import NextAuth, { AuthOptions, Session } from "next-auth";
 // import Google from "next-auth/providers/google";
 import { createGuest, getProfileByWallet } from "./data-service";
 
@@ -7,7 +7,7 @@ const authConfig = {
 
   ],
   callbacks: {
-    authorized({ auth, request }: { auth: any, request: any }) {
+    authorized({ auth, request }: { auth: Session, request: Request }) {
       console.log('authorized', auth, request)
       return !!auth?.user;
     },

@@ -1,8 +1,15 @@
-import { AuthOptions } from "next-auth";
+import { AuthOptions, Session } from "next-auth";
+import { JWT } from "next-auth/jwt";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getCsrfToken } from "next-auth/react";
 import { SiweMessage } from "siwe";
+
+declare module "next-auth" {
+  interface Session {
+    address?: string;
+  }
+}
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -54,6 +61,7 @@ export const authOptions: AuthOptions = {
             id: siwe.address,
           };
         } catch (e) {
+          console.error("Error during authorization:", e);
           return null;
         }
       },
@@ -66,7 +74,7 @@ export const authOptions: AuthOptions = {
   secret: process.env.NEXAUTH_SECRET,
 
   callbacks: {
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       session.address = token.sub;
       session.user = {
         name: token.sub,
