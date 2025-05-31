@@ -1,7 +1,6 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/app/_components/ui/Button";
 import NFTInteraction from "@/app/nft/[id]/_components/NFTInteraction";
 import { formatAddress, formatDateTime, formatIPFSUrl } from "@/app/_lib/utils"; // formatPrice
 import {
@@ -157,12 +156,7 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
                   <span className="text-lg">{nft.list_currency ?? "ETH"}</span>
                 </div>
               </div>
-              {userProfile &&
-              nft.owner_address === userProfile.wallet_address ? (
-                <Button size="lg">下架</Button>
-              ) : (
-                <NFTInteraction userProfile={userProfile} nft={nft} />
-              )}
+              <NFTInteraction userProfile={userProfile} nft={nft} />
             </div>
           </div>
 

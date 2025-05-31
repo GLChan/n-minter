@@ -6,13 +6,6 @@
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
 /* 禁用暗色模式 */
 /* @custom-variant dark (&:where(.dark, .dark *)); */
 /* 启用暗色模式 */

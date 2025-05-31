@@ -320,16 +320,16 @@ export async function getCollectionStatsById(
     .select("*", { count: "exact", head: true })
     .eq("collection_id", id);
 
+  if (error) {
+    console.error("获取合集统计数据失败:", error);
+  }
+
   const { data: ownerCount } = await supabase.rpc(
     "get_unique_holders_for_collection",
     {
       target_collection_id: id, // 将参数名与函数定义中的参数名匹配
     }
   );
-
-  if (error) {
-    console.error("获取合集统计数据失败:", error);
-  }
 
   return {
     volume: 0,

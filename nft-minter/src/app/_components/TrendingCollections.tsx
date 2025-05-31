@@ -48,18 +48,10 @@ export const TrendingCollections: React.FC<{ children: React.ReactNode }> = ({
       <div className="relative">
         <div
           ref={scrollContainerRef}
-          className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory"
+          className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {children}
-
-          {/* 添加自定义滚动条样式 */}
-          <style jsx>{`
-            /* 隐藏 webkit 的默认滚动条 */
-            div::-webkit-scrollbar {
-              display: none;
-            }
-          `}</style>
         </div>
       </div>
     </section>

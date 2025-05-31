@@ -15,7 +15,7 @@ interface OwnedNFTsTabProps {
   profile: UserProfile;
 }
 
-export default function OwnedNFTsTab({ page, profile }: OwnedNFTsTabProps) {
+export function OwnedNFTsTab({ page, profile }: OwnedNFTsTabProps) {
   const [nfts, setNfts] = useState<NFTInfo[]>([]);
   const [loading, setLoading] = useState(true);
 

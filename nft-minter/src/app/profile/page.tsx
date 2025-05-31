@@ -2,8 +2,6 @@ import React, { Suspense } from "react";
 import Image from "next/image";
 import { UserProfile } from "../_lib/types";
 import { getUserInfo } from "../_lib/actions";
-import { Tabs } from "./_components/Tabs";
-import { CopyButton } from "./_components/CopyButton";
 import { formatDate } from "../_lib/utils";
 import {
   CollectedNFTsTab,
@@ -11,10 +9,12 @@ import {
   ActivityTab,
   SettingsTab,
   CollectionsTab,
+  OwnedNFTsTab,
+  OffersTab,
+  Tabs,
+  CopyButton
 } from "./_components";
 import Spinner from "../_components/Spinner";
-import OwnedNFTsTab from "./_components/OwnedNFTsTab";
-import { OffersTab } from "./_components/OffersTab";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 

@@ -6,7 +6,7 @@ import { EMITTER_EVENTS } from '../constants';
 
 export const authenticationAdapter = createAuthenticationAdapter({
   getNonce: async () => {
-    const response = await fetch('/api/nonce');
+    const response = await fetch('/api/auth/nonce');
     const data: { nonce: string } = await response.json();
 
     return new Promise((resolve) => resolve(data.nonce));
@@ -27,7 +27,7 @@ export const authenticationAdapter = createAuthenticationAdapter({
   },
   verify: async ({ message, signature }) => {
     console.log('verify', message, signature)
-    const response = await fetch('/api/verify', {
+    const response = await fetch('/api/auth/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, signature })
@@ -51,7 +51,7 @@ export const authenticationAdapter = createAuthenticationAdapter({
     return true
   },
   signOut: async () => {
-    await fetch('/api/logout');
+    await fetch('/api/auth/logout');
     await signOutAction();
     eventEmitter.emit(EMITTER_EVENTS.SIGN_OUT);
   }

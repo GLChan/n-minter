@@ -3,3 +3,7 @@ export * from './CreatedNFTsTab';
 export * from './ActivityTab';
 export * from './SettingsTab';
 export * from './CollectionsTab';
+export * from './OwnedNFTsTab';
+export * from './OffersTab';
+export * from './Tabs';
+export * from './CopyButton';

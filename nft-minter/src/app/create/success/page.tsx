@@ -150,14 +150,14 @@ export default function MintSuccessPage() {
               <button
                 onClick={async () => {
                   try {
-                    navigator.share({
+                    await navigator.share({
                       title: `${nft.name || "NFT作品"} - 刚刚铸造的NFT`,
                       text: "看看我刚刚铸造的NFT！",
                       url: `${window.location.origin}/nft/${nftId}`,
                     });
                   } catch (err) {
                     // 如果分享API不可用，则简单地复制链接到剪贴板
-                    navigator.clipboard.writeText(
+                    await navigator.clipboard.writeText(
                       `${window.location.origin}/nft/${nftId}`
                     );
                     console.log(err);

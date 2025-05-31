@@ -192,3 +192,11 @@ export enum ActionType {
   DELETE_ACCOUNT = "DELETE_ACCOUNT", // 删除用户账户
   CUSTOM = "CUSTOM", // 用于未分类的自定义操作
 }
+
+export enum NFTOfferStatus {
+  PENDING = "PENDING", // 等待中
+  ACCEPTED = "ACCEPTED", // 已接受
+  REJECTED = "REJECTED", // 已拒绝
+  CANCELLED = "CANCELLED", // 已取消
+  EXPIRED = "EXPIRED", // 已过期
+}
