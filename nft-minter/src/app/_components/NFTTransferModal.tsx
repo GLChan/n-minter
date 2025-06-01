@@ -11,7 +11,7 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
-import { contractAbi, contractAddress } from "@/app/_lib/constants";
+import { MY_NFT_ABI  } from "@/app/_lib/constants";
 
 export const NFTTransferModal = ({
   nft,
@@ -29,6 +29,9 @@ export const NFTTransferModal = ({
   const [error, setError] = useState("");
   const [successHash, setSuccessHash] = useState("");
   const selectedNFT = nft;
+
+  // TODO: 替换为你的 NFT 合约地址
+  const contractAddress = "0xYourNFTCollectionContractAddressHere" as `0x${string}`; // 替换为你的合约地址
 
   const {
     data: writeContractResult,
@@ -69,7 +72,7 @@ export const NFTTransferModal = ({
       // 1. 发送交易
       const hash = await writeContractAsync({
         address: contractAddress as `0x${string}`,
-        abi: contractAbi,
+        abi: MY_NFT_ABI,
         functionName: "safeTransferFrom",
         args: [
           senderAddress,

@@ -138,13 +138,14 @@ npm run dev
 MIT
 
 
-```
+```bash
 npx hardhat clean
 npx hardhat node
 npx hardhat test ./test/MyNFT.test.ts
 npx hardhat compile
-npx hardhat run scripts/deploy.js --network localhost
-npx hardhat run scripts/deploy.js --network sepolia
+# npx hardhat run scripts/deploy.js --network localhost
+# npx hardhat run scripts/deploy.js --network sepolia
+npx hardhat run scripts/deploy_all.js --network sepolia
 ```
 
 React

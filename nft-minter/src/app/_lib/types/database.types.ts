@@ -94,6 +94,7 @@ export type Database = {
           banner_image_url: string | null
           category_id: number | null
           chain_id: number | null
+          chain_network: string | null
           contract_address: string | null
           created_at: string
           creator_id: string
@@ -101,13 +102,18 @@ export type Database = {
           id: string
           logo_image_url: string | null
           name: string
+          predefined_trait_types: Json | null
+          royalty_fee_bps: number
+          royalty_recipient_address: string
           slug: string
+          symbol: string | null
           updated_at: string
         }
         Insert: {
           banner_image_url?: string | null
           category_id?: number | null
           chain_id?: number | null
+          chain_network?: string | null
           contract_address?: string | null
           created_at?: string
           creator_id: string
@@ -115,13 +121,18 @@ export type Database = {
           id?: string
           logo_image_url?: string | null
           name: string
+          predefined_trait_types?: Json | null
+          royalty_fee_bps?: number
+          royalty_recipient_address: string
           slug: string
+          symbol?: string | null
           updated_at?: string
         }
         Update: {
           banner_image_url?: string | null
           category_id?: number | null
           chain_id?: number | null
+          chain_network?: string | null
           contract_address?: string | null
           created_at?: string
           creator_id?: string
@@ -129,7 +140,11 @@ export type Database = {
           id?: string
           logo_image_url?: string | null
           name?: string
+          predefined_trait_types?: Json | null
+          royalty_fee_bps?: number
+          royalty_recipient_address?: string
           slug?: string
+          symbol?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -237,6 +252,57 @@ export type Database = {
             columns: ["nft_id"]
             isOneToOne: false
             referencedRelation: "nfts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nft_offers: {
+        Row: {
+          created_at: string
+          currency: string
+          expires_at: string | null
+          id: string
+          nft_id: string
+          offer_amount: number
+          offerer_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          id?: string
+          nft_id: string
+          offer_amount: number
+          offerer_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          id?: string
+          nft_id?: string
+          offer_amount?: number
+          offerer_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nft_offers_nft_id_fkey"
+            columns: ["nft_id"]
+            isOneToOne: false
+            referencedRelation: "nfts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nft_offers_offerer_id_fkey"
+            columns: ["offerer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -531,7 +597,7 @@ export type Database = {
     Functions: {
       get_collections_with_filters_and_sort: {
         Args: {
-          p_category_id?: string
+          p_category_id?: number
           p_user_id?: string
           p_time_range?: string
           p_sort_by?: string
@@ -541,6 +607,7 @@ export type Database = {
         }
         Returns: {
           id: string
+          contract_address: string
           created_at: string
           name: string
           description: string

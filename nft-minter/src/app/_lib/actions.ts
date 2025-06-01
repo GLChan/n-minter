@@ -72,9 +72,11 @@ export async function getFeaturedNFT() {
     .select("*, nfts!nft_id(*, profiles!owner_id(*))")
     .single();
 
-  if (error) throw new Error("Featured NFT could not be retrieved");
+  if (error) {
+    console.log("获取Featured NFT时出错:", error);
+  }
 
-  return data;
+  return data || null;
 }
 
 export async function getCollectionsByUserId(userId: string) {

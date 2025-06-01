@@ -39,9 +39,9 @@ const heroData = {
 export const Hero = async () => {
   const featuredNFTObject = await getFeaturedNFT();
 
-  const featuredNFT = featuredNFTObject.nfts;
+  const featuredNFT = featuredNFTObject?.nfts ?? null;
 
-  const owner = featuredNFT.profiles;
+  const owner = featuredNFT?.profiles ?? null;
 
   return (
     <section className="relative w-full overflow-hidden py-12 md:py-20">

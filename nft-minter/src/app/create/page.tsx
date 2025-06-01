@@ -9,7 +9,7 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { id as ethersId } from "ethers"; // 用于获取事件签名的哈希
-import { contractAddress, contractAbi } from "@/app/_lib/constants"; // 引入合约信息
+import { MY_NFT_ABI } from "@/app/_lib/constants"; // 引入合约信息
 import { getCollectionsByUserId } from "@/app/_lib/actions";
 import { createClient } from "../_lib/supabase/client";
 import { Collection } from "../_lib/types";
@@ -37,6 +37,11 @@ export default function CreateNFT() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null); // State for image URL from upload
   const { address, isConnected, chain } = useAccount(); // 获取钱包连接状态和地址
   const [collections, setCollections] = useState<Collection[]>([]);
+
+  // TODO: 替换为你的 NFT 合约地址
+  const contractAddress =
+    "0xYourNFTCollectionContractAddressHere" as `0x${string}`; // 替换为你的合约地址
+  // const [contractAddress, setContractAddress] = useState<string | null>(null);
 
   // 文件选择处理
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -214,7 +219,7 @@ export default function CreateNFT() {
       // 4. 调用智能合约进行铸造 (使用 writeContractAsync 返回 Promise)
       const tx = await writeContractAsync({
         address: contractAddress as `0x${string}`,
-        abi: contractAbi,
+        abi: MY_NFT_ABI,
         functionName: "safeMint",
         args: [address, tokenURI],
       });
@@ -461,8 +466,7 @@ export default function CreateNFT() {
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">上传文件</h2>
           <p className="text-zinc-600 dark:text-zinc-400 mb-6">
-            支持 JPG、PNG、GIF、SVG、MP4、WEBM、MP3、WAV, GLB, GLTF
-            等文件格式。最大文件大小: 100MB。
+            支持 JPG、PNG、GIF、SVG 等文件格式。最大文件大小: 20MB。
           </p>
 
           <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl p-8 flex flex-col items-center justify-center">
@@ -506,7 +510,7 @@ export default function CreateNFT() {
               type="file"
               className="hidden"
               id="file-upload"
-              accept="image/*,video/*,audio/*,.glb,.gltf"
+              accept="image/*"
               onChange={handleFileChange}
               disabled={isProcessing}
             />

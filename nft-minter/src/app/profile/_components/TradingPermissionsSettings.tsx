@@ -5,14 +5,16 @@ import { useAccount } from "wagmi";
 import { writeContract, waitForTransactionReceipt } from "@wagmi/core";
 import { useReadContract } from "wagmi";
 import wagmiConfig from "@/app/_lib/config/wagmi";
-import { contractAddress, contractAbi } from "@/app/_lib/constants";
+import { MY_NFT_ABI } from "@/app/_lib/constants";
 
 // --- 请在这里配置你的常量 ---
 // 1. 你的市场合约地址
+// TODO: 
 const MARKETPLACE_CONTRACT_ADDRESS =
   "0xYourMarketplaceContractAddressHere" as `0x${string}`;
 // 2. 你的用户 NFT 主要来自于哪个固定的智能合约地址
-const USER_MAIN_NFT_CONTRACT_ADDRESS = contractAddress as `0x${string}`;
+const USER_MAIN_NFT_CONTRACT_ADDRESS =
+  "0xYourNFTContractAddressHere" as `0x${string}`;
 // --- 常量配置结束 ---
 
 export default function TradingPermissionsSettings() {
@@ -31,7 +33,7 @@ export default function TradingPermissionsSettings() {
     refetch: refetchApprovalStatus, // 用于手动重新获取状态
   } = useReadContract({
     address: USER_MAIN_NFT_CONTRACT_ADDRESS,
-    abi: contractAbi,
+    abi: MY_NFT_ABI,
     functionName: "isApprovedForAll",
     args:
       currentUserAddress && MARKETPLACE_CONTRACT_ADDRESS
@@ -93,7 +95,7 @@ export default function TradingPermissionsSettings() {
     try {
       const hash = await writeContract(wagmiConfig, {
         address: USER_MAIN_NFT_CONTRACT_ADDRESS,
-        abi: contractAbi,
+        abi: MY_NFT_ABI,
         functionName: "setApprovalForAll",
         args: [MARKETPLACE_CONTRACT_ADDRESS, approvedState],
       });
