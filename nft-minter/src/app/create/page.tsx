@@ -548,6 +548,29 @@ export default function CreateNFT() {
 
             <div>
               <label
+                htmlFor="collection"
+                className="block text-sm font-medium mb-2"
+              >
+                选择合集 <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="collection"
+                className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                value={collection}
+                required
+                onChange={(e) => setCollection(e.target.value)}
+              >
+                <option value="">请选择</option>
+                {collections.map((collection) => (
+                  <option key={collection.id} value={collection.id}>
+                    {collection.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label
                 htmlFor="description"
                 className="block text-sm font-medium mb-2"
               >
@@ -640,28 +663,6 @@ export default function CreateNFT() {
                 </svg>
                 添加新属性
               </button>
-            </div>
-
-            <div>
-              <label
-                htmlFor="collection"
-                className="block text-sm font-medium mb-2"
-              >
-                选择合集
-              </label>
-              <select
-                id="collection"
-                className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                value={collection}
-                onChange={(e) => setCollection(e.target.value)}
-              >
-                <option value="">不添加到合集</option>
-                {collections.map((collection) => (
-                  <option key={collection.id} value={collection.id}>
-                    {collection.name}
-                  </option>
-                ))}
-              </select>
             </div>
 
             <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">

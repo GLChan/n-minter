@@ -25,7 +25,7 @@ export default function CreateCollectionPage() {
   const [collectionCategory, setCollectionCategory] = useState("");
   const [collectionSymbol, setCollectionSymbol] = useState("");
   const [royaltyFeeBps, setRoyaltyFeeBps] = useState(500); // 默认 5%
-  const [chainId, setChainId] = useState("sepolia"); // 默认 Sepolia
+  const [chainId, setChainId] = useState("11155111"); // 默认 Sepolia
   const [royaltyRecipientAddress, setRoyaltyRecipientAddress] = useState("");
   const [categories, setCategories] = useState<CollectionCategory[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -37,6 +37,7 @@ export default function CreateCollectionPage() {
   >([]);
 
   const { address: connectedWalletAddress } = useAccount();
+  const walletAddress = connectedWalletAddress ? `${connectedWalletAddress}` : ''
 
   // 压缩配置选项
   const options = {
@@ -122,7 +123,6 @@ export default function CreateCollectionPage() {
       return;
     }
 
-
     setIsProcessing(true);
     setError(null);
     setProcessingStep("正在上传图片...");
@@ -146,12 +146,11 @@ export default function CreateCollectionPage() {
       formData.append("symbol", collectionSymbol);
       formData.append("royaltyFeeBps", royaltyFeeBps.toString());
       formData.append("chainId", chainId);
+      formData.append("chainNetwork", "Sepolia");
       formData.append("royaltyRecipientAddress", royaltyRecipientAddress);
+      formData.append("walletAddress", walletAddress);
       if (attributes.length > 0) {
-        formData.append(
-          "predefinedTraitTypes",
-          JSON.stringify(attributes)
-        );
+        formData.append("predefinedTraitTypes", JSON.stringify(attributes));
       }
       if (collectionImage) {
         setProcessingStep("正在压缩封面图片...");
@@ -345,6 +344,8 @@ export default function CreateCollectionPage() {
                     <Image
                       src={collectionBannerPreview}
                       alt="合集横幅预览"
+                      width={150}
+                      height={150}
                       className="object-cover w-full h-full rounded-lg"
                     />
                     <button
@@ -417,7 +418,7 @@ export default function CreateCollectionPage() {
               >
                 <option value="">选择一个类别</option>
                 {categories.map((category) => (
-                  <option key={category.id} value={category.name}>
+                  <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
                 ))}
@@ -464,7 +465,7 @@ export default function CreateCollectionPage() {
                 onChange={(e) => setChainId(e.target.value)}
                 required
               >
-                <option value="sepolia">Sepolia</option>
+                <option value="11155111">Sepolia</option>
                 {/* 可以添加其他链选项 */}
               </select>
             </div>

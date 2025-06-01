@@ -25,3 +25,18 @@ export const MARKETPLACE_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_
 
 import MyNFT from "@/../artifacts/contracts/MyNFT.sol/MyNFT.json";
 export const MY_NFT_ABI = MyNFT.abi;
+
+export const CHAINS_MAP: Record<string, string> = {
+  "1": "mainnet",
+  "137": "polygon",
+  "10": "optimism",
+  "42161": "arbitrum",
+  "17000": "holesky",
+  "11155111": "sepolia",
+  "84532": "baseSepolia",
+  "534351": "scrollSepolia",
+  "420": "optimismSepolia",
+  "421614": "arbitrumSepolia",
+  "300": "zkSyncSepoliaTestnet",
+  "80001": "polygonMumbai",
+};
