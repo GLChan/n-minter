@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
           { status: 500 }
         );
       }
-      logo_image_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/collections/${imageData.path}`;
+      logo_image_url = `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/collections/${imageData.path}`;
     }
 
     // 上传横幅图片 (可选)
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
           { status: 500 }
         );
       }
-      banner_image_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/collections/${bannerData.path}`;
+      banner_image_url = `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/collections/${bannerData.path}`;
     }
 
     // 获取合约地址

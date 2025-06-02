@@ -1,9 +1,10 @@
 // src/app/_lib/supabase/admin.ts
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/app/_lib/types/database.types';
+import { env } from '../config/env';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
 
 let supabaseAdminInstance: SupabaseClient<Database> | null = null;
 
@@ -11,7 +12,7 @@ let supabaseAdminInstance: SupabaseClient<Database> | null = null;
 if (typeof window === 'undefined') {
   if (!supabaseUrl || !supabaseServiceRoleKey) {
     console.warn(
-      "Supabase Admin Client: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY is missing. " +
+      "Supabase Admin Client: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing. " +
       "The admin client will not be functional. Ensure these are set in your server environment."
     );
   } else {
@@ -35,7 +36,7 @@ export function getSupabaseAdmin(): SupabaseClient<Database> {
   if (!supabaseAdmin) {
     throw new Error(
       "Supabase Admin Client is not initialized. " +
-      "Ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set for server-side operations."
+      "Ensure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set for server-side operations."
     );
   }
   return supabaseAdmin;

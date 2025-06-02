@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Button } from "@/app/_components/ui/Button";
 import { Modal } from "@/app/_components/ui/Modal";
 import { NFT, UserProfile } from "@/app/_lib/types";
+import { NFTMarketStatus } from "@/app/_lib/types/enums";
 
 interface NFTInteractionProps {
   userProfile: UserProfile | null;
@@ -20,7 +21,11 @@ export default function NFTInteraction({
   return (
     <>
       {userProfile && nft.owner_address === userProfile.wallet_address ? (
-        <Button size="lg">下架</Button>
+        nft.list_status === NFTMarketStatus.NotListed ? (
+          <Button size="lg">上架</Button>
+        ) : (
+          <Button size="lg">下架</Button>
+        )
       ) : (
         <div className="flex gap-2">
           <Button size="lg">购买此 NFT</Button>
