@@ -313,9 +313,11 @@ export async function unlistNFT(nftId: string, walletAddress: string) {
       lister_address: null,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", nftId);
+    .eq("id", nftId)
+    .select("*")
+    .single();
 
-  if (error) {
+  if (error || !data) {
     console.error("下架NFT失败:", error);
     throw new Error("下架NFT时发生错误");
   }
@@ -342,6 +344,17 @@ export async function unlistNFT(nftId: string, walletAddress: string) {
     // 不抛出异常，因为NFT已经成功下架
     console.warn("NFT已下架，但未能记录交易历史");
   }
+
+  // 添加活动日志
+  addActivityLog({
+    user_id: data.owner_id,
+    action_type: ActionType.UNLIST_NFT,
+    nft_id: nftId,
+    details: {
+      message: `下架了NFT ${data.name}`,
+      nft_id: nftId,
+    },
+  });
 
   return data;
 }

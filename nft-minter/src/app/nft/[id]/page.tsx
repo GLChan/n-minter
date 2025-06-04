@@ -151,7 +151,7 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
                 <span className="text-sm text-zinc-500">当前价格</span>
                 <div className="flex items-end gap-2">
                   <span className="text-2xl font-bold">
-                    {nft.list_price ?? 0}
+                    {nft.list_price ?? '-'}
                   </span>
                   <span className="text-lg">{nft.list_currency ?? "ETH"}</span>
                 </div>

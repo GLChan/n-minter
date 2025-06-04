@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import Modal from "./ui/Modal";
 import { NFTInfo } from "@/app/_lib/types";
 import toast from "react-hot-toast";
 import { Button } from "./ui/Button";
 import { unlistNFT } from "@/app/_lib/data-service";
 import { useRouter } from "next/navigation";
+import {
+  useWriteContract,
+  useWaitForTransactionReceipt,
+} from "wagmi";
+import { MARKETPLACE_ABI } from "@/app/_lib/constants";
+import { env } from "@/app/_lib/config/env";
 
 export const NFTUnlistModal = ({
   nft,
@@ -18,32 +24,64 @@ export const NFTUnlistModal = ({
   onClose: () => void;
 }) => {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const selectedNFT = nft;
 
-  const handleUnlistNFT = async () => {
+  const marketplaceAddress =
+    env.NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS as `0x${string}`;
+
+  // 取消上架操作
+  const {
+    data: cancelTxHash,
+    writeContractAsync,
+    isPending: isCancelling,
+    error: writeCancelError,
+  } = useWriteContract();
+
+  const { isLoading: isConfirmingCancel, isSuccess: isCancelConfirmed } =
+    useWaitForTransactionReceipt({
+      hash: cancelTxHash,
+    });
+
+  useEffect(() => {
+    if (isCancelConfirmed && selectedNFT) {
+      const handleUnlistNFTInSupabase = async () => {
+        try {
+          console.log(`取消上架NFT: ID ${selectedNFT.id}`);
+          await unlistNFT(selectedNFT.id, selectedNFT.owner_address);
+          toast.success("NFT已取消上架");
+          router.push(`/nft/${selectedNFT.id}`);
+          onClose();
+        } catch (error) {
+          console.error("更新Supabase失败:", error);
+          toast.error("取消上架失败，请重试");
+        }
+      };
+      handleUnlistNFTInSupabase();
+    }
+  }, [isCancelConfirmed, selectedNFT, router, onClose]);
+
+  useEffect(() => {
+    if (writeCancelError) {
+      toast.error(writeCancelError.message);
+    }
+  }, [writeCancelError]);
+
+  const handleCancelListing = async () => {
     if (!selectedNFT) return;
 
     try {
-      setIsSubmitting(true);
-      console.log(`取消上架NFT: ID ${selectedNFT.id}`);
-
-      // 调用取消上架API
-      await unlistNFT(selectedNFT.id, selectedNFT.owner_address);
-
-      // 成功提示
-      toast.success("NFT已取消上架");
-
-      // 跳转到NFT详情页面
-      router.push(`/nft/${selectedNFT.id}`);
-
-      // 关闭弹窗
-      onClose();
+      await writeContractAsync({
+        abi: MARKETPLACE_ABI,
+        address: marketplaceAddress,
+        functionName: "cancelListing",
+        args: [
+          selectedNFT.contract_address as `0x${string}`,
+          BigInt(selectedNFT.token_id!),
+        ],
+      });
     } catch (error) {
-      console.error("取消上架NFT失败:", error);
-      toast.error("取消上架失败，请重试");
-    } finally {
-      setIsSubmitting(false);
+      console.error("取消上架合约调用失败:", error);
+      toast.error(error instanceof Error ? error.message : "取消上架失败");
     }
   };
 
@@ -79,18 +117,22 @@ export const NFTUnlistModal = ({
               <Button
                 variant="secondary"
                 onClick={onClose}
-                disabled={isSubmitting}
+                disabled={isCancelling || isConfirmingCancel}
                 className="flex-1"
               >
                 取消
               </Button>
               <Button
                 variant="destructive"
-                onClick={handleUnlistNFT}
-                disabled={isSubmitting}
+                onClick={handleCancelListing}
+                disabled={isCancelling || isConfirmingCancel}
                 className="flex-1"
               >
-                {isSubmitting ? "处理中..." : "确认取消上架"}
+                {isCancelling
+                  ? "等待钱包确认..."
+                  : isConfirmingCancel
+                  ? "取消确认中..."
+                  : "确认取消上架"}
               </Button>
             </div>
           </div>
