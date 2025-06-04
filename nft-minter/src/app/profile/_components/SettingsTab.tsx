@@ -6,6 +6,7 @@ import { createClient } from "@/app/_lib/supabase/client";
 import { Camera, Upload, Loader2, CheckCircle } from "lucide-react";
 import { UserProfile } from "@/app/_lib/types";
 import { getFilePrefixAndExtension } from "@/app/_lib/utils";
+import { updateProfile } from "@/app/_lib/data-service";
 
 // 输入字段组件
 const InputField = ({
@@ -127,40 +128,6 @@ export function SettingsTab({ profile }: { profile: UserProfile }) {
         fileType: avatarFile.type,
       });
 
-      // 获取当前Supabase会话
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      console.log("Current session:", session);
-
-      // 如果没有Supabase会话，尝试刷新会话
-      if (!session) {
-        console.log("没有找到Supabase会话，尝试刷新...");
-
-        // 检查SIWE会话是否有效
-        const siweResponse = await fetch("/api/auth/check", {
-          method: "GET",
-          credentials: "include",
-          cache: "no-store",
-        });
-
-        if (!siweResponse.ok) {
-          setUploadError("身份验证失败，无法上传图片");
-          return null;
-        }
-
-        const siweData = await siweResponse.json();
-
-        if (!siweData.authenticated) {
-          setUploadError("未登录，请先连接钱包并登录");
-          return null;
-        }
-
-        console.log("SIWE会话有效，但Supabase会话缺失，请重新登录或刷新页面");
-        setUploadError("会话状态异常，请刷新页面后重试");
-        return null;
-      }
-
       // 上传到Supabase storage
       const { data, error } = await supabase.storage
         .from("avatars")
@@ -224,17 +191,7 @@ export function SettingsTab({ profile }: { profile: UserProfile }) {
         updated_at: new Date().toISOString(),
       };
 
-      // 更新或插入用户资料
-      const { error } = await supabase
-        .from("profiles")
-        .update(updates)
-        .eq("id", profile.id);
-
-      if (error) {
-        console.error("更新资料失败:", error);
-        setSaveError(`保存资料失败: ${JSON.stringify(error)}`);
-        return;
-      }
+      await updateProfile(profile.id, updates);
 
       // 更新本地状态
       setFormData((prev) => ({

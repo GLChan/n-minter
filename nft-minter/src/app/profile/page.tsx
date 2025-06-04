@@ -33,7 +33,7 @@ export default async function ProfilePage({
 }: {
   searchParams: { tab?: string; page?: string };
 }) {
-  const params = searchParams;
+  const params = await searchParams;
   const pageParam = params.page ? parseInt(params.page) : 1;
   const tabParam = params.tab;
 

@@ -2,7 +2,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "./supabase/server";
 import {
+  ActivityLog,
   AttributeKeyValue,
+  Collection,
   CollectionListItem,
   NFT,
   NFTAttribute,
@@ -10,6 +12,28 @@ import {
   Transaction,
   UserProfile,
 } from "./types";
+import { ActionType } from "./types/enums";
+
+export async function addActivityLog(
+  params: Partial<ActivityLog>
+): Promise<ActivityLog> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("activity_log")
+    .insert(params as ActivityLog)
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error("添加活动日志失败:", error);
+    throw new Error("添加活动日志失败");
+  }
+
+  console.log("📔 活动日志添加成功:", data);
+
+  return data;
+}
 
 export async function doesUserExistByWalletAddress(
   address: string
@@ -103,6 +127,21 @@ export async function saveNFT(nft: Partial<NFT>): Promise<NFT> {
     console.error("Error inserting NFT data:", insertError);
     throw new Error(`Failed to insert NFT: ${insertError.message}`); // 抛出包含错误信息的 Error
   }
+
+  addActivityLog({
+    user_id: nft.creator_id || "",
+    action_type: ActionType.MINT_NFT,
+    nft_id: nftData.id,
+    details: {
+      creator_id: nft.creator_id,
+      token_id: nft.token_id,
+      contract_address: nft.contract_address,
+      name: nft.name || "",
+      description: nft.description || "",
+      image_url: nft.image_url || "",
+    },
+  });
+
   return nftData;
 }
 
@@ -612,4 +651,35 @@ export async function getSuggestedUsers(): Promise<UserProfile[]> {
   }
 
   return data || [];
+}
+
+// save Collections
+export async function saveCollection(
+  collection: Partial<Collection>
+): Promise<Collection> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("collections")
+    .insert(collection as Collection)
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error("保存合集失败:", error);
+    throw new Error("保存合集失败");
+  }
+
+  addActivityLog({
+    user_id: collection.creator_id || "",
+    action_type: ActionType.CREATE_COLLECTION,
+    collection_id: data.id,
+    details: {
+      creator_id: collection.creator_id,
+      collection_name: collection.name || "",
+      contract_address: collection.contract_address || "",
+    },
+  });
+
+  return data;
 }

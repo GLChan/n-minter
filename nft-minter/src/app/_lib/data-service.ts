@@ -1,6 +1,7 @@
 import { createClient } from "@/app/_lib/supabase/client";
 import { notFound } from "next/navigation";
 import {
+  ActivityLog,
   ActivityLogItem,
   Collection,
   CollectionCategory,
@@ -14,6 +15,7 @@ import {
   UserProfile,
 } from "./types";
 import {
+  ActionType,
   NFTMarketStatus,
   NFTVisibilityStatus,
   SORT_OPTIONS,
@@ -22,6 +24,24 @@ import {
 } from "./types/enums";
 
 const supabase = createClient();
+
+// add active log
+export async function addActivityLog(
+  params: Partial<ActivityLog>
+): Promise<ActivityLog> {
+  const { data, error } = await supabase
+    .from("activity_log")
+    .insert(params as ActivityLog)
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error("添加活动日志失败:", error);
+    throw new Error("添加活动日志失败");
+  }
+
+  return data;
+}
 
 export async function getCurrentUser() {
   const {
@@ -85,6 +105,38 @@ export async function getProfileByUserId(userId: string): Promise<UserProfile> {
     notFound();
   }
   return profile;
+}
+
+// updateProfile
+export async function updateProfile(
+  userId: string,
+  profileData: Partial<UserProfile>
+): Promise<UserProfile> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .update(profileData)
+    .eq("id", userId)
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error("更新用户资料失败:", error);
+    throw new Error("更新用户资料失败");
+  }
+
+  if (!data) {
+    throw new Error("更新用户资料失败，未返回数据");
+  }
+
+  addActivityLog({
+    user_id: userId,
+    action_type: ActionType.UPDATE_PROFILE,
+    details: {
+      message: "更新了个人简介",
+    },
+  });
+
+  return data;
 }
 
 export async function getUserNFTs({
@@ -205,10 +257,12 @@ export async function listNFT(
       lister_address: walletAddress,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", nftId);
+    .eq("id", nftId)
+    .select("*")
+    .single();
   console.log("listNFT data", data);
 
-  if (error) {
+  if (error || !data) {
     console.error("上架NFT失败:", error);
     notFound();
   }
@@ -232,6 +286,18 @@ export async function listNFT(
     console.error("上架NFT失败:", transactionError);
     notFound();
   }
+
+  addActivityLog({
+    user_id: data.owner_id,
+    action_type: ActionType.LIST_NFT,
+    nft_id: nftId,
+    details: {
+      message: `上架了NFT ${data.name}，价格为 ${price} ${currency}`,
+      nft_id: nftId,
+      price,
+      currency,
+    },
+  });
 
   return transaction;
 }

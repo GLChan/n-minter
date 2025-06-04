@@ -5,6 +5,7 @@ import { getViemClients } from "@/app/_lib/viemClient";
 import { env } from "@/app/_lib/config/env";
 import { Address, decodeEventLog } from "viem";
 import { MY_NFT_FACTORY_ABI } from "@/app/_lib/constants";
+import { saveCollection } from "@/app/_lib/actions";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
     const creatorId = formData.get("creatorId") as string;
     const imageFile = formData.get("image") as File;
     const bannerFile = formData.get("banner") as File;
-    const symbol = formData.get("symbol");
+    const symbol = formData.get("symbol") as string;
     const royaltyRecipientAddress = formData.get("royaltyRecipientAddress");
     const royaltyFeeBps = formData.get("royaltyFeeBps") as string;
     const walletAddress = formData.get("walletAddress") as string;
@@ -176,33 +177,24 @@ export async function POST(req: NextRequest) {
     }
 
     // 保存合集数据到数据库
-    const { data: collection, error: collectionError } = await supabase
-      .from("collections")
-      .insert({
-        name,
-        description,
-        logo_image_url,
-        banner_image_url,
-        creator_id: creatorId,
-        chain_id,
-        contract_address: contractAddress, // 动态部署合约的地址
-        chain_network, // 假设默认是 Ethereum
-        slug: name.toLowerCase().replace(/\s+/g, "-"), // 生成 slug
-        category_id: categoryId,
-        symbol,
-        predefined_trait_types: formData.get("predefinedTraitTypes"),
-        royalty_fee_bps: royaltyFeeBps,
-        royalty_recipient_address: royaltyRecipientAddress,
-      })
-      .select()
-      .single();
+    const data = await saveCollection({
+      name,
+      description,
+      logo_image_url,
+      banner_image_url,
+      creator_id: creatorId,
+      chain_id: parseInt(chain_id, 10), // 确保 chain_id 是数字类型
+      contract_address: contractAddress, // 动态部署合约的地址
+      chain_network, // 假设默认是 Ethereum
+      slug: name.toLowerCase().replace(/\s+/g, "-"), // 生成 slug
+      category_id: parseInt(categoryId, 10), // 确保 category_id 是数字类型
+      symbol,
+      predefined_trait_types: formData.get("predefinedTraitTypes") as string,
+      royalty_fee_bps: Number(royaltyFeeBps),
+      royalty_recipient_address: String(royaltyRecipientAddress),
+    });
 
-    if (collectionError) {
-      console.error("保存合集数据失败:", collectionError);
-      return NextResponse.json({ error: "保存合集数据失败" }, { status: 500 });
-    }
-
-    return NextResponse.json(collection, { status: 201 });
+    return NextResponse.json(data, { status: 201 });
   } catch (error) {
     console.error("创建合集时发生未知错误:", error);
     return NextResponse.json({ error: "内部服务器错误" }, { status: 500 });

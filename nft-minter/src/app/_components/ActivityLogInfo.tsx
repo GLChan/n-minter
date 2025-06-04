@@ -3,16 +3,28 @@ import Link from "next/link";
 import { ActivityLogItem, Collection, NFT, UserProfile } from "../_lib/types";
 import { formatTimeAgo } from "../_lib/utils";
 
+type Details = {
+  price: number;
+  currency: string;
+};
+
 export default function ActivityLogInfo({
   activity,
 }: Readonly<{
   activity: ActivityLogItem;
 }>) {
-  const { user, nft, collection, related_user, created_at, action_type } =
-    activity;
+  const {
+    user,
+    nft,
+    collection,
+    related_user,
+    created_at,
+    action_type,
+    details,
+  } = activity;
 
-  const price = 0;
-  const currency = "ETH";
+  let price = 0;
+  let currency = "ETH";
   const timeAgo = formatTimeAgo(created_at);
 
   const User = <UserLink user={user} userId={activity.user_id} />;
@@ -26,6 +38,12 @@ export default function ActivityLogInfo({
   const RelatedUser = (
     <UserLink user={related_user} userId={activity.related_user_id} />
   );
+
+  if (details) {
+    const detailObj = (details as Details) || {};
+    price = detailObj.price ?? 0;
+    currency = detailObj.currency ?? "ETH";
+  }
 
   // 使用 React Fragment (<> ... </>) 来包裹 JSX 元素和文本
   switch (action_type) {
@@ -174,7 +192,7 @@ const CollectionLink: React.FC<{
   if (!id) return <span>某个合集</span>;
   return (
     <Link
-      href={`/collection/${id}`}
+      href={`/collections/${id}`}
       className="activity-link collection-link font-bold"
     >
       {name}

@@ -26,11 +26,18 @@ export default function CollectionDetail({
           </div>
           <div className="flex justify-between pb-4 border-b border-zinc-100 dark:border-zinc-700">
             <span className="text-zinc-500 dark:text-zinc-400">创建日期</span>
-            <span className="font-medium">{formatDate(collection.created_at)}</span>
+            <span className="font-medium">
+              {formatDate(collection.created_at)}
+            </span>
           </div>
           <div className="flex justify-between pb-4 border-b border-zinc-100 dark:border-zinc-700">
             <span className="text-zinc-500 dark:text-zinc-400">创作者版税</span>
-            <span className="font-medium">-</span>
+            <span className="font-medium">
+              {collection.royalty_fee_bps
+                ? collection.royalty_fee_bps / 100
+                : "-"}
+              %
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-zinc-500 dark:text-zinc-400">分类</span>
