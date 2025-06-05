@@ -111,7 +111,7 @@ export const Hero = async () => {
             <Link href={`/nft/${featuredNFT.id}`}>
               <div className="relative h-[480px] rounded-2xl overflow-hidden shadow-xl">
                 <Image
-                  src={formatIPFSUrl(featuredNFT.image_url) ?? ""}
+                  src={formatIPFSUrl(featuredNFT.image_url)}
                   alt="Featured NFT artwork"
                   fill
                   className="object-cover"

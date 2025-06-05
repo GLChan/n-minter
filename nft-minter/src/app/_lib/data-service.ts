@@ -11,6 +11,7 @@ import {
   NFTAttribute,
   NFTDetail,
   NFTInfo,
+  NFTOffer,
   Transaction,
   UserProfile,
 } from "./types";
@@ -50,18 +51,24 @@ export async function getCurrentUser() {
   } = await supabase.auth.getUser();
   if (error) {
     console.error("获取用户失败:", error);
-    notFound();
+    throw new Error("获取用户失败");
   }
   return user;
 }
 
-export async function getUserProfile(): Promise<UserProfile> {
+export async function getUserProfile(): Promise<UserProfile | null> {
   const { data, error } = await supabase.auth.getUser();
   if (error) {
     console.error("获取用户资料失败:", error);
-    notFound();
   }
+
+  if (!data || !data.user) {
+    return null;
+  }
+  
   const profile = await getProfileByUserId(data.user.id);
+
+  if (!profile) return null;
   return profile;
 }
 
@@ -631,4 +638,34 @@ export async function fetchCollectionsWithFilters(
     // 或者: return []; (如果希望静默失败并返回空列表)
     throw error; // 简单起见，先抛出
   }
+}
+
+export async function addNFTOffer(
+  params: Partial<NFTOffer>,
+  nftName: string
+): Promise<NFTOffer> {
+  const { data, error } = await supabase
+    .from("nft_offers")
+    .insert(params as NFTOffer)
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error("添加Offer失败:", error);
+    throw new Error("添加Offer失败");
+  }
+
+  addActivityLog({
+    user_id: data.offerer_id,
+    action_type: ActionType.CREATE_OFFER,
+    nft_id: params.nft_id,
+    details: {
+      message: `对NFT ${nftName} 提出了一笔 ${data.offer_amount} ${data.currency} 的报价。`,
+      nft_id: params.nft_id,
+      price: params.offer_amount,
+      currency: params.currency,
+    },
+  });
+
+  return data;
 }

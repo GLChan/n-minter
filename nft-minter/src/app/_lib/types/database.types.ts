@@ -258,36 +258,45 @@ export type Database = {
       }
       nft_offers: {
         Row: {
+          blockchain_network: string | null
           created_at: string
           currency: string
           expires_at: string | null
           id: string
           nft_id: string
-          offer_amount: number
+          offer_amount: string | null
+          offer_type: string | null
           offerer_id: string
           status: string
+          transaction_hash: string | null
           updated_at: string
         }
         Insert: {
+          blockchain_network?: string | null
           created_at?: string
           currency?: string
           expires_at?: string | null
           id?: string
           nft_id: string
-          offer_amount: number
+          offer_amount?: string | null
+          offer_type?: string | null
           offerer_id: string
           status?: string
+          transaction_hash?: string | null
           updated_at?: string
         }
         Update: {
+          blockchain_network?: string | null
           created_at?: string
           currency?: string
           expires_at?: string | null
           id?: string
           nft_id?: string
-          offer_amount?: number
+          offer_amount?: string | null
+          offer_type?: string | null
           offerer_id?: string
           status?: string
+          transaction_hash?: string | null
           updated_at?: string
         }
         Relationships: [

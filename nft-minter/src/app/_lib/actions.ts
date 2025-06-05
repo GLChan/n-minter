@@ -1,5 +1,4 @@
 "use server";
-import { redirect } from "next/navigation";
 import { createClient } from "./supabase/server";
 import {
   ActivityLog,
@@ -9,10 +8,11 @@ import {
   NFT,
   NFTAttribute,
   NFTInfo,
+  NFTOfferItem,
   Transaction,
   UserProfile,
 } from "./types";
-import { ActionType } from "./types/enums";
+import { ActionType, NFTOfferStatus } from "./types/enums";
 
 export async function addActivityLog(
   params: Partial<ActivityLog>
@@ -70,8 +70,7 @@ export async function getUserInfo() {
   } = await supabase.auth.getUser();
 
   if (authError) {
-    console.error("获取用户信息时出错:", authError);
-    redirect("/");
+    return null;
   }
   if (!user) throw new Error("You must be logged in");
 
@@ -82,8 +81,7 @@ export async function getUserInfo() {
     .single();
 
   if (error) {
-    console.error("获取用户信息时出错:", error);
-    redirect("/");
+    return null;
   }
 
   return data;
@@ -682,4 +680,23 @@ export async function saveCollection(
   });
 
   return data;
+}
+
+export async function getReceivedOffers(): Promise<NFTOfferItem[] | null> {
+  const supabase = await createClient();
+  const targetUserWalletAddress = (await getUserInfo())?.wallet_address;
+  const { data, error } = await supabase
+    .from("nft_offers")
+    .select(
+      "*, nft:nfts!nft_id(*, profiles!owner_id(*)), offerer:profiles!offerer_id(*)"
+    )
+    .eq("nfts.owner_address", targetUserWalletAddress)
+    .in("status", [NFTOfferStatus.PENDING, NFTOfferStatus.ACCEPTED])
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching received offers:", error);
+    return [];
+  }
+  return data as NFTOfferItem[] || [];
 }

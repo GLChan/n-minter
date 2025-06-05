@@ -87,7 +87,7 @@ export default function MintSuccessPage() {
               <div className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
                 {nft.image_url ? (
                   <Image
-                    src={formatIPFSUrl(nft.image_url) || ""}
+                    src={formatIPFSUrl(nft.image_url)}
                     alt={nft.name || "NFT作品"}
                     fill
                     className="object-cover"

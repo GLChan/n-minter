@@ -2,13 +2,15 @@
 
 import React, { useState } from "react";
 import { Button } from "@/app/_components/ui/Button";
-import { Modal } from "@/app/_components/ui/Modal";
-import { NFT, UserProfile } from "@/app/_lib/types";
+import { NFTListModal } from "@/app/_components/NFTListModal";
+import { NFTUnlistModal } from "@/app/_components/NFTUnlistModal";
+import { NFTOfferModal } from "@/app/_components/NFTOfferModal"; // 引入 NFTOfferModal
+import { NFTDetail, NFTInfo, UserProfile } from "@/app/_lib/types";
 import { NFTMarketStatus } from "@/app/_lib/types/enums";
 
 interface NFTInteractionProps {
   userProfile: UserProfile | null;
-  nft: NFT;
+  nft: NFTDetail;
 }
 
 export default function NFTInteraction({
@@ -18,13 +20,28 @@ export default function NFTInteraction({
   const [showOfferModal, setShowOfferModal] = useState(false);
   const handleCloseOfferModal = () => setShowOfferModal(false);
 
+  const [showListModal, setShowListModal] = useState(false);
+  const handleCloseListModal = () => setShowListModal(false);
+
+  const [showUnlistModal, setShowUnlistModal] = useState(false);
+  const handleCloseUnlistModal = () => setShowUnlistModal(false);
+
+  const nftObj: NFTInfo = {
+    ...nft,
+    profile: nft.owner,
+  };
+
   return (
     <>
       {userProfile && nft.owner_address === userProfile.wallet_address ? (
         nft.list_status === NFTMarketStatus.NotListed ? (
-          <Button size="lg">上架</Button>
+          <Button size="lg" onClick={() => setShowListModal(true)}>
+            上架
+          </Button>
         ) : (
-          <Button size="lg">下架</Button>
+          <Button size="lg" onClick={() => setShowUnlistModal(true)}>
+            下架
+          </Button>
         )
       ) : (
         <div className="flex gap-2">
@@ -35,41 +52,26 @@ export default function NFTInteraction({
         </div>
       )}
 
-      {/* 模态框 */}
-      <Modal
+      {/* NFT上架模态框 */}
+      <NFTListModal
+        nft={nftObj}
+        isOpen={showListModal}
+        onClose={handleCloseListModal}
+      />
+
+      {/* NFT下架模态框 */}
+      <NFTUnlistModal
+        nft={nftObj}
+        isOpen={showUnlistModal}
+        onClose={handleCloseUnlistModal}
+      />
+
+      {/* NFT报价模态框 */}
+      <NFTOfferModal
+        nft={nftObj}
         isOpen={showOfferModal}
         onClose={handleCloseOfferModal}
-        title="提交报价"
-      >
-        <div className="space-y-4 p-4">
-          <div className="space-y-2">
-            <label
-              htmlFor="offerAmount"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              报价金额 (ETH)
-            </label>
-            <input
-              type="number"
-              id="offerAmount"
-              className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-800"
-              placeholder="0.00"
-              min="0"
-              step="0.01"
-            />
-          </div>
-          <div className="flex justify-between gap-4 mt-6">
-            <Button
-              variant="secondary"
-              onClick={handleCloseOfferModal}
-              className="flex-1"
-            >
-              取消
-            </Button>
-            <Button className="ml-2 flex-1">提交报价</Button>
-          </div>
-        </div>
-      </Modal>
+      />
     </>
   );
 }

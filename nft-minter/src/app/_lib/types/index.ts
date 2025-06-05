@@ -1,4 +1,5 @@
 import { Tables } from "./database.types";
+import { NFTOfferStatus } from "./enums";
 
 export type Optional<T> = T | undefined | null;
 
@@ -7,6 +8,7 @@ export type Collection = Tables<"collections">
 export type CollectionCategory = Tables<"collections_categories">
 export type Attribute = Tables<"attributes"> // attributes key
 export type NFTAttribute = Tables<"nft_attributes"> // attributes value 
+export type NFTOffer = Tables<"nft_offers">
 
 export type UserProfile = Tables<"profiles">
 export type UserCollection = Tables<"user_collections"> 
@@ -66,4 +68,10 @@ export interface UserFollowStats {
   followersCount: number;
   followingCount: number;
   error?: string;
+}
+
+export interface NFTOfferItem extends NFTOffer {
+  nft: NFTInfo | null;
+  offerer: UserProfile | null;
+  status: NFTOfferStatus;
 }

@@ -1,9 +1,13 @@
-import { ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-import { sessionCookieName, PINATA_IPFS_GATEWAY_BASE } from "@/app/_lib/constants";
+import { ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import {
+  sessionCookieName,
+  PINATA_IPFS_GATEWAY_BASE,
+} from "@/app/_lib/constants";
 import { CookieOptionsWithName } from "@supabase/ssr";
-import { keccak256, toUtf8Bytes } from 'ethers';
-import { format } from 'date-fns';
+import { keccak256, toUtf8Bytes } from "ethers";
+import { format } from "date-fns";
+import { ethers } from "ethers";
 
 export function getCookieOptions() {
   return {
@@ -13,7 +17,6 @@ export function getCookieOptions() {
     sameSite: "lax",
   } satisfies CookieOptionsWithName;
 }
-
 
 /**
  * 合并类名工具函数，结合clsx和tailwind-merge
@@ -30,7 +33,7 @@ export function cn(...inputs: ClassValue[]) {
  * @returns 截断后的文本
  */
 export function truncateText(text: string, length: number): string {
-  if (!text) return '';
+  if (!text) return "";
   if (text.length <= length) return text;
   return `${text.slice(0, length)}...`;
 }
@@ -41,7 +44,7 @@ export function truncateText(text: string, length: number): string {
  * @returns 格式化后的地址，如0x123...abc
  */
 export function formatAddress(address: string): string {
-  if (!address) return '';
+  if (!address) return "";
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
@@ -51,16 +54,20 @@ export function formatAddress(address: string): string {
  * @returns 格式化后的价格
  */
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'ETH',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(price).replace('ETH', '') + ' ETH';
+  return (
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "ETH",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+      .format(price)
+      .replace("ETH", "") + " ETH"
+  );
 }
 
 export function shortenAddress(address: string): string {
-  if (!address) return '';
+  if (!address) return "";
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
@@ -79,13 +86,13 @@ export function formatTimeAgo(date: Date | string): string {
 
 /**
  * 将IPFS URI转换为可访问的HTTP URL
- * 
+ *
  * @param ipfsUri IPFS URI或链接
  * @returns 可访问的HTTP URL
  */
-export function formatIPFSUrl(ipfsUri?: string | null): string | null {
-  if (!ipfsUri || !ipfsUri.startsWith('ipfs://')) {
-    return null;
+export function formatIPFSUrl(ipfsUri?: string | null): string {
+  if (!ipfsUri || !ipfsUri.startsWith("ipfs://")) {
+    return ipfsUri || "";
   }
   const cid = ipfsUri.substring(7);
   // 使用常量拼接 URL
@@ -95,8 +102,9 @@ export function formatIPFSUrl(ipfsUri?: string | null): string | null {
 export function generateWalletP(walletAddress: string) {
   const secretKey = process.env.PROJECT_SECRET;
   const hash = keccak256(toUtf8Bytes(`${walletAddress}:${secretKey}`));
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$!%*?&';
-  let password = '';
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$!%*?&";
+  let password = "";
   for (let i = 2; i < 34; i += 2) {
     const byte = parseInt(hash.slice(i, i + 2), 16);
     password += chars[byte % chars.length];
@@ -105,25 +113,46 @@ export function generateWalletP(walletAddress: string) {
 }
 
 export function formatDate(date: Date | string): string {
-  if (!date) return '';
-  return format(new Date(date), 'yyyy-MM-dd');
+  if (!date) return "";
+  return format(new Date(date), "yyyy-MM-dd");
 }
 
 export function formatDateTime(date: Date | string): string {
-  if (!date) return '';
-  return format(new Date(date), 'yyyy-MM-dd HH:mm');
+  if (!date) return "";
+  return format(new Date(date), "yyyy-MM-dd HH:mm");
 }
 
-export function getFilePrefixAndExtension(filePath: string): { prefix: string; extension: string } {
-  const fileName = filePath.split('/').pop() ?? '';
-  const lastDotIndex = fileName.lastIndexOf('.');
+export function getFilePrefixAndExtension(filePath: string): {
+  prefix: string;
+  extension: string;
+} {
+  const fileName = filePath.split("/").pop() ?? "";
+  const lastDotIndex = fileName.lastIndexOf(".");
 
   if (lastDotIndex === -1) {
-    return { prefix: fileName, extension: '' };
+    return { prefix: fileName, extension: "" };
   }
 
   const prefix = fileName.substring(0, lastDotIndex);
   const extension = fileName.substring(lastDotIndex + 1).toLowerCase();
 
   return { prefix, extension };
+}
+
+/**
+ * 将 ETH 转换为 Wei（返回字符串类型的 BigNumber）
+ * @param ethAmount - 以太币数量（字符串或数字）
+ * @returns wei 字符串
+ */
+export function ethToWei(ethAmount: string | number): string {
+  return ethers.parseEther(ethAmount.toString()).toString();
+}
+
+/**
+ * 将 Wei 转换为 ETH（返回字符串）
+ * @param weiAmount - wei 值（字符串或 bigint）
+ * @returns ETH 字符串（带小数）
+ */
+export function weiToEth(weiAmount: string | bigint): string {
+  return ethers.formatEther(weiAmount);
 }

@@ -1,25 +1,17 @@
 "use client"
-
-import React, { useState } from 'react'; // Simplified React import
 import Link from 'next/link';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { SearchNavbarItem } from './SearchNavbarItem';
-import useAsyncEffect from '../_lib/hooks/useAsyncEffect';
-import { isAuthAction } from '../_lib/actions/auth';
+import { useUser } from '@/contexts/UserContext';
 
 export const Navbar = () => {
+  const user = useUser();
+
   const navLinks = [
     { title: '探索', href: '/explore' },
     { title: '创建', href: '/create' },
     { title: '合集', href: '/collections' },
   ];
-
-  const [isAuth, setIsAuth] = useState(false);
-
-  useAsyncEffect(async () => {
-    const { isAuth } = await isAuthAction();
-    setIsAuth(isAuth)
-  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-zinc-200 dark:border-zinc-800 bg-background/80 backdrop-blur-sm">
@@ -43,7 +35,7 @@ export const Navbar = () => {
               </Link>
             ))}
 
-            {isAuth && (
+            {user && (
               <>
                 <Link href="/profile" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
                   个人中心

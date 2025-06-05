@@ -61,6 +61,7 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
               src={imageUrl}
               alt={nft.name}
               fill
+              sizes="(max-width: 768px) 100vw, (min-width: 769px) 50vw"
               className="object-cover"
               priority
             />
@@ -83,6 +84,7 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
                     src={collection.logo_image_url ?? ""}
                     alt={collection.name}
                     fill
+                    sizes="(max-width: 768px) 24px, (min-width: 769px) 32px"
                     className="object-cover"
                   />
                 </div>
@@ -102,7 +104,7 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
             <div className="flex flex-col gap-1">
               <span className="text-sm text-zinc-500">创作者</span>
               <Link
-                href={`/profile/${creator.wallet_address}`}
+                href={`/user/${creator.id}`}
                 className="flex items-center gap-2"
               >
                 <div className="relative w-6 h-6 rounded-full overflow-hidden">
@@ -110,6 +112,7 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
                     src={creator.avatar_url ?? ""}
                     alt={creator.username ?? ""}
                     fill
+                    sizes="(max-width: 768px) 24px, (min-width: 769px) 32px"
                     className="object-cover"
                   />
                 </div>
@@ -120,7 +123,7 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
             <div className="flex flex-col gap-1">
               <span className="text-sm text-zinc-500">当前拥有者</span>
               <Link
-                href={`/profile/${owner.wallet_address}`}
+                href={`/user/${owner.id}`}
                 className="flex items-center gap-2"
               >
                 <div className="relative w-6 h-6 rounded-full overflow-hidden">
@@ -128,6 +131,7 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
                     src={owner.avatar_url ?? ""}
                     alt={owner.username ?? ""}
                     fill
+                    sizes="(max-width: 768px) 24px, (min-width: 769px) 32px"
                     className="object-cover"
                   />
                 </div>
@@ -151,7 +155,7 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
                 <span className="text-sm text-zinc-500">当前价格</span>
                 <div className="flex items-end gap-2">
                   <span className="text-2xl font-bold">
-                    {nft.list_price ?? '-'}
+                    {nft.list_price ?? "-"}
                   </span>
                   <span className="text-lg">{nft.list_currency ?? "ETH"}</span>
                 </div>
@@ -224,10 +228,14 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
                           {item.price > 0 ? `${item.price} ETH` : "-"}
                         </td>
                         <td className="p-3 text-sm">
-                          {formatAddress(item.seller_address) || "-"}
+                          {item.seller_address
+                            ? formatAddress(item.seller_address)
+                            : "-"}
                         </td>
                         <td className="p-3 text-sm">
-                          {formatAddress(item.buyer_address) ?? "-"}
+                          {item.buyer_address
+                            ? formatAddress(item.buyer_address)
+                            : "-"}
                         </td>
                         <td className="p-3 text-sm">
                           {formatDateTime(item.transaction_time ?? "") ?? "-"}
