@@ -1,7 +1,8 @@
 import React from "react";
 import Link from "next/link";
 import { ActivityLogItem, Collection, NFT, UserProfile } from "../_lib/types";
-import { formatTimeAgo } from "../_lib/utils";
+import { formatTimeAgo, weiToEth } from "../_lib/utils";
+import { ActionType } from "../_lib/types/enums";
 
 type Details = {
   price: number;
@@ -47,7 +48,7 @@ export default function ActivityLogInfo({
 
   // 使用 React Fragment (<> ... </>) 来包裹 JSX 元素和文本
   switch (action_type) {
-    case "MINT_NFT":
+    case ActionType.MINT_NFT:
       return (
         <>
           {User} 铸造了新的 NFT {Nft}。{" "}
@@ -55,7 +56,7 @@ export default function ActivityLogInfo({
         </>
       );
 
-    case "LIST_NFT":
+    case ActionType.LIST_NFT:
       return (
         <>
           {User} 上架了 {Nft}，售价 {price ?? "未知"} {currency}。{" "}
@@ -63,14 +64,14 @@ export default function ActivityLogInfo({
         </>
       );
 
-    case "UNLIST_NFT":
+    case ActionType.UNLIST_NFT:
       return (
         <>
           {User} 下架了 {Nft}。 <span className="time-ago">({timeAgo})</span>
         </>
       );
 
-    case "SELL_NFT":
+    case ActionType.SELL_NFT:
       return (
         <>
           {User} 将 {Nft} 卖给了 {RelatedUser}，价格为 {price ?? "未知"}{" "}
@@ -78,7 +79,7 @@ export default function ActivityLogInfo({
         </>
       );
 
-    case "BUY_NFT":
+    case ActionType.BUY_NFT:
       return (
         <>
           {User} 从 {RelatedUser} 手中购买了 {Nft}，价格为 {price ?? "未知"}{" "}
@@ -94,7 +95,7 @@ export default function ActivityLogInfo({
         </>
       );
 
-    case "TRANSFER_NFT":
+    case ActionType.TRANSFER_NFT:
       return (
         <>
           {User} 将 {Nft} 转移给了 {RelatedUser}。{" "}
@@ -102,14 +103,14 @@ export default function ActivityLogInfo({
         </>
       );
 
-    case "UPDATE_PROFILE":
+    case ActionType.UPDATE_PROFILE:
       return (
         <>
           {User} 更新了个人资料。 <span className="time-ago">({timeAgo})</span>
         </>
       );
 
-    case "FOLLOW_USER":
+    case ActionType.FOLLOW_USER:
       return (
         <>
           {User} 关注了 {RelatedUser}。{" "}
@@ -117,7 +118,7 @@ export default function ActivityLogInfo({
         </>
       );
 
-    case "UNFOLLOW_USER":
+    case ActionType.UNFOLLOW_USER:
       return (
         <>
           {User} 取消关注了 {RelatedUser}。{" "}
@@ -125,7 +126,7 @@ export default function ActivityLogInfo({
         </>
       );
 
-    case "FAVORITE_COLLECTION":
+    case ActionType.FAVORITE_COLLECTION:
       return (
         <>
           {User} 收藏了合集 {Collection}。{" "}
@@ -133,7 +134,7 @@ export default function ActivityLogInfo({
         </>
       );
 
-    case "CREATE_COLLECTION":
+    case ActionType.CREATE_COLLECTION:
       return (
         <>
           {User} 创建了新的合集 {Collection}。{" "}
@@ -141,6 +142,13 @@ export default function ActivityLogInfo({
         </>
       );
 
+    case ActionType.CREATE_OFFER:
+      return (
+        <>
+          {User} 创建了对 {Nft} 的出价，价格为 {price ? weiToEth(`${price}`) : "未知"} {currency}。{" "}
+          <span className="time-ago">({timeAgo})</span>
+        </>
+      );
     default:
       console.warn("未知的活动类型:", action_type);
       return (

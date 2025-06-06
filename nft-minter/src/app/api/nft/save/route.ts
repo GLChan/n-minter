@@ -85,7 +85,7 @@ export async function POST(request: Request) {
       nft_id: nftData.id,
       buyer_address: ownerAddress, // to
       seller_address: contractAddress, // from
-      price: 0,
+      price: String(0),
       currency: 'ETH',
     }
     const transactionData = await saveTransaction(transaction)

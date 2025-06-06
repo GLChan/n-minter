@@ -21,6 +21,7 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_BASE_URL: z.string().min(1),
     NEXT_PUBLIC_MY_NFT_FACTORY_ADDRESS: z.string().startsWith("0x"),
     NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS: z.string().startsWith("0x"),
+    NEXT_PUBLIC_SEPOLIA_WETH_ADDRESS: z.string().startsWith("0x"),
 
     NEXT_PUBLIC_SUPABASE_URL: z.string(),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string(),
@@ -43,5 +44,7 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_MY_NFT_FACTORY_ADDRESS,
     NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS:
       process.env.NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS,
+    NEXT_PUBLIC_SEPOLIA_WETH_ADDRESS:
+      process.env.NEXT_PUBLIC_SEPOLIA_WETH_ADDRESS,
   },
 });

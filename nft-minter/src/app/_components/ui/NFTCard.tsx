@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { NFTInfo } from '@/app/_lib/types';
-import { formatIPFSUrl, formatTimeAgo } from '@/app/_lib/utils';
+import { formatIPFSUrl, formatTimeAgo, weiToEth } from '@/app/_lib/utils';
 import { NFTMarketStatus, TransactionType } from '@/app/_lib/types/enums';
 // interface NFTCardProps {
 //   nft: NFT;
@@ -123,7 +123,7 @@ export const NFTCard: React.FC<{
                   fill="currentColor"
                 />
               </svg>
-              <span className="font-bold">{price} ETH</span>
+              <span className="font-bold">{weiToEth(price)} ETH</span>
             </div>
           }
           <Link

@@ -20,6 +20,7 @@ export default async function SuggestedUsersList() {
                 src={user.avatar_url || ""}
                 alt={user.username || "用户头像"}
                 fill
+                sizes="40px"
                 className="object-cover"
               />
             </div>

@@ -65,7 +65,7 @@ export async function getUserProfile(): Promise<UserProfile | null> {
   if (!data || !data.user) {
     return null;
   }
-  
+
   const profile = await getProfileByUserId(data.user.id);
 
   if (!profile) return null;
@@ -250,7 +250,7 @@ export async function getCollectionByUserId(
 
 export async function listNFT(
   nftId: string,
-  price: number,
+  price: string,
   walletAddress: string,
   currency: string
 ) {
@@ -334,7 +334,7 @@ export async function unlistNFT(nftId: string, walletAddress: string) {
     .from("transactions")
     .insert({
       nft_id: nftId,
-      price: 0,
+      price: "0",
       status: TransactionStatus.Successful,
       transaction_time: new Date().toISOString(),
       transaction_type: TransactionType.Unlist,

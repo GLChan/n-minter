@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { formatPrice } from "@/app/_lib/utils";
+import { formatPrice, weiToEth } from "@/app/_lib/utils";
 import { fetchCollectionsWithFilters } from "../_lib/data-service";
 
 export default async function TrendingCollectionCards() {
@@ -46,14 +46,14 @@ export default async function TrendingCollectionCards() {
                   <div className="flex flex-col">
                     <span className="text-zinc-500 mb-1">Volume</span>
                     <span className="font-medium">
-                      ${formatPrice(collection.volume)}
+                      ${formatPrice(weiToEth(collection.volume))}
                     </span>
                   </div>
 
                   <div className="flex flex-col">
                     <span className="text-zinc-500 mb-1">Floor</span>
                     <span className="font-medium">
-                      ${formatPrice(collection.floor_price)}
+                      ${formatPrice(weiToEth(collection.floor_price))}
                     </span>
                   </div>
                 </div>

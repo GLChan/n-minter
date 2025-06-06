@@ -2,7 +2,12 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import NFTInteraction from "@/app/nft/[id]/_components/NFTInteraction";
-import { formatAddress, formatDateTime, formatIPFSUrl } from "@/app/_lib/utils"; // formatPrice
+import {
+  formatAddress,
+  formatDateTime,
+  formatIPFSUrl,
+  weiToEth,
+} from "@/app/_lib/utils"; // formatPrice
 import {
   getNFTAttributes,
   getNFTById,
@@ -155,7 +160,7 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
                 <span className="text-sm text-zinc-500">当前价格</span>
                 <div className="flex items-end gap-2">
                   <span className="text-2xl font-bold">
-                    {nft.list_price ?? "-"}
+                    {nft.list_price ? weiToEth(nft.list_price) : "-"}
                   </span>
                   <span className="text-lg">{nft.list_currency ?? "ETH"}</span>
                 </div>
@@ -225,7 +230,9 @@ export default async function NFTDetails({ params }: NFTDetailsProps) {
                           )}
                         </td>
                         <td className="p-3 text-sm">
-                          {item.price > 0 ? `${item.price} ETH` : "-"}
+                          {item.price && item.price !== "0"
+                            ? `${weiToEth(item.price)} ETH`
+                            : "-"}
                         </td>
                         <td className="p-3 text-sm">
                           {item.seller_address

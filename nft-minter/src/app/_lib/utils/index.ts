@@ -53,7 +53,7 @@ export function formatAddress(address: string): string {
  * @param price 价格
  * @returns 格式化后的价格
  */
-export function formatPrice(price: number): string {
+export function formatPrice(price: string): string {
   return (
     new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -61,7 +61,7 @@ export function formatPrice(price: number): string {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })
-      .format(price)
+      .format(Number(price))
       .replace("ETH", "") + " ETH"
   );
 }
@@ -153,6 +153,6 @@ export function ethToWei(ethAmount: string | number): string {
  * @param weiAmount - wei 值（字符串或 bigint）
  * @returns ETH 字符串（带小数）
  */
-export function weiToEth(weiAmount: string | bigint): string {
-  return ethers.formatEther(weiAmount);
+export function weiToEth(weiAmount: string | bigint | number): string {
+  return ethers.formatEther(weiAmount.toString());
 }

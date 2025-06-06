@@ -688,15 +688,17 @@ export async function getReceivedOffers(): Promise<NFTOfferItem[] | null> {
   const { data, error } = await supabase
     .from("nft_offers")
     .select(
-      "*, nft:nfts!nft_id(*, profiles!owner_id(*)), offerer:profiles!offerer_id(*)"
+      "*, nft:nfts!inner(*, profiles!owner_id(*)), offerer:profiles(*)"
     )
     .eq("nfts.owner_address", targetUserWalletAddress)
     .in("status", [NFTOfferStatus.PENDING, NFTOfferStatus.ACCEPTED])
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching received offers:", error);
+    console.error("查詢收到的NFT報價時出錯:", error);
     return [];
   }
-  return data as NFTOfferItem[] || [];
+
+  // 查詢成功後，data 的類型應該就能與 NFTOfferItem[] 正確匹配
+  return (data as NFTOfferItem[]) || [];
 }

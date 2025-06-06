@@ -2,7 +2,7 @@ import Link from "next/link";
 import React from "react";
 import { CollectionListItem } from "../_lib/types";
 import Image from "next/image";
-import { formatPrice } from "../_lib/utils";
+import { formatPrice, weiToEth } from "../_lib/utils";
 
 export default function CollectionCard({
   collection,
@@ -59,13 +59,13 @@ export default function CollectionCard({
           <div className="flex flex-col">
             <span className="text-zinc-500 dark:text-zinc-400">地板价</span>
             <span className="font-medium">
-              ${formatPrice(collection.floor_price)}
+              ${formatPrice(weiToEth(collection.floor_price))}
             </span>
           </div>
           <div className="flex flex-col">
             <span className="text-zinc-500 dark:text-zinc-400">总交易量</span>
             <span className="font-medium">
-              ${formatPrice(collection.volume)}
+              ${formatPrice(weiToEth(collection.volume))}
             </span>
           </div>
           <div className="flex flex-col">

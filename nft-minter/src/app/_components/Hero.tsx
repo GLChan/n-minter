@@ -7,7 +7,7 @@ import {
 } from "./ui/Button";
 import Link from "next/link";
 import { getFeaturedNFT } from "../_lib/actions";
-import { formatIPFSUrl } from "../_lib/utils";
+import { formatIPFSUrl, weiToEth } from "../_lib/utils";
 
 // Hero部分数据对象
 const heroData = {
@@ -91,6 +91,7 @@ export const Hero = async () => {
                       src={avatar.src}
                       alt={avatar.alt}
                       fill
+                      sizes="32px"
                       className="object-cover"
                     />
                   </div>
@@ -114,6 +115,7 @@ export const Hero = async () => {
                   src={formatIPFSUrl(featuredNFT.image_url)}
                   alt="Featured NFT artwork"
                   fill
+                  sizes="(max-width: 768px) 100vw, (min-width: 769px) 50vw, 33vw"
                   className="object-cover"
                   priority
                 />
@@ -131,6 +133,7 @@ export const Hero = async () => {
                             src={owner.avatar_url ?? ""}
                             alt="Creator"
                             fill
+                            sizes="24px"
                             className="object-cover"
                           />
                         </div>
@@ -142,7 +145,9 @@ export const Hero = async () => {
                     <div className="text-right">
                       <p className="text-sm text-zinc-500">当前价格</p>
                       <p className="font-semibold">
-                        {featuredNFT.last_sale_price || featuredNFT.list_price}{" "}
+                        {weiToEth(
+                          featuredNFT.last_sale_price || featuredNFT.list_price
+                        )}{" "}
                         {featuredNFT.last_sale_currency ||
                           featuredNFT.list_currency}
                       </p>

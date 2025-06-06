@@ -15,6 +15,7 @@ import { env } from "@/app/_lib/config/env";
 import { listNFT } from "@/app/_lib/data-service";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { ethToWei } from "@/app/_lib/utils";
 
 interface ListNFTFormProps {
   nft: NFTInfo;
@@ -183,7 +184,7 @@ export const ListNFTForm: React.FC<ListNFTFormProps> = ({
           // 模拟API调用延迟
           const transaction = await listNFT(
             nft.id,
-            Number(price),
+            ethToWei(price),
             nft.owner_address,
             "ETH"
           );

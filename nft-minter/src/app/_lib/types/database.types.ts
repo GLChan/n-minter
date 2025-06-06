@@ -330,7 +330,7 @@ export type Database = {
           last_sale_price: number | null
           last_sale_time: string | null
           list_currency: string | null
-          list_price: number | null
+          list_price: string | null
           list_status: string | null
           lister_address: string | null
           metadata: Json | null
@@ -359,7 +359,7 @@ export type Database = {
           last_sale_price?: number | null
           last_sale_time?: string | null
           list_currency?: string | null
-          list_price?: number | null
+          list_price?: string | null
           list_status?: string | null
           lister_address?: string | null
           metadata?: Json | null
@@ -388,7 +388,7 @@ export type Database = {
           last_sale_price?: number | null
           last_sale_time?: string | null
           list_currency?: string | null
-          list_price?: number | null
+          list_price?: string | null
           list_status?: string | null
           lister_address?: string | null
           metadata?: Json | null
@@ -484,7 +484,7 @@ export type Database = {
           currency: string
           id: number
           nft_id: string
-          price: number
+          price: string
           seller_address: string
           status: string
           transaction_hash: string
@@ -497,7 +497,7 @@ export type Database = {
           currency: string
           id?: number
           nft_id: string
-          price: number
+          price: string
           seller_address: string
           status: string
           transaction_hash: string
@@ -510,7 +510,7 @@ export type Database = {
           currency?: string
           id?: number
           nft_id?: string
-          price?: number
+          price?: string
           seller_address?: string
           status?: string
           transaction_hash?: string
