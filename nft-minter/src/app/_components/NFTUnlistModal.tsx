@@ -7,12 +7,10 @@ import toast from "react-hot-toast";
 import { Button } from "./ui/Button";
 import { unlistNFT } from "@/app/_lib/data-service";
 import { useRouter } from "next/navigation";
-import {
-  useWriteContract,
-  useWaitForTransactionReceipt,
-} from "wagmi";
+import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { MARKETPLACE_ABI } from "@/app/_lib/constants";
 import { env } from "@/app/_lib/config/env";
+import { weiToEth } from "../_lib/utils";
 
 export const NFTUnlistModal = ({
   nft,
@@ -106,7 +104,7 @@ export const NFTUnlistModal = ({
                     当前价格
                   </span>
                   <span className="font-medium">
-                    {selectedNFT.list_price}{" "}
+                    {weiToEth(selectedNFT.list_price)}{" "}
                     {selectedNFT.list_currency || "ETH"}
                   </span>
                 </div>

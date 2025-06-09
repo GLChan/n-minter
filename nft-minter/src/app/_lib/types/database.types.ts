@@ -256,66 +256,6 @@ export type Database = {
           },
         ]
       }
-      nft_offers: {
-        Row: {
-          blockchain_network: string | null
-          created_at: string
-          currency: string
-          expires_at: string | null
-          id: string
-          nft_id: string
-          offer_amount: string | null
-          offer_type: string | null
-          offerer_id: string
-          status: string
-          transaction_hash: string | null
-          updated_at: string
-        }
-        Insert: {
-          blockchain_network?: string | null
-          created_at?: string
-          currency?: string
-          expires_at?: string | null
-          id?: string
-          nft_id: string
-          offer_amount?: string | null
-          offer_type?: string | null
-          offerer_id: string
-          status?: string
-          transaction_hash?: string | null
-          updated_at?: string
-        }
-        Update: {
-          blockchain_network?: string | null
-          created_at?: string
-          currency?: string
-          expires_at?: string | null
-          id?: string
-          nft_id?: string
-          offer_amount?: string | null
-          offer_type?: string | null
-          offerer_id?: string
-          status?: string
-          transaction_hash?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "nft_offers_nft_id_fkey"
-            columns: ["nft_id"]
-            isOneToOne: false
-            referencedRelation: "nfts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "nft_offers_offerer_id_fkey"
-            columns: ["offerer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       nfts: {
         Row: {
           chain_id: number
@@ -429,6 +369,96 @@ export type Database = {
           {
             foreignKeyName: "nfts_owner_id_fkey"
             columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          blockchain_network: string | null
+          buyer_address: string | null
+          created_at: string
+          currency: string
+          currency_address: string | null
+          expires_at: string | null
+          id: string
+          nft_address: string | null
+          nft_id: string
+          nonce: string | null
+          offer_amount: string | null
+          offer_type: string | null
+          offerer_id: string
+          offerer_wallet_address: string | null
+          order_type: string | null
+          price_wei: string | null
+          seller_address: string | null
+          signature: string | null
+          status: string
+          token_id: string | null
+          transaction_hash: string | null
+          updated_at: string
+        }
+        Insert: {
+          blockchain_network?: string | null
+          buyer_address?: string | null
+          created_at?: string
+          currency?: string
+          currency_address?: string | null
+          expires_at?: string | null
+          id?: string
+          nft_address?: string | null
+          nft_id: string
+          nonce?: string | null
+          offer_amount?: string | null
+          offer_type?: string | null
+          offerer_id: string
+          offerer_wallet_address?: string | null
+          order_type?: string | null
+          price_wei?: string | null
+          seller_address?: string | null
+          signature?: string | null
+          status?: string
+          token_id?: string | null
+          transaction_hash?: string | null
+          updated_at?: string
+        }
+        Update: {
+          blockchain_network?: string | null
+          buyer_address?: string | null
+          created_at?: string
+          currency?: string
+          currency_address?: string | null
+          expires_at?: string | null
+          id?: string
+          nft_address?: string | null
+          nft_id?: string
+          nonce?: string | null
+          offer_amount?: string | null
+          offer_type?: string | null
+          offerer_id?: string
+          offerer_wallet_address?: string | null
+          order_type?: string | null
+          price_wei?: string | null
+          seller_address?: string | null
+          signature?: string | null
+          status?: string
+          token_id?: string | null
+          transaction_hash?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nft_offers_nft_id_fkey"
+            columns: ["nft_id"]
+            isOneToOne: false
+            referencedRelation: "nfts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nft_offers_offerer_id_fkey"
+            columns: ["offerer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

@@ -1,75 +1,58 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { NFTInfo } from "@/app/_lib/types";
+import React, { useEffect, useState } from "react";
+import { NFTInfo, OrderPayload } from "@/app/_lib/types"; // 假设您在 types.ts 中定义了 OrderPayload
 import { Button } from "./Button";
 import {
   useAccount,
   useReadContract,
   useWriteContract,
   useWaitForTransactionReceipt,
+  useSignTypedData, // 新增：导入 useSignTypedData
+  useChainId, // 新增：导入 useChainId 来获取当前链ID
 } from "wagmi";
-import { MARKETPLACE_ABI, MY_NFT_ABI } from "@/app/_lib/constants";
+import {
+  MARKETPLACE_ABI,
+  MARKETPLACE_CONTRACT_ADDRESS,
+  MY_NFT_ABI,
+} from "@/app/_lib/constants";
 import { parseEther } from "viem";
 import { env } from "@/app/_lib/config/env";
-import { listNFT } from "@/app/_lib/data-service";
+import { listNFT } from "@/app/_lib/data-service"; // 这个函数现在的作用是发送签名订单到后端
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { ethToWei } from "@/app/_lib/utils";
 
 interface ListNFTFormProps {
   nft: NFTInfo;
-  onSuccess: () => void; // 修改为 onSuccess
+  onSuccess: () => void;
   onCancel: () => void;
 }
 
 export const ListNFTForm: React.FC<ListNFTFormProps> = ({
   nft,
-  onSuccess, // 修改为 onSuccess
+  onSuccess,
   onCancel,
 }) => {
   const router = useRouter();
   const [price, setPrice] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const [approvalError, setApprovalError] = useState<string | null>(null);
-  const [listingError, setListingError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const { address } = useAccount();
-  const marketplaceAddress =
-    env.NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS as `0x${string}`;
+  const chainId = useChainId(); // 获取当前链ID
 
-  // 检查是否已授权
-  const {
-    data: isApproved,
-    isLoading: isCheckingApproval,
-    refetch: refetchApproval,
-  } = useReadContract({
+  // --- 授权逻辑 (基本保持不变) ---
+  const { data: isApproved, refetch: refetchApproval } = useReadContract({
     abi: MY_NFT_ABI,
     address: nft.contract_address as `0x${string}`,
     functionName: "isApprovedForAll",
-    args: [address!, marketplaceAddress],
-    query: {
-      enabled: !!address && !!nft.contract_address && !!marketplaceAddress,
-      refetchInterval: 5000, // 5秒刷新一次授权状态
-    },
+    args: [address!, MARKETPLACE_CONTRACT_ADDRESS],
+    query: { enabled: !!address },
   });
 
-  useEffect(() => {
-    if (isApproved === undefined) {
-      console.log("正在检查授权状态，请稍候...", isApproved);
-    } else if (isApproved) {
-      console.log("您已授权平台交易您的NFT", isApproved);
-    } else {
-      console.log("请先授权平台交易您的NFT", isApproved);
-    }
-    console.log("授权状态isCheckingApproval:", isCheckingApproval);
-  }, [isApproved, isCheckingApproval]);
-
-  // 授权操作
   const {
     data: approvalTxHash,
-    writeContractAsync: writeApproval,
+    writeContract: approveNFT,
     isPending: isApproving,
     error: writeApprovalError,
   } = useWriteContract();
@@ -79,140 +62,125 @@ export const ListNFTForm: React.FC<ListNFTFormProps> = ({
       hash: approvalTxHash,
     });
 
-  // 上架操作
-  const {
-    data: listItemTxHash,
-    writeContractAsync: writeListItem,
-    isPending: isListingItem,
-    error: writeListItemError,
-  } = useWriteContract();
-
-  const { isLoading: isConfirmingListItem, isSuccess: isListItemConfirmed } =
-    useWaitForTransactionReceipt({
-      hash: listItemTxHash,
-    });
-
   useEffect(() => {
     if (isApprovalConfirmed) {
       refetchApproval(); // 授权成功后重新检查授权状态
-      setApprovalError(null);
+      setError(null);
     }
   }, [isApprovalConfirmed, refetchApproval]);
 
   useEffect(() => {
     if (writeApprovalError) {
-      setApprovalError(writeApprovalError.message);
+      setError(writeApprovalError.message);
     }
   }, [writeApprovalError]);
 
-  useEffect(() => {
-    if (writeListItemError) {
-      setListingError(writeListItemError.message);
-    }
-  }, [writeListItemError]);
-
   const handleApprove = async () => {
-    setApprovalError(null);
-    try {
-      await writeApproval({
-        abi: MY_NFT_ABI,
-        address: nft.contract_address as `0x${string}`,
-        functionName: "setApprovalForAll",
-        args: [marketplaceAddress, true],
-      });
-    } catch (err) {
-      console.error("授权失败:", err);
-      setApprovalError(err instanceof Error ? err.message : "授权失败");
-    }
+    if (!address) return toast.error("请先连接钱包");
+    approveNFT({
+      abi: MY_NFT_ABI,
+      address: nft.contract_address as `0x${string}`,
+      functionName: "setApprovalForAll",
+      args: [MARKETPLACE_CONTRACT_ADDRESS, true],
+    });
   };
 
-  const platformFee = 0.025; // 平台费用 2.5%
-  const royalties = (nft.collection?.royalty_fee_bps ?? 0) / 10000;
-  const royaltiesPercentage = royalties * 100; // 默认创作者版税 5%
-  const totalFees = platformFee + royalties;
-  const earnPercentage = 1 - totalFees; // 用户实际获得的百分比
+  // --- 挂单逻辑 (核心改动部分) ---
 
+  // 新增：定义 EIP-712 签名所需的域和类型，必须与合约一致
+  const domain = {
+    name: "GL NFT Marketplace", // 必须与您部署合约时使用的 name 一致
+    version: "1.0", // 必须与您部署合约时使用的 version 一致
+    chainId: chainId,
+    verifyingContract: MARKETPLACE_CONTRACT_ADDRESS,
+  } as const;
+
+  const types = {
+    Order: [
+      { name: "seller", type: "address" },
+      { name: "buyer", type: "address" },
+      { name: "nftAddress", type: "address" },
+      { name: "tokenId", type: "uint256" },
+      { name: "currency", type: "address" },
+      { name: "price", type: "uint256" },
+      { name: "nonce", type: "uint256" },
+      { name: "deadline", type: "uint256" },
+    ],
+  } as const;
+
+  // 新增：使用 useSignTypedData Hook
+  const { signTypedDataAsync, isPending: isSigning } = useSignTypedData();
+
+  const { refetch: refetchNonce } = useReadContract({
+    address: MARKETPLACE_CONTRACT_ADDRESS,
+    abi: MARKETPLACE_ABI,
+    functionName: "userNonces",
+    args: [address!],
+    query: {
+      enabled: false, // 初始不执行查询
+    },
+  });
+
+  // 重构 handleSubmit 函数以处理签名流程
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setListingError(null);
+    if (!address) return setError("请连接钱包");
+    if (!price || isNaN(Number(price)) || Number(price) <= 0)
+      return setError("请输入有效的价格");
+    if (!isApproved) return setError("请先授权平台交易您的NFT");
 
-    if (!address) {
-      setError("请连接钱包");
-      return;
-    }
-
-    if (!price || isNaN(Number(price)) || Number(price) <= 0) {
-      setError("请输入有效的价格");
-      return;
-    }
-
-    if (!isApproved) {
-      setError("请先授权平台交易您的NFT");
-      return;
-    }
+    setIsSubmitting(true);
 
     try {
-      // 调用 Marketplace 合约的 listItem
-      await writeListItem({
-        abi: MARKETPLACE_ABI,
-        address: marketplaceAddress,
-        functionName: "listItem",
-        args: [
-          nft.contract_address as `0x${string}`,
-          BigInt(nft.token_id!),
-          parseEther(price),
-        ],
+      const { data: latestNonce, isSuccess } = await refetchNonce();
+      console.log("最新的 nonce:", latestNonce);
+      if (!isSuccess) throw new Error("Failed to fetch nonce");
+
+      // 1. 准备订单数据
+      // 注意: nonce 应从后端或链上获取，这里用 0n 作为示例
+      const order: OrderPayload = {
+        seller: address,
+        buyer: "0x0000000000000000000000000000000000000000", // 公开挂单
+        nftAddress: nft.contract_address! as `0x${string}`,
+        tokenId: BigInt(nft.token_id!),
+        currency: env.NEXT_PUBLIC_WETH_CONTRACT_ADDRESS as `0x${string}`, // 使用 WETH 地址
+        price: parseEther(price),
+        // 生产环境中应从后端获取或调用合约的 userNonces(address)
+        nonce: BigInt(`${latestNonce}`), // 示例值，实际应从合约获取
+        deadline: BigInt(Math.floor(Date.now() / 1000) + 86400), // 24小时后过期
+      };
+
+      // 2. 请求用户签名
+      const signature = await signTypedDataAsync({
+        domain,
+        types,
+        primaryType: "Order",
+        message: order,
       });
-    } catch (err) {
-      console.error("上架失败:", err);
-      setListingError(err instanceof Error ? err.message : "上架失败，请重试");
+
+      // 3. 将订单和签名发送到您的后端服务器
+      await listNFT(nft.id, order, signature); // 假设 listNFT 已被修改为接受 order 和 signature
+
+      toast.success("NFT 挂单成功！");
+      router.push(`/nft/${nft.id}`);
+      onSuccess();
+    } catch (error) {
+      console.error("挂单签名或提交失败:", error);
+      const errorMessage = error instanceof Error ? error.message : "未知错误";
+      setError(`操作失败: ${errorMessage.slice(0, 50)}...`);
+      toast.error("挂单失败！");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    if (isListItemConfirmed && listItemTxHash) {
-      // 交易确认后，调用上架接口
-      const handleListNFT = async () => {
-        if (isSubmitting || !nft || !price) return;
-
-        try {
-          // 这里需要调用上架NFT的API
-          console.log(`上架NFT: ID ${nft.id}, 价格 ${price} ETH`);
-
-          setIsSubmitting(true);
-          // 模拟API调用延迟
-          const transaction = await listNFT(
-            nft.id,
-            ethToWei(price),
-            nft.owner_address,
-            "ETH"
-          );
-          console.log("上架NFT成功:", transaction);
-
-          toast.success("NFT上架成功");
-          router.push(`/nft/${nft.id}`);
-          onSuccess(); // 调用成功回调
-        } catch (error) {
-          console.error("上架NFT失败:", error);
-          setListingError(
-            error instanceof Error ? error.message : "上架NFT失败"
-          );
-        } finally {
-          setIsSubmitting(false);
-        }
-      };
-      handleListNFT();
-    }
-  }, [
-    isListItemConfirmed,
-    listItemTxHash,
-    nft,
-    price,
-    onSuccess,
-    router,
-    isSubmitting,
-  ]);
+  // --- 费用计算部分 (保持不变) ---
+  const platformFee = 0.025;
+  const royalties = (nft.collection?.royalty_fee_bps ?? 0) / 10000;
+  const royaltiesPercentage = royalties * 100;
+  const totalFees = platformFee + royalties;
+  const earnPercentage = 1 - totalFees;
 
   return (
     <form onSubmit={handleSubmit}>
@@ -242,7 +210,7 @@ export const ListNFTForm: React.FC<ListNFTFormProps> = ({
                 setError(null);
               }}
               required
-              disabled={isSubmitting || isListingItem || isConfirmingListItem}
+              disabled={isSubmitting || isApproving || isConfirmingApproval}
             />
             <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-zinc-500 dark:text-zinc-400">
               ETH
@@ -279,25 +247,18 @@ export const ListNFTForm: React.FC<ListNFTFormProps> = ({
         </div>
       </div>
 
-      {approvalError && (
-        <p className="mt-2 text-sm text-red-500">{approvalError}</p>
-      )}
-      {listingError && (
-        <p className="mt-2 text-sm text-red-500">{listingError}</p>
-      )}
+      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
 
       <div className="flex gap-4 mt-6">
         {!isApproved ? (
           <Button
             type="button"
             onClick={handleApprove}
-            disabled={isApproving || isConfirmingApproval || isCheckingApproval}
+            disabled={isApproving || isConfirmingApproval}
             className="flex-1"
           >
-            {isCheckingApproval
-              ? "检查授权..."
-              : isApproving
-              ? "等待钱包确认授权..."
+            {isApproving
+              ? "等待钱包确认..."
               : isConfirmingApproval
               ? "授权确认中..."
               : "授权平台交易"}
@@ -308,21 +269,21 @@ export const ListNFTForm: React.FC<ListNFTFormProps> = ({
               type="button"
               variant="secondary"
               onClick={onCancel}
-              disabled={isListingItem || isConfirmingListItem}
+              disabled={isSubmitting || isSigning}
               className="flex-1"
             >
               取消
             </Button>
             <Button
               type="submit"
-              disabled={!price || isListingItem || isConfirmingListItem}
+              disabled={!price || isSubmitting || isSigning}
               className="flex-1"
             >
-              {isListingItem
-                ? "等待钱包确认上架..."
-                : isConfirmingListItem
-                ? "上架确认中..."
-                : "确认上架"}
+              {isSigning
+                ? "等待钱包签名..."
+                : isSubmitting
+                ? "正在提交..."
+                : "确认挂单"}
             </Button>
           </>
         )}
@@ -330,5 +291,3 @@ export const ListNFTForm: React.FC<ListNFTFormProps> = ({
     </form>
   );
 };
-
-export default ListNFTForm;

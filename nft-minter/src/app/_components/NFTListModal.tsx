@@ -2,7 +2,7 @@
 
 import React from "react";
 import Modal from "./ui/Modal";
-import ListNFTForm from "./ui/ListNFTForm";
+import { ListNFTForm } from "./ui/ListNFTForm";
 import { NFTInfo } from "@/app/_lib/types";
 export const NFTListModal = ({
   nft,

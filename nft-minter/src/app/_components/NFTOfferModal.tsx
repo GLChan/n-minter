@@ -5,9 +5,9 @@ import Modal from "./ui/Modal";
 import { Button } from "./ui/Button";
 import { NFTInfo } from "@/app/_lib/types";
 import toast from "react-hot-toast";
-import { addNFTOffer } from "../_lib/data-service";
-import { ethToWei } from "../_lib/utils";
-import { NFTOfferStatus } from "../_lib/types/enums";
+// import { addOrder } from "../_lib/data-service";
+// import { ethToWei } from "../_lib/utils";
+// import { NFTOrderStatus } from "../_lib/types/enums";
 import { useUser } from "@/contexts/UserContext";
 
 interface NFTOfferModalProps {
@@ -56,21 +56,21 @@ export const NFTOfferModal: React.FC<NFTOfferModalProps> = ({
 
       // offerer_id 为用户id
 
-      const nftOffer = await addNFTOffer(
-        {
-          nft_id: nft.id,
-          offerer_id: user.id, // 发出报价的用户
-          offer_amount: ethToWei(offerAmount), // 报价金额。
-          currency: "ETH",
-          status: NFTOfferStatus.PENDING, // 初始状态为 pending
-          expires_at: new Date(
-            Date.now() + 7 * 24 * 60 * 60 * 1000
-          ).toISOString(), // 报价有效期为7天
-        },
-        nft.name
-      );
+      // const nftOffer = await addOrder(
+      //   {
+      //     nft_id: nft.id,
+      //     offerer_id: user.id, // 发出报价的用户
+      //     offer_amount: ethToWei(offerAmount), // 报价金额。
+      //     currency: "ETH",
+      //     status: NFTOrderStatus.Active, // 初始状态为 pending
+      //     expires_at: new Date(
+      //       Date.now() + 7 * 24 * 60 * 60 * 1000
+      //     ).toISOString(), // 报价有效期为7天
+      //   },
+      //   nft.name
+      // );
 
-      toast.success("报价已提交并记录：" + nftOffer.id);
+      // toast.success("报价已提交并记录：" + nftOffer.id);
       onClose();
       setOfferAmount(""); // 清空输入
     } catch (err) {

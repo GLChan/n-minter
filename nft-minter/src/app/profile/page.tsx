@@ -51,6 +51,7 @@ export default async function ProfilePage({
             src={profile.avatar_url || "/placeholder-avatar.png"}
             alt={`${profile.username} Avatar`}
             fill
+            priority
             sizes="(max-width: 768px) 96px, 128px"
             className="object-cover"
           />

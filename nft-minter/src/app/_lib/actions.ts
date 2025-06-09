@@ -8,11 +8,11 @@ import {
   NFT,
   NFTAttribute,
   NFTInfo,
-  NFTOfferItem,
+  OrderItem,
   Transaction,
   UserProfile,
 } from "./types";
-import { ActionType, NFTOfferStatus } from "./types/enums";
+import { ActionType, NFTOrderStatus } from "./types/enums";
 
 export async function addActivityLog(
   params: Partial<ActivityLog>
@@ -682,16 +682,16 @@ export async function saveCollection(
   return data;
 }
 
-export async function getReceivedOffers(): Promise<NFTOfferItem[] | null> {
+export async function getReceivedOffers(): Promise<OrderItem[] | null> {
   const supabase = await createClient();
   const targetUserWalletAddress = (await getUserInfo())?.wallet_address;
   const { data, error } = await supabase
-    .from("nft_offers")
+    .from("orders")
     .select(
       "*, nft:nfts!inner(*, profiles!owner_id(*)), offerer:profiles(*)"
     )
     .eq("nfts.owner_address", targetUserWalletAddress)
-    .in("status", [NFTOfferStatus.PENDING, NFTOfferStatus.ACCEPTED])
+    .in("status", [NFTOrderStatus.Active, NFTOrderStatus.Filled])
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -699,6 +699,6 @@ export async function getReceivedOffers(): Promise<NFTOfferItem[] | null> {
     return [];
   }
 
-  // 查詢成功後，data 的類型應該就能與 NFTOfferItem[] 正確匹配
-  return (data as NFTOfferItem[]) || [];
+  // 查詢成功後，data 的類型應該就能與 OrderItem[] 正確匹配
+  return (data as OrderItem[]) || [];
 }

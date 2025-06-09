@@ -11,13 +11,15 @@ import {
   NFTAttribute,
   NFTDetail,
   NFTInfo,
-  NFTOffer,
+  Order,
+  OrderPayload,
   Transaction,
   UserProfile,
 } from "./types";
 import {
   ActionType,
   NFTMarketStatus,
+  NFTOrderStatus,
   NFTVisibilityStatus,
   SORT_OPTIONS,
   TransactionStatus,
@@ -250,18 +252,20 @@ export async function getCollectionByUserId(
 
 export async function listNFT(
   nftId: string,
-  price: string,
-  walletAddress: string,
-  currency: string
+  order: OrderPayload,
+  signature: string
 ) {
+  // TODO: 可以进行一些校验（通过 RPC 节点查询链上数据，确认签名者确实是该 NFT 的当前拥有者），然后将这条订单和签名存入数据库中，状态标记为“有效 (active)”。
+
+  // 更新nft 状态为上架
   const { data, error } = await supabase
     .from("nfts")
     .update({
       list_status: NFTMarketStatus.ListedFixedPrice,
       status: NFTVisibilityStatus.Visible,
-      list_price: price,
-      list_currency: currency,
-      lister_address: walletAddress,
+      list_price: `${order.price}`,
+      list_currency: "ETH", // 暂时默认使用ETH
+      lister_address: order.seller,
       updated_at: new Date().toISOString(),
     })
     .eq("id", nftId)
@@ -271,21 +275,47 @@ export async function listNFT(
 
   if (error || !data) {
     console.error("上架NFT失败:", error);
-    notFound();
   }
 
-  // transaction
+  // 添加订单
+  const { data: orderData, error: orderError } = await supabase
+    .from("orders")
+    .insert({
+      order_type: "LISTING", // 挂单类型
+      status: NFTOrderStatus.Active,
+      nft_id: nftId,
+      nft_address: data!.contract_address, // NFT 的合约地址
+      token_id: data!.token_id, // NFT 的 Token ID
+      currency_address: order.currency, // 货币地址，ETH/WETH 等
+      offerer_id: data!.owner_id, // 上架者的用户ID
+      seller_address: order.seller, // 上架者的钱包地址
+      buyer_address: order.buyer, // 买家地址，公开挂单时为 0x000...
+      price_wei: order.price.toString(), // 以 wei 存储的价格，使用字符串避免精度问题
+      nonce: order.nonce.toString(), // 使用字符串存储 nonce
+      currency: "ETH", // 暂时默认使用ETH
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 报价有效期为7天
+      signature: signature, // 签名
+      transaction_hash: "",
+    })
+    .select("*")
+    .single();
+
+  if (orderError || !orderData) {
+    console.error("添加订单失败:", orderError);
+  }
+
+  // transaction 记录上架交易
   const { data: transaction, error: transactionError } = await supabase
     .from("transactions")
     .insert({
       nft_id: nftId,
-      price,
+      price: order.price.toString(),
       status: TransactionStatus.Successful,
       transaction_time: new Date().toISOString(),
       transaction_type: TransactionType.List,
-      buyer_address: "",
-      seller_address: walletAddress,
-      currency: currency,
+      buyer_address: order.buyer,
+      seller_address: order.seller,
+      currency: "ETH",
       transaction_hash: "",
     });
 
@@ -295,14 +325,14 @@ export async function listNFT(
   }
 
   addActivityLog({
-    user_id: data.owner_id,
+    user_id: data!.owner_id,
     action_type: ActionType.LIST_NFT,
     nft_id: nftId,
     details: {
-      message: `上架了NFT ${data.name}，价格为 ${price} ${currency}`,
+      message: `上架了NFT ${data!.name}，价格为 ${order.price} ETH`,
       nft_id: nftId,
-      price,
-      currency,
+      price: order.price.toString(),
+      currency: "ETH",
     },
   });
 
@@ -327,6 +357,21 @@ export async function unlistNFT(nftId: string, walletAddress: string) {
   if (error || !data) {
     console.error("下架NFT失败:", error);
     throw new Error("下架NFT时发生错误");
+  }
+
+  // order 状态更新为已取消
+  const { error: orderError } = await supabase
+    .from("orders")
+    .update({
+      status: NFTOrderStatus.Cancelled,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("nft_id", nftId)
+    .eq("status", NFTOrderStatus.Active);
+
+  if (orderError) {
+    console.error("更新订单状态为已取消失败:", orderError);
+    throw new Error("更新订单状态为已取消失败");
   }
 
   // 记录下架交易
@@ -640,19 +685,19 @@ export async function fetchCollectionsWithFilters(
   }
 }
 
-export async function addNFTOffer(
-  params: Partial<NFTOffer>,
+export async function addOrder(
+  params: Partial<Order>,
   nftName: string
-): Promise<NFTOffer> {
+): Promise<Order> {
   const { data, error } = await supabase
-    .from("nft_offers")
-    .insert(params as NFTOffer)
+    .from("orders")
+    .insert(params as Order)
     .select("*")
     .single();
 
   if (error) {
-    console.error("添加Offer失败:", error);
-    throw new Error("添加Offer失败");
+    console.error("添加Order失败:", error);
+    throw new Error("添加Order失败");
   }
 
   addActivityLog({
@@ -666,6 +711,22 @@ export async function addNFTOffer(
       currency: params.currency,
     },
   });
+
+  return data;
+}
+
+export async function getActiveOrderByNFTId(id: string): Promise<Order> {
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("nft_id", id)
+    .eq("status", NFTOrderStatus.Active)
+    .single();
+
+  if (error) {
+    console.error("获取活动订单失败:", error);
+    notFound();
+  }
 
   return data;
 }

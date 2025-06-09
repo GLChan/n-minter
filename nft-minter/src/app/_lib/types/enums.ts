@@ -193,10 +193,10 @@ export enum ActionType {
   CUSTOM = "CUSTOM", // 用于未分类的自定义操作
 }
 
-export enum NFTOfferStatus {
-  PENDING = "PENDING", // 等待中
-  ACCEPTED = "ACCEPTED", // 已接受
-  REJECTED = "REJECTED", // 已拒绝
-  CANCELLED = "CANCELLED", // 已取消
-  EXPIRED = "EXPIRED", // 已过期
+export enum NFTOrderStatus {
+  Active = "active", // 活跃订单，等待成交
+  Filled = "filled", // 已成交订单
+  Cancelled = "cancelled", // 已取消订单
+  Expired = "expired", // 已过期订单
+  Pending = "pending", // 待处理订单
 }

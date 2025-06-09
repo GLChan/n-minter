@@ -30,9 +30,6 @@ export const NFTTransferModal = ({
   const [successHash, setSuccessHash] = useState("");
   const selectedNFT = nft;
 
-  // TODO: 替换为你的 NFT 合约地址
-  const contractAddress = "0xYourNFTCollectionContractAddressHere" as `0x${string}`; // 替换为你的合约地址
-
   const {
     data: writeContractResult,
     writeContractAsync,
@@ -71,7 +68,7 @@ export const NFTTransferModal = ({
 
       // 1. 发送交易
       const hash = await writeContractAsync({
-        address: contractAddress as `0x${string}`,
+        address: nft.contract_address as `0x${string}`,
         abi: MY_NFT_ABI,
         functionName: "safeTransferFrom",
         args: [

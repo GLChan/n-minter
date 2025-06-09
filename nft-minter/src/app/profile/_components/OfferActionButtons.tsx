@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/app/_components/ui/Button";
-import { NFTOfferItem } from "@/app/_lib/types";
+import { OrderItem } from "@/app/_lib/types";
 import {
   useAccount,
   useWriteContract,
@@ -13,10 +13,10 @@ import { env } from "@/app/_lib/config/env";
 import { createClient } from "@/app/_lib/supabase/client";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { NFTOfferStatus } from "@/app/_lib/types/enums";
+import { NFTOrderStatus } from "@/app/_lib/types/enums";
 
 interface OfferActionButtonsProps {
-  offer: NFTOfferItem;
+  offer: OrderItem; 
 }
 
 export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
@@ -58,8 +58,8 @@ export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
       const updateOfferStatus = async () => {
         try {
           const { error: dbError } = await supabase
-            .from("nft_offers")
-            .update({ status: "accepted" })
+            .from("orders")
+            .update({ status: NFTOrderStatus.Filled })
             .eq("id", offer.id);
 
           if (dbError) {
@@ -123,8 +123,8 @@ export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
     setIsRejectingOffer(true); // 开始拒绝报价的提交
     try {
       const { error: dbError } = await supabase
-        .from("nft_offers")
-        .update({ status: NFTOfferStatus.REJECTED }) // 直接更新状态为 rejected
+        .from("orders")
+        .update({ status: NFTOrderStatus.Cancelled }) // 直接更新状态为 rejected
         .eq("id", offer.id);
 
       if (dbError) {
