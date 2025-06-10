@@ -24,30 +24,9 @@ NFT 铸造平台提供了一个用户友好的界面，让用户能够：
 - **viem** - 类型安全的以太坊交互
 
 ### 智能合约
-- **Solidity 0.8.20** - 合约编程语言 
+- **Solidity 0.8.30** - 合约编程语言 
 - **Hardhat** - 开发环境
 - **OpenZeppelin Contracts** - 安全的智能合约库
-
-## 项目结构
-
-```
-nft-minter/
-├── contracts/              # 智能合约代码
-│   └── MyNFT.sol           # NFT 主合约
-├── scripts/                # 部署和测试脚本
-│   ├── deploy.js           # 合约部署脚本
-│   └── mint.js             # NFT 铸造测试脚本
-├── src/                    # 前端应用源码
-│   └── app/                # Next.js App Router
-│       ├── page.tsx        # 主页面
-│       ├── layout.tsx      # 应用布局
-│       └── globals.css     # 全局样式
-├── public/                 # 静态资源
-├── hardhat.config.js       # Hardhat 配置
-├── next.config.ts          # Next.js 配置
-├── tsconfig.json           # TypeScript 配置
-└── package.json            # 项目依赖
-```
 
 ## 智能合约
 
@@ -89,7 +68,13 @@ npx hardhat node
 
 2. 部署合约到本地网络
 ```bash
-npm run deploy:contracts
+npx hardhat clean
+npx hardhat node
+npx hardhat test ./test/MyNFT.test.ts
+npx hardhat compile
+# npx hardhat run scripts/deploy.js --network localhost
+# npx hardhat run scripts/deploy.js --network sepolia
+npx hardhat run scripts/deploy_all.js --network sepolia
 ```
 
 3. 启动前端开发服务器
@@ -98,6 +83,10 @@ npm run dev
 ```
 
 4. 在浏览器中访问 [http://localhost:3000](http://localhost:3000)
+
+
+### Remix 
+https://remix.ethereum.org/
 
 ## 使用指南
 
@@ -119,14 +108,7 @@ npm run dev
 
 铸造成功后，您可以在"我的 NFT"部分查看已铸造的 NFT，或在 OpenSea 等市场上查看（如果部署到公共测试网或主网）。
 
-## 开发日志
-
-### 04-21
-- ✅ 本地部署了合约（MyNFT）
-- ✅ 用脚本成功调用 mintNFT 方法完成了 NFT 铸造！
-
 ## 未来计划
-
 - 添加批量铸造功能
 - 集成 IPFS 用于 NFT 资产和元数据存储
 - 增加 NFT 铸造活动创建功能
@@ -134,22 +116,5 @@ npm run dev
 - 添加铸造费用和版税设置
 
 ## 许可证
-
 MIT
 
-
-```bash
-npx hardhat clean
-npx hardhat node
-npx hardhat test ./test/MyNFT.test.ts
-npx hardhat compile
-# npx hardhat run scripts/deploy.js --network localhost
-# npx hardhat run scripts/deploy.js --network sepolia
-npx hardhat run scripts/deploy_all.js --network sepolia
-```
-
-React
-Nextjs - App Router
-Supabase SSR
-RainbowKit wagmi viem
-Next-Auth
