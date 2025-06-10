@@ -382,6 +382,7 @@ export type Database = {
           created_at: string
           currency: string
           currency_address: string | null
+          deadline_timestamp: string | null
           expires_at: string | null
           id: string
           nft_address: string | null
@@ -406,6 +407,7 @@ export type Database = {
           created_at?: string
           currency?: string
           currency_address?: string | null
+          deadline_timestamp?: string | null
           expires_at?: string | null
           id?: string
           nft_address?: string | null
@@ -430,6 +432,7 @@ export type Database = {
           created_at?: string
           currency?: string
           currency_address?: string | null
+          deadline_timestamp?: string | null
           expires_at?: string | null
           id?: string
           nft_address?: string | null

@@ -1,4 +1,5 @@
 "use server";
+import { getSupabaseAdmin } from "./supabase/admin";
 import { createClient } from "./supabase/server";
 import {
   ActivityLog,
@@ -12,7 +13,14 @@ import {
   Transaction,
   UserProfile,
 } from "./types";
-import { ActionType, NFTOrderStatus } from "./types/enums";
+import {
+  ActionType,
+  NFTMarketStatus,
+  NFTOrderStatus,
+  NFTVisibilityStatus,
+  TransactionStatus,
+  TransactionType,
+} from "./types/enums";
 
 export async function addActivityLog(
   params: Partial<ActivityLog>
@@ -687,9 +695,7 @@ export async function getReceivedOffers(): Promise<OrderItem[] | null> {
   const targetUserWalletAddress = (await getUserInfo())?.wallet_address;
   const { data, error } = await supabase
     .from("orders")
-    .select(
-      "*, nft:nfts!inner(*, profiles!owner_id(*)), offerer:profiles(*)"
-    )
+    .select("*, nft:nfts!inner(*, profiles!owner_id(*)), offerer:profiles(*)")
     .eq("nfts.owner_address", targetUserWalletAddress)
     .in("status", [NFTOrderStatus.Active, NFTOrderStatus.Filled])
     .order("created_at", { ascending: false });
@@ -701,4 +707,118 @@ export async function getReceivedOffers(): Promise<OrderItem[] | null> {
 
   // 查詢成功後，data 的類型應該就能與 OrderItem[] 正確匹配
   return (data as OrderItem[]) || [];
+}
+
+// 合约交易成功，转移NFT给买家，记录 transactions
+export async function recordTransaction({
+  nftId,
+  buyerAddress,
+  sellerAddress,
+  price,
+  transactionType,
+  transactionHash,
+}: {
+  nftId: string;
+  buyerAddress: string;
+  sellerAddress: string;
+  price: string;
+  transactionType: TransactionType;
+  transactionHash: string;
+}): Promise<Transaction> {
+  const supabase = await createClient();
+
+  const supabaseAdmin = getSupabaseAdmin();
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error || !user) {
+    console.error("获取当前用户失败:", error);
+    throw new Error("获取当前用户失败");
+  }
+
+  // 更新NFT的所有者
+  const { data: nftData, error: nftError } = await supabaseAdmin
+    .from("nfts")
+    .update({
+      owner_id: user.id,
+      list_status: NFTMarketStatus.NotListed,
+      list_price: null,
+      owner_address: buyerAddress,
+      status: NFTVisibilityStatus.HiddenByUser,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", nftId)
+    .select("*")
+    .single();
+  if (nftError || !nftData) {
+    console.error("更新NFT所有者失败:", nftError);
+    throw new Error("更新NFT所有者失败");
+  }
+
+  // 更新 orders 表订单状态
+  const { error: orderError } = await supabaseAdmin
+    .from("orders")
+    .update({
+      status: NFTOrderStatus.Filled,
+      buyer_address: buyerAddress,
+      transaction_hash: transactionHash,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("nft_id", nftId)
+    .eq("status", NFTOrderStatus.Active);
+  if (orderError) {
+    console.error("更新订单状态为已完成失败:", orderError);
+    throw new Error("更新订单状态为已完成失败");
+  }
+
+  // 记录 nft 交易日志
+  const { data, error: logError } = await supabase
+    .from("transactions")
+    .insert({
+      nft_id: nftId,
+      buyer_address: buyerAddress,
+      seller_address: sellerAddress,
+      currency: "ETH",
+      price,
+      transaction_type: transactionType,
+      status: TransactionStatus.Successful,
+      transaction_hash: transactionHash,
+      transaction_time: new Date().toISOString(),
+    })
+    .select("*")
+    .single();
+
+  if (logError) {
+    console.error("记录交易失败:", logError);
+    throw new Error("记录交易失败");
+  }
+
+  // addActivityLog
+  addActivityLog({
+    user_id: buyerAddress,
+    action_type: ActionType.BUY_NFT,
+    nft_id: nftId,
+    details: {
+      message: `购买了NFT，价格为 ${price} ETH`,
+      nft_id: nftId,
+      price,
+      currency: "ETH",
+    },
+  });
+
+  addActivityLog({
+    user_id: sellerAddress,
+    action_type: ActionType.SELL_NFT,
+    nft_id: nftId,
+    details: {
+      message: `出售了NFT，价格为 ${price} ETH`,
+      nft_id: nftId,
+      price,
+      currency: "ETH",
+    },
+  });
+
+  return data;
 }

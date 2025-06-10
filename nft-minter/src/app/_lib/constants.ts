@@ -30,6 +30,9 @@ import MyNFT from "@/../artifacts/contracts/MyNFT.sol/MyNFT.json";
 import { env } from "./config/env";
 export const MY_NFT_ABI = MyNFT.abi;
 
+import IERC20 from "@/../artifacts/@openzeppelin/contracts/token/ERC20/IERC20.sol/IERC20.json";
+export const ERC20_ABI = IERC20.abi;
+
 export const CHAINS_MAP: Record<string, string> = {
   "1": "mainnet",
   "137": "polygon",

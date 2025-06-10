@@ -120,6 +120,7 @@ export default function CreateNFT() {
 
   useEffect(() => {
     getCollections();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCollectionChange = useCallback(

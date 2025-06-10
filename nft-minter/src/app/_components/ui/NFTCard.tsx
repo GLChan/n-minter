@@ -28,7 +28,7 @@ export const NFTCard: React.FC<{
 }> = ({ nft, isOwner = false, openModal }) => {
 
   if (!nft) return <></>
-  const { name, id, collection, profile } = nft
+  const { name, id, collection, profile, token_id } = nft
 
   const imageUrl = nft.image_url ? formatIPFSUrl(nft.image_url) : ''
   const creator = profile?.username || ''
@@ -71,7 +71,7 @@ export const NFTCard: React.FC<{
 
       <div className="p-4">
         <div className="flex justify-between mb-2">
-          <h3 className="font-medium text-base truncate max-w-[70%]">{name}</h3>
+          <h3 className="font-medium text-base truncate max-w-[70%]">{name} #{token_id}</h3>
           <div className="flex items-center">
             <svg
               width="16"

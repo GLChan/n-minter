@@ -292,8 +292,8 @@ export async function listNFT(
       buyer_address: order.buyer, // 买家地址，公开挂单时为 0x000...
       price_wei: order.price.toString(), // 以 wei 存储的价格，使用字符串避免精度问题
       nonce: order.nonce.toString(), // 使用字符串存储 nonce
-      currency: "ETH", // 暂时默认使用ETH
-      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 报价有效期为7天
+      currency: order.currency, // 暂时默认使用ETH
+      deadline_timestamp: order.deadline.toString(),
       signature: signature, // 签名
       transaction_hash: "",
     })
