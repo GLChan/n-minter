@@ -11,7 +11,7 @@ import SortSelector from "./_components/SortSelector";
 export default async function ExplorePage({
   searchParams,
 }: {
-  searchParams: { tab?: string; page?: string; sortBy?: string };
+  searchParams: Promise<{ tab?: string; page?: string; sortBy?: string }>;
 }) {
   const params = await searchParams;
   const pageParam = params.page ? parseInt(params.page) : 1;

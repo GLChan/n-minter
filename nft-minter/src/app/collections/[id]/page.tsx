@@ -144,7 +144,7 @@ export default async function CollectionPage({
               地板价
             </p>
             <p className="font-bold text-lg">
-              ${formatPrice(collectionStats?.floorPrice || 0)}
+              ${formatPrice(collectionStats?.floorPrice.toString())}
             </p>
           </div>
           <div className="bg-white dark:bg-zinc-800 rounded-xl p-4 border border-zinc-100 dark:border-zinc-700">
@@ -152,7 +152,7 @@ export default async function CollectionPage({
               总交易量
             </p>
             <p className="font-bold text-lg">
-              ${formatPrice(collectionStats?.volume || 0)}
+              ${formatPrice(collectionStats?.volume.toString())}
             </p>
           </div>
           <div className="bg-white dark:bg-zinc-800 rounded-xl p-4 border border-zinc-100 dark:border-zinc-700">

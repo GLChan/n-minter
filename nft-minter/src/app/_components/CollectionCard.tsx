@@ -22,6 +22,7 @@ export default function CollectionCard({
             src={collection.logo_image_url}
             alt={collection.name}
             fill
+            priority
             className="object-cover transition-transform hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />

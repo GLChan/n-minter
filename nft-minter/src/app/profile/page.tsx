@@ -12,7 +12,7 @@ import {
   OwnedNFTsTab,
   OffersTab,
   Tabs,
-  CopyButton
+  CopyButton,
 } from "./_components";
 import Spinner from "../_components/Spinner";
 import Link from "next/link";
@@ -31,7 +31,7 @@ const TABS = [
 export default async function ProfilePage({
   searchParams,
 }: {
-  searchParams: { tab?: string; page?: string };
+  searchParams: Promise<{ tab?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const pageParam = params.page ? parseInt(params.page) : 1;

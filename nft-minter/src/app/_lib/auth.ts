@@ -11,6 +11,7 @@ const authConfig = {
       console.log('authorized', auth, request)
       return !!auth?.user;
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async signIn({ user, account, profile }: { user: any, account: any, profile: any }) {
       try {
 
@@ -25,6 +26,7 @@ const authConfig = {
         return false;
       }
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async session({ session, user }: { session: any, user: any }) {
       console.log('session', session, user)
       const guest = await getProfileByWallet(session.user.wallet_address);
