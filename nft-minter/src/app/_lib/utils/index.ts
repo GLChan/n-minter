@@ -145,7 +145,7 @@ export function getFilePrefixAndExtension(filePath: string): {
  * @returns wei 字符串
  */
 export function ethToWei(ethAmount: string | number): string {
-  return ethers.parseEther(ethAmount.toString()).toString();
+  return ethAmount ? ethers.parseEther(ethAmount.toString()).toString() : '0';
 }
 
 /**
@@ -154,5 +154,5 @@ export function ethToWei(ethAmount: string | number): string {
  * @returns ETH 字符串（带小数）
  */
 export function weiToEth(weiAmount: string | bigint | number): string {
-  return ethers.formatEther(weiAmount.toString());
+  return weiAmount ? ethers.formatEther(weiAmount.toString()) : '0.0';
 }
