@@ -200,3 +200,8 @@ export enum NFTOrderStatus {
   Expired = "expired", // 已过期订单
   Pending = "pending", // 待处理订单
 }
+
+export enum NFTOrderType {
+  LISTING = "LISTING",
+  OFFER = "OFFER"
+}

@@ -3,12 +3,20 @@
 import React, { useState } from "react";
 import Modal from "./ui/Modal";
 import { Button } from "./ui/Button";
-import { NFTInfo } from "@/app/_lib/types";
+import { EIP712_TYPES, NFTInfo, OrderPayload } from "@/app/_lib/types";
 import toast from "react-hot-toast";
-// import { addOrder } from "../_lib/data-service";
-// import { ethToWei } from "../_lib/utils";
-// import { NFTOrderStatus } from "../_lib/types/enums";
+import { addOrder } from "../_lib/data-service";
 import { useUser } from "@/contexts/UserContext";
+import { useAccount, useChainId, useReadContract, useSignTypedData } from "wagmi";
+import {
+  MARKETPLACE_ABI,
+  MARKETPLACE_CONTRACT_ADDRESS,
+  MARKETPLACE_NAME,
+  MARKETPLACE_VERSION,
+  SECONDS_IN_A_DAY
+} from "@/app/_lib/constants";
+import { env } from "../_lib/config/env";
+import { parseEther } from "viem";
 
 interface NFTOfferModalProps {
   nft: NFTInfo | null;
@@ -22,15 +30,35 @@ export const NFTOfferModal: React.FC<NFTOfferModalProps> = ({
   onClose,
 }) => {
   const user = useUser();
+  const { address } = useAccount();
+
+  const chainId = useChainId(); // 获取当前链ID
 
   const [offerAmount, setOfferAmount] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // 添加提交状态
 
+  const domain = {
+    name: MARKETPLACE_NAME, // 必须与您部署合约时使用的 name 一致
+    version: MARKETPLACE_VERSION, // 必须与您部署合约时使用的 version 一致
+    chainId: chainId,
+    verifyingContract: MARKETPLACE_CONTRACT_ADDRESS,
+  } as const;
+
+  const { signTypedDataAsync, isPending: isSigning } = useSignTypedData();
+
+  const { refetch: refetchNonce } = useReadContract({
+    address: MARKETPLACE_CONTRACT_ADDRESS,
+    abi: MARKETPLACE_ABI,
+    functionName: "userNonces",
+    args: [address!],
+    query: {
+      enabled: false, // 初始不执行查询
+    },
+  });
   if (!user) {
     return <> </>; // 或者显示一个错误提示
   }
-
   const handleSubmitOffer = async () => {
     setError(null);
     if (
@@ -54,23 +82,40 @@ export const NFTOfferModal: React.FC<NFTOfferModalProps> = ({
         return;
       }
 
+      const { data: latestNonce, isSuccess } = await refetchNonce();
+      console.log("最新的 nonce:", latestNonce);
+      if (!isSuccess) throw new Error("Failed to fetch nonce");
+
+      // 1. 准备订单数据
+      // 注意: nonce 应从后端或链上获取，这里用 0n 作为示例
+      const order: OrderPayload = {
+        seller: nft.owner_address! as `0x${string}`, // NFT 当前所有者地址
+        buyer: address!, // 公开挂单
+        nftAddress: nft.contract_address! as `0x${string}`,
+        tokenId: BigInt(nft.token_id!),
+        currency: env.NEXT_PUBLIC_WETH_CONTRACT_ADDRESS as `0x${string}`, // 使用 WETH 地址
+        price: parseEther(offerAmount),
+        // 生产环境中应从后端获取或调用合约的 userNonces(address)
+        nonce: BigInt(`${latestNonce}`), // 示例值，实际应从合约获取
+        deadline: BigInt(Math.floor(Date.now() / 1000) + SECONDS_IN_A_DAY * 7), // 7天有效期
+      };
+
+      // 2. 请求用户签名
+      const signature = await signTypedDataAsync({
+        domain,
+        types: EIP712_TYPES,
+        primaryType: "Order",
+        message: order,
+      });
+
       // offerer_id 为用户id
+      const nftOffer = await addOrder(
+        nft.id,
+        order,
+        signature
+      );
 
-      // const nftOffer = await addOrder(
-      //   {
-      //     nft_id: nft.id,
-      //     offerer_id: user.id, // 发出报价的用户
-      //     offer_amount: ethToWei(offerAmount), // 报价金额。
-      //     currency: "ETH",
-      //     status: NFTOrderStatus.Active, // 初始状态为 pending
-      //     expires_at: new Date(
-      //       Date.now() + 7 * 24 * 60 * 60 * 1000
-      //     ).toISOString(), // 报价有效期为7天
-      //   },
-      //   nft.name
-      // );
-
-      // toast.success("报价已提交并记录：" + nftOffer.id);
+      toast.success("报价已提交并记录：" + nftOffer.id);
       onClose();
       setOfferAmount(""); // 清空输入
     } catch (err) {
@@ -114,7 +159,7 @@ export const NFTOfferModal: React.FC<NFTOfferModalProps> = ({
           <Button
             variant="secondary"
             onClick={onClose}
-            disabled={isSubmitting} // 使用新的提交状态
+            disabled={isSubmitting || isSigning} // 使用新的提交状态
             className="flex-1"
           >
             取消
@@ -122,7 +167,10 @@ export const NFTOfferModal: React.FC<NFTOfferModalProps> = ({
           <Button
             onClick={handleSubmitOffer}
             disabled={
-              isSubmitting || !offerAmount || parseFloat(offerAmount) <= 0
+              isSubmitting ||
+              isSigning ||
+              !offerAmount ||
+              parseFloat(offerAmount) <= 0
             } // 使用新的提交状态
             className="ml-2 flex-1"
           >

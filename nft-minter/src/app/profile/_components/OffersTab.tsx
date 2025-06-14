@@ -53,7 +53,7 @@ export async function OffersTab() {
                       的报价
                     </p>
                     <p className="text-lg font-semibold my-1">
-                      {offer.offer_amount ? weiToEth(offer.offer_amount) : "--"}{" "}
+                      {offer.price_wei ? weiToEth(offer.price_wei) : "--"}{" "}
                       ETH
                     </p>
                     <p className="text-xs text-zinc-400 dark:text-zinc-500">

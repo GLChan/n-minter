@@ -185,7 +185,7 @@ export async function POST(req: NextRequest) {
       creator_id: creatorId,
       chain_id: parseInt(chain_id, 10), // 确保 chain_id 是数字类型
       contract_address: contractAddress, // 动态部署合约的地址
-      chain_network, // 假设默认是 Ethereum
+      chain_network,
       slug: name.toLowerCase().replace(/\s+/g, "-"), // 生成 slug
       category_id: parseInt(categoryId, 10), // 确保 category_id 是数字类型
       symbol,

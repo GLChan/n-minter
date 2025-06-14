@@ -87,7 +87,7 @@ export default function ActivityLogInfo({
         </>
       );
 
-    case "COLLECT_NFT": // 假设 '收藏' 是购买
+    case "COLLECT_NFT":
       return (
         <>
           {User} 收藏了 {Nft} 来自 {RelatedUser}。{" "}

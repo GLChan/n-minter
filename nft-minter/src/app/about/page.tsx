@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -199,6 +197,8 @@ export default function AboutPage() {
                 src="https://images.unsplash.com/photo-1642104704074-907c0698cbd9?w=800&auto=format&fit=crop&q=80"
                 alt="Digital Art Exhibition"
                 fill
+                priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                 className="object-cover rounded-xl"
               />
             </div>
@@ -248,6 +248,7 @@ export default function AboutPage() {
                     src={member.avatar}
                     alt={member.name}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     className="object-cover"
                   />
                 </div>

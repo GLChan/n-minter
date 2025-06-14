@@ -7,10 +7,9 @@ import "./globals.css";
 import { Navbar } from "./_components/Navbar";
 import { Footer } from "./_components/Footer";
 import { Toaster } from "react-hot-toast";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale } from "next-intl/server";
+// import { NextIntlClientProvider } from "next-intl";
+// import { getLocale } from "next-intl/server";
 import { UserProvider } from "@/contexts/UserContext";
-import { getUserInfo } from "./_lib/actions";
 
 export const metadata: Metadata = {
   title: "NFT铸造平台 | 创建、分享和铸造NFT",
@@ -18,56 +17,55 @@ export const metadata: Metadata = {
   keywords: "NFT, 铸造, 数字艺术, Web3, 区块链, 以太坊",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
-  const user = await getUserInfo();
+  // const locale = await getLocale();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html suppressHydrationWarning>
       <body
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased bg-background text-foreground`}
       >
-        <NextIntlClientProvider>
-          <Toaster
-            position="top-center"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: "#333",
-                color: "#fff",
-                borderRadius: "8px",
+        {/* <NextIntlClientProvider> */}
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "#333",
+              color: "#fff",
+              borderRadius: "8px",
+            },
+            success: {
+              iconTheme: {
+                primary: "#10b981",
+                secondary: "#fff",
               },
-              success: {
-                iconTheme: {
-                  primary: "#10b981",
-                  secondary: "#fff",
-                },
+            },
+            error: {
+              iconTheme: {
+                primary: "#ef4444",
+                secondary: "#fff",
               },
-              error: {
-                iconTheme: {
-                  primary: "#ef4444",
-                  secondary: "#fff",
-                },
-              },
-            }}
-          />
+            },
+          }}
+        />
 
-          <Web3Provider>
-            <UserProvider user={user}>
-              <div className="min-h-screen flex flex-col">
-                <Navbar />
+        <Web3Provider>
+          <UserProvider>
+            <div className="min-h-screen flex flex-col">
+              <Navbar />
 
-                <main className="flex-grow">{children}</main>
+              <main className="flex-grow">{children}</main>
 
-                <Footer />
-              </div>
-            </UserProvider>
-          </Web3Provider>
-        </NextIntlClientProvider>
+              <Footer />
+            </div>
+          </UserProvider>
+        </Web3Provider>
+        {/* </NextIntlClientProvider> */}
       </body>
     </html>
   );

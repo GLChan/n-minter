@@ -1,20 +1,24 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { NFTInfo, OrderPayload } from "@/app/_lib/types"; // 假设您在 types.ts 中定义了 OrderPayload
+import { EIP712_TYPES, NFTInfo, OrderPayload } from "@/app/_lib/types";
 import { Button } from "./Button";
 import {
   useAccount,
   useReadContract,
   useWriteContract,
   useWaitForTransactionReceipt,
-  useSignTypedData, // 新增：导入 useSignTypedData
+  useSignTypedData,
   useChainId, // 新增：导入 useChainId 来获取当前链ID
 } from "wagmi";
 import {
   MARKETPLACE_ABI,
   MARKETPLACE_CONTRACT_ADDRESS,
+  MARKETPLACE_NAME,
+  MARKETPLACE_VERSION,
   MY_NFT_ABI,
+  SECONDS_IN_A_DAY,
+  ZERO_ADDRESS,
 } from "@/app/_lib/constants";
 import { parseEther } from "viem";
 import { env } from "@/app/_lib/config/env";
@@ -87,28 +91,13 @@ export const ListNFTForm: React.FC<ListNFTFormProps> = ({
 
   // --- 挂单逻辑 (核心改动部分) ---
 
-  // 新增：定义 EIP-712 签名所需的域和类型，必须与合约一致
   const domain = {
-    name: "GL NFT Marketplace", // 必须与您部署合约时使用的 name 一致
-    version: "1.0", // 必须与您部署合约时使用的 version 一致
+    name: MARKETPLACE_NAME, // 必须与您部署合约时使用的 name 一致
+    version: MARKETPLACE_VERSION, // 必须与您部署合约时使用的 version 一致
     chainId: chainId,
     verifyingContract: MARKETPLACE_CONTRACT_ADDRESS,
   } as const;
 
-  const types = {
-    Order: [
-      { name: "seller", type: "address" },
-      { name: "buyer", type: "address" },
-      { name: "nftAddress", type: "address" },
-      { name: "tokenId", type: "uint256" },
-      { name: "currency", type: "address" },
-      { name: "price", type: "uint256" },
-      { name: "nonce", type: "uint256" },
-      { name: "deadline", type: "uint256" },
-    ],
-  } as const;
-
-  // 新增：使用 useSignTypedData Hook
   const { signTypedDataAsync, isPending: isSigning } = useSignTypedData();
 
   const { refetch: refetchNonce } = useReadContract({
@@ -141,26 +130,26 @@ export const ListNFTForm: React.FC<ListNFTFormProps> = ({
       // 注意: nonce 应从后端或链上获取，这里用 0n 作为示例
       const order: OrderPayload = {
         seller: address,
-        buyer: "0x0000000000000000000000000000000000000000", // 公开挂单
+        buyer: ZERO_ADDRESS, // 公开挂单
         nftAddress: nft.contract_address! as `0x${string}`,
         tokenId: BigInt(nft.token_id!),
         currency: env.NEXT_PUBLIC_WETH_CONTRACT_ADDRESS as `0x${string}`, // 使用 WETH 地址
         price: parseEther(price),
         // 生产环境中应从后端获取或调用合约的 userNonces(address)
         nonce: BigInt(`${latestNonce}`), // 示例值，实际应从合约获取
-        deadline: BigInt(Math.floor(Date.now() / 1000) + 86400), // 24小时后过期
+        deadline: BigInt(Math.floor(Date.now() / 1000) + SECONDS_IN_A_DAY), // 24小时后过期
       };
 
       // 2. 请求用户签名
       const signature = await signTypedDataAsync({
         domain,
-        types,
+        types: EIP712_TYPES,
         primaryType: "Order",
         message: order,
       });
 
       // 3. 将订单和签名发送到您的后端服务器
-      await listNFT(nft.id, order, signature); // 假设 listNFT 已被修改为接受 order 和 signature
+      await listNFT(nft.id, order, signature);
 
       toast.success("NFT 挂单成功！");
       router.push(`/nft/${nft.id}`);

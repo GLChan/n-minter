@@ -25,6 +25,8 @@ import Marketplace from "@/../artifacts/contracts/Marketplace.sol/Marketplace.js
 export const MARKETPLACE_ABI = Marketplace.abi;
 export const MARKETPLACE_CONTRACT_ADDRESS =
   env.NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS as `0x${string}`;
+export const MARKETPLACE_NAME = "GL NFT Marketplace";
+export const MARKETPLACE_VERSION = "1.0";
 
 import MyNFT from "@/../artifacts/contracts/MyNFT.sol/MyNFT.json";
 import { env } from "./config/env";
@@ -47,3 +49,7 @@ export const CHAINS_MAP: Record<string, string> = {
   "300": "zkSyncSepoliaTestnet",
   "80001": "polygonMumbai",
 };
+
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+export const SECONDS_IN_A_DAY = 86400;

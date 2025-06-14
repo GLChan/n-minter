@@ -3,22 +3,21 @@ import { NFTOrderStatus } from "./enums";
 
 export type Optional<T> = T | undefined | null;
 
-export type NFT = Tables<"nfts">
-export type Collection = Tables<"collections">
-export type CollectionCategory = Tables<"collections_categories">
-export type Attribute = Tables<"attributes"> // attributes key
-export type NFTAttribute = Tables<"nft_attributes"> // attributes value 
-export type Order = Tables<"orders">
+export type NFT = Tables<"nfts">;
+export type Collection = Tables<"collections">;
+export type CollectionCategory = Tables<"collections_categories">;
+export type Attribute = Tables<"attributes">; // attributes key
+export type NFTAttribute = Tables<"nft_attributes">; // attributes value
+export type Order = Tables<"orders">;
 
-export type UserProfile = Tables<"profiles">
-export type UserCollection = Tables<"user_collections"> 
-export type UserFollowing = Tables<"user_following">
+export type UserProfile = Tables<"profiles">;
+export type UserCollection = Tables<"user_collections">;
+export type UserFollowing = Tables<"user_following">;
 
-export type Transaction = Tables<"transactions">
-export type FeaturedNFTBanner = Tables<"featured_nft_banners">
+export type Transaction = Tables<"transactions">;
+export type FeaturedNFTBanner = Tables<"featured_nft_banners">;
 
-export type ActivityLog = Tables<"activity_log">
-
+export type ActivityLog = Tables<"activity_log">;
 
 // NFT列表页
 export interface NFTInfo extends NFT {
@@ -81,8 +80,8 @@ export type OrderPayload = {
   seller: `0x${string}`;
 
   /** * 买家钱包地址。
-   * 如果是公开挂单，任何人都可以购买，则此字段应为零地址: 
-   * '0x0000000000000000000000000000000000000000' 
+   * 如果是公开挂单，任何人都可以购买，则此字段应为零地址:
+   * '0x0000000000000000000000000000000000000000'
    */
   buyer: `0x${string}`;
 
@@ -113,3 +112,16 @@ export type OrderPayload = {
    */
   deadline: bigint;
 };
+
+export const EIP712_TYPES = {
+  Order: [
+    { name: "seller", type: "address" },
+    { name: "buyer", type: "address" },
+    { name: "nftAddress", type: "address" },
+    { name: "tokenId", type: "uint256" },
+    { name: "currency", type: "address" },
+    { name: "price", type: "uint256" },
+    { name: "nonce", type: "uint256" },
+    { name: "deadline", type: "uint256" },
+  ],
+} as const;

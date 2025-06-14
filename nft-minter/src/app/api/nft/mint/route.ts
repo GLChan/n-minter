@@ -5,7 +5,7 @@ import { createClient } from '@/app/_lib/supabase/server';
 interface RequestBody {
   name: string;
   description?: string;
-  imageUrl: string; // 假设图片已上传并提供了 URL
+  imageUrl: string;
   attributes?: Record<string, string>[]; // 例如: [{ trait_type: 'Color', value: 'Blue' }]
   collectionId?: string; // 可选的合集 UUID
 }

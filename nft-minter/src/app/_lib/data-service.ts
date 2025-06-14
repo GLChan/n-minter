@@ -20,6 +20,7 @@ import {
   ActionType,
   NFTMarketStatus,
   NFTOrderStatus,
+  NFTOrderType,
   NFTVisibilityStatus,
   SORT_OPTIONS,
   TransactionStatus,
@@ -281,7 +282,7 @@ export async function listNFT(
   const { data: orderData, error: orderError } = await supabase
     .from("orders")
     .insert({
-      order_type: "LISTING", // 挂单类型
+      order_type: NFTOrderType.LISTING, // 挂单类型
       status: NFTOrderStatus.Active,
       nft_id: nftId,
       nft_address: data!.contract_address, // NFT 的合约地址
@@ -686,33 +687,57 @@ export async function fetchCollectionsWithFilters(
 }
 
 export async function addOrder(
-  params: Partial<Order>,
-  nftName: string
+  nftId: string,
+  order: OrderPayload,
+  signature: string
 ): Promise<Order> {
+
   const { data, error } = await supabase
+    .from("nfts")
+    .select("*")
+    .eq("id", nftId)
+    .single();
+  console.log("Offer NFT data", data);
+
+  const { data: orderData, error: orderError } = await supabase
     .from("orders")
-    .insert(params as Order)
+    .insert({
+      order_type: NFTOrderType.LISTING, // 挂单类型
+      status: NFTOrderStatus.Active,
+      nft_id: nftId,
+      nft_address: data!.contract_address, // NFT 的合约地址
+      token_id: data!.token_id, // NFT 的 Token ID
+      currency_address: order.currency, // 货币地址，ETH/WETH 等
+      offerer_id: data!.owner_id, // 上架者的用户ID
+      seller_address: order.seller, // 上架者的钱包地址
+      buyer_address: order.buyer, // 买家地址，公开挂单时为 0x000...
+      price_wei: order.price.toString(), // 以 wei 存储的价格，使用字符串避免精度问题
+      nonce: order.nonce.toString(), // 使用字符串存储 nonce
+      currency: order.currency, // 暂时默认使用ETH
+      deadline_timestamp: order.deadline.toString(),
+      signature: signature, // 签名
+      transaction_hash: "",
+    })
     .select("*")
     .single();
 
-  if (error) {
+  if (orderError) {
     console.error("添加Order失败:", error);
     throw new Error("添加Order失败");
   }
 
   addActivityLog({
-    user_id: data.offerer_id,
+    user_id: orderData.offerer_id,
     action_type: ActionType.CREATE_OFFER,
-    nft_id: params.nft_id,
+    nft_id: nftId,
     details: {
-      message: `对NFT ${nftName} 提出了一笔 ${data.offer_amount} ${data.currency} 的报价。`,
-      nft_id: params.nft_id,
-      price: params.offer_amount,
-      currency: params.currency,
+      nft_id: nftId,
+      price: order.price.toString(),
+      currency: 'ETH',
     },
   });
 
-  return data;
+  return orderData;
 }
 
 export async function getActiveOrderByNFTId(id: string): Promise<Order> {
