@@ -43,6 +43,22 @@ export async function addActivityLog(
   return data;
 }
 
+export async function getProfileByWallet(walletAddress: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("wallet_address", walletAddress)
+    .single();
+
+  if (error) {
+    console.error("获取用户资料失败Wallet:", error);
+    throw new Error("获取用户资料失败");
+  }
+
+  return data;
+}
+
 export async function doesUserExistByWalletAddress(
   address: string
 ): Promise<boolean> {
@@ -729,12 +745,9 @@ export async function recordTransaction({
 
   const supabaseAdmin = getSupabaseAdmin();
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  if (error || !user) {
-    console.error("获取当前用户失败:", error);
+  const buyer = await getProfileByWallet(buyerAddress);
+  if (!buyer) {
+    console.error("获取当前用户失败:");
     throw new Error("获取当前用户失败");
   }
 
@@ -742,9 +755,12 @@ export async function recordTransaction({
   const { data: nftData, error: nftError } = await supabaseAdmin
     .from("nfts")
     .update({
-      owner_id: user.id,
+      owner_id: buyer.id,
       list_status: NFTMarketStatus.NotListed,
       list_price: null,
+      last_sale_price: price,
+      last_sale_time: new Date().toISOString(),
+      last_sale_currency: "ETH",
       owner_address: buyerAddress,
       status: NFTVisibilityStatus.HiddenByUser,
       updated_at: new Date().toISOString(),
@@ -767,10 +783,28 @@ export async function recordTransaction({
       updated_at: new Date().toISOString(),
     })
     .eq("nft_id", nftId)
-    .eq("status", NFTOrderStatus.Active);
+    .eq("status", NFTOrderStatus.Active)
+    .eq("buyer_address", buyerAddress)
+    .eq("price_wei", price);
+
   if (orderError) {
     console.error("更新订单状态为已完成失败:", orderError);
     throw new Error("更新订单状态为已完成失败");
+  }
+
+  // 将其它报价订单状态更新为已取消
+  const { error: cancelError } = await supabaseAdmin
+    .from("orders")
+    .update({
+      status: NFTOrderStatus.Cancelled,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("nft_id", nftId)
+    .neq("status", NFTOrderStatus.Cancelled);
+
+  if (cancelError) {
+    console.error("更新其它订单状态失败:", cancelError);
+    throw new Error("更新其它订单状态为失败");
   }
 
   // 记录 nft 交易日志
@@ -797,7 +831,7 @@ export async function recordTransaction({
 
   // addActivityLog
   addActivityLog({
-    user_id: buyerAddress,
+    user_id: buyer.id,
     action_type: ActionType.BUY_NFT,
     nft_id: nftId,
     details: {
@@ -808,8 +842,10 @@ export async function recordTransaction({
     },
   });
 
+  const seller = await getProfileByWallet(sellerAddress);
+
   addActivityLog({
-    user_id: sellerAddress,
+    user_id: seller.id,
     action_type: ActionType.SELL_NFT,
     nft_id: nftId,
     details: {

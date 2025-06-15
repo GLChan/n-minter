@@ -323,27 +323,30 @@ export default function NFTInteraction({
               {isApproving ? "授权中..." : "授权 WETH"}
             </Button>
           ) : (
-            <Button
-              size="lg"
-              disabled={isSubmitting || isApproving} // 购买时也禁用授权按钮
-              onClick={() => {
-                if (nft.list_status === NFTMarketStatus.NotListed) {
-                  toast.error("此NFT未上架，无法购买");
-                  return;
-                }
-                handleBuyNFT(nftObj);
-              }}
-            >
-              {isSubmitting ? "购买中..." : "购买此 NFT"}
-            </Button>
+            <>
+              <Button
+                size="lg"
+                disabled={isSubmitting || isApproving} // 购买时也禁用授权按钮
+                onClick={() => {
+                  if (nft.list_status === NFTMarketStatus.NotListed) {
+                    toast.error("此NFT未上架，无法购买");
+                    return;
+                  }
+                  handleBuyNFT(nftObj);
+                }}
+              >
+                {isSubmitting ? "购买中..." : "购买此 NFT"}
+              </Button>
+
+              <Button
+                disabled={isSubmitting || isApproving}
+                size="lg"
+                onClick={() => setShowOfferModal(true)}
+              >
+                报价
+              </Button>
+            </>
           )}
-          <Button
-            disabled={isSubmitting || isApproving}
-            size="lg"
-            onClick={() => setShowOfferModal(true)}
-          >
-            报价
-          </Button>
         </div>
       )}
 

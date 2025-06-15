@@ -2,21 +2,23 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/app/_components/ui/Button";
-import { OrderItem } from "@/app/_lib/types";
+import { OrderItem, OrderPayload } from "@/app/_lib/types";
 import {
   useAccount,
   useWriteContract,
   useWaitForTransactionReceipt,
 } from "wagmi";
-import { MARKETPLACE_ABI } from "@/app/_lib/constants";
-import { env } from "@/app/_lib/config/env";
+import {
+  MARKETPLACE_ABI,
+  MARKETPLACE_CONTRACT_ADDRESS,
+} from "@/app/_lib/constants";
 import { createClient } from "@/app/_lib/supabase/client";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { NFTOrderStatus } from "@/app/_lib/types/enums";
+import { NFTOrderStatus, TransactionType } from "@/app/_lib/types/enums";
 
 interface OfferActionButtonsProps {
-  offer: OrderItem; 
+  offer: OrderItem;
 }
 
 export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
@@ -24,61 +26,108 @@ export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
 }) => {
   const supabase = createClient();
   const router = useRouter();
-  const { address } = useAccount();
-  const marketplaceAddress =
-    env.NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS as `0x${string}`;
+  const { address } = useAccount(); // 获取当前连接的钱包地址
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [actionError, setActionError] = useState<string | null>(null);
   const [isRejectingOffer, setIsRejectingOffer] = useState(false); // 新增拒绝报价的提交状态
 
-  // 接受报价合约交互
   const {
-    data: acceptTxHash,
-    writeContractAsync: writeAcceptOffer,
-    isPending: isAccepting,
-    error: writeAcceptError,
+    data: writeContractResult,
+    writeContractAsync,
+    error: writeContractError,
   } = useWriteContract();
 
-  const { isLoading: isConfirmingAccept, isSuccess: isAcceptConfirmed } =
-    useWaitForTransactionReceipt({
-      hash: acceptTxHash,
-    });
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+    isError: isTransactionError,
+    error: transactionError,
+  } = useWaitForTransactionReceipt({
+    hash: writeContractResult,
+    confirmations: 1,
+    retryDelay: 2000,
+    onReplaced: (replacement) => {
+      console.log("交易被替换:", replacement);
+    },
+  });
 
-  // 处理合约交易错误
+  // 处理购买交易的 useEffect
   useEffect(() => {
-    if (writeAcceptError) {
-      setActionError(writeAcceptError.message);
-      toast.error(`接受报价失败: ${writeAcceptError.message}`);
+    if (writeContractError) {
+      console.error("接受报价 合约调用错误:", writeContractError);
+      setIsSubmitting(false);
+      // toast.error(`购买失败: ${writeContractError.message}`);
     }
-  }, [writeAcceptError]);
+  }, [writeContractError]);
 
-  // 处理接受报价成功后的Supabase更新
   useEffect(() => {
-    if (isAcceptConfirmed) {
-      const updateOfferStatus = async () => {
+    const fetchRecord = async () => {
+      const { nft } = offer;
+      if (!nft) {
+        console.error("NFT信息缺失");
+        return;
+      }
+      if (nft.list_price && nft.id) {
         try {
-          const { error: dbError } = await supabase
-            .from("orders")
-            .update({ status: NFTOrderStatus.Filled })
-            .eq("id", offer.id);
+          const response = await fetch("/api/transaction/record", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              nftId: nft.id,
+              transactionType: TransactionType.Sale,
+              transactionHash: writeContractResult,
+              price: offer.price_wei,
+              sellerAddress: offer.seller_address,
+              buyerAddress: offer.buyer_address,
+            }),
+          });
 
-          if (dbError) {
-            throw new Error(dbError.message);
+          const data = await response.json();
+          if (response.ok) {
+            console.log("交易记录成功！", data.transaction);
+          } else {
+            throw new Error(data.details || "未知错误");
           }
-          toast.success("报价已接受并更新状态");
-          router.refresh(); // 刷新页面数据
-        } catch (dbError) {
-          console.error("更新Supabase接受报价状态失败:", dbError);
-          toast.error(
-            `更新状态失败: ${
-              dbError instanceof Error ? dbError.message : "未知错误"
-            }`
-          );
+        } catch (recordError) {
+          console.error("记录交易失败:", recordError);
+          toast.error(`交易记录失败: ${(recordError as Error).message}`);
         }
-      };
-      updateOfferStatus();
+      }
+    };
+
+    if (!writeContractResult) return;
+
+    if (isConfirming) {
+      setIsSubmitting(true);
+      toast.loading("正在确认购买交易，请稍候...");
+    } else if (isConfirmed) {
+      setIsSubmitting(false);
+
+      // 记录交易 (通过 API 调用)
+      fetchRecord();
+
+      console.log("接受报价交易已确认:", writeContractResult);
+      toast.success("NFT接受报价成功!");
+      router.push(`/profile?tab=nft`);
+    } else if (isTransactionError) {
+      setIsSubmitting(false);
+      console.error("接受报价交易确认失败:", transactionError);
+      toast.error(
+        `接受报价交易确认失败: ${transactionError?.message || "未知错误"}`
+      );
     }
-  }, [isAcceptConfirmed, offer.id, router, supabase]);
+  }, [
+    writeContractResult,
+    isConfirming,
+    isConfirmed,
+    isTransactionError,
+    transactionError,
+    router,
+    offer,
+  ]);
 
   const handleAcceptOffer = async () => {
     setActionError(null);
@@ -91,21 +140,34 @@ export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
       return;
     }
 
+    // 调用合约 fulfillOffer
+    const order: OrderPayload = {
+      seller: offer.seller_address as `0x${string}`,
+      buyer: offer.buyer_address as `0x${string}`,
+      nftAddress: offer.nft_address! as `0x${string}`,
+      tokenId: BigInt(offer.token_id!),
+      currency: offer.currency_address as `0x${string}`, // 使用 WETH 地址
+      price: BigInt(offer.price_wei || 0),
+      nonce: BigInt(`${offer.nonce}`),
+      deadline: BigInt(offer.deadline_timestamp!),
+    };
+
+    console.log("准备调用合约 fulfillOffer:", order);
+    
+    // 1. 发送交易
     try {
-      await writeAcceptOffer({
+      const hash = await writeContractAsync({
+        address: MARKETPLACE_CONTRACT_ADDRESS,
         abi: MARKETPLACE_ABI,
-        address: marketplaceAddress,
-        functionName: "acceptOffer",
-        args: [
-          offer.nft.contract_address as `0x${string}`,
-          BigInt(offer.nft.token_id!),
-          offer.offerer_id, // 报价者的用户ID
-          BigInt(offer.offer_amount!), // 报价金额
-        ],
+        functionName: "fulfillOffer",
+        args: [order, offer.signature],
       });
-    } catch (err) {
-      console.error("接受报价合约调用失败:", err);
-      setActionError(err instanceof Error ? err.message : "接受报价失败");
+      console.log("交易已发送, 哈希:", hash);
+    } catch (error) {
+      console.error("合约调用失败:", error);
+      setIsSubmitting(false); // 停止加载状态
+      toast.error(`合约调用失败: ${(error as Error).message}`);
+      return; // 提前退出，不继续后续逻辑
     }
   };
 
@@ -124,7 +186,7 @@ export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
     try {
       const { error: dbError } = await supabase
         .from("orders")
-        .update({ status: NFTOrderStatus.Cancelled }) // 直接更新状态为 rejected
+        .update({ status: NFTOrderStatus.Rejected }) // 直接更新状态为 rejected
         .eq("id", offer.id);
 
       if (dbError) {
@@ -143,7 +205,7 @@ export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
     }
   };
 
-  const isLoading = isAccepting || isConfirmingAccept || isRejectingOffer; // 更新 isLoading
+  const isLoading = isSubmitting || isConfirming || isRejectingOffer; // 更新 isLoading
 
   return (
     <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0 ml-auto">
@@ -164,9 +226,9 @@ export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
         onClick={handleAcceptOffer}
         disabled={isLoading}
       >
-        {isAccepting
+        {isSubmitting
           ? "等待钱包确认..."
-          : isConfirmingAccept
+          : isConfirming
           ? "接受确认中..."
           : "接受"}
       </Button>

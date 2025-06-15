@@ -199,6 +199,7 @@ export enum NFTOrderStatus {
   Cancelled = "cancelled", // 已取消订单
   Expired = "expired", // 已过期订单
   Pending = "pending", // 待处理订单
+  Rejected = "rejected", // 已拒绝订单
 }
 
 export enum NFTOrderType {

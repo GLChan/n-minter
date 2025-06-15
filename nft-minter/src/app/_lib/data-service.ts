@@ -84,7 +84,7 @@ export async function getProfileByWallet(walletAddress: string) {
 
   if (error) {
     console.error("获取用户资料失败Wallet:", error);
-    notFound();
+    throw new Error("获取用户资料失败");
   }
 
   return data;

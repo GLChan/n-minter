@@ -267,7 +267,7 @@ export type Database = {
           id: string
           image_url: string
           last_sale_currency: string | null
-          last_sale_price: number | null
+          last_sale_price: string | null
           last_sale_time: string | null
           list_currency: string | null
           list_price: string | null
@@ -296,7 +296,7 @@ export type Database = {
           id?: string
           image_url: string
           last_sale_currency?: string | null
-          last_sale_price?: number | null
+          last_sale_price?: string | null
           last_sale_time?: string | null
           list_currency?: string | null
           list_price?: string | null
@@ -325,7 +325,7 @@ export type Database = {
           id?: string
           image_url?: string
           last_sale_currency?: string | null
-          last_sale_price?: number | null
+          last_sale_price?: string | null
           last_sale_time?: string | null
           list_currency?: string | null
           list_price?: string | null
