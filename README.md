@@ -4,6 +4,10 @@
 
 ## 简版 NFT 铸造平台
 
+![HomePage](https://github.com/GLChan/n-minter/blob/main/README/WX20250807-170132@2x.png?raw=true)
+![ExplorePage](https://github.com/GLChan/n-minter/blob/main/README/WX20250807-170332@2x.png?raw=true)
+![NFTDetailPage](https://github.com/GLChan/n-minter/blob/main/README/WX20250807-170417@2x.png?raw=true)
+
 ### ✅ 功能目标（MVP）：
 
 - 钱包连接
