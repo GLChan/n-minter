@@ -151,16 +151,16 @@ export async function saveNFT(nft: Partial<NFT>): Promise<NFT> {
   }
 
   addActivityLog({
-    user_id: nft.creator_id || "",
+    user_id: nft.creator_id ?? "",
     action_type: ActionType.MINT_NFT,
     nft_id: nftData.id,
     details: {
       creator_id: nft.creator_id,
       token_id: nft.token_id,
       contract_address: nft.contract_address,
-      name: nft.name || "",
-      description: nft.description || "",
-      image_url: nft.image_url || "",
+      name: nft.name ?? "",
+      description: nft.description ?? "",
+      image_url: nft.image_url ?? "",
     },
   });
 
@@ -693,13 +693,13 @@ export async function saveCollection(
   }
 
   addActivityLog({
-    user_id: collection.creator_id || "",
+    user_id: collection.creator_id ?? "",
     action_type: ActionType.CREATE_COLLECTION,
     collection_id: data.id,
     details: {
       creator_id: collection.creator_id,
-      collection_name: collection.name || "",
-      contract_address: collection.contract_address || "",
+      collection_name: collection.name ?? "",
+      contract_address: collection.contract_address ?? "",
     },
   });
 

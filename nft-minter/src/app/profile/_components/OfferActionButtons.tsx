@@ -57,7 +57,6 @@ export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
     if (writeContractError) {
       console.error("接受报价 合约调用错误:", writeContractError);
       setIsSubmitting(false);
-      // toast.error(`购买失败: ${writeContractError.message}`);
     }
   }, [writeContractError]);
 
@@ -207,6 +206,17 @@ export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
 
   const isLoading = isSubmitting || isConfirming || isRejectingOffer; // 更新 isLoading
 
+  // 获取接受按钮的文本
+  const getAcceptButtonText = () => {
+    if (isSubmitting) {
+      return "等待钱包确认...";
+    }
+    if (isConfirming) {
+      return "接受确认中...";
+    }
+    return "接受";
+  };
+
   return (
     <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0 ml-auto">
       {actionError && (
@@ -226,11 +236,7 @@ export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
         onClick={handleAcceptOffer}
         disabled={isLoading}
       >
-        {isSubmitting
-          ? "等待钱包确认..."
-          : isConfirming
-          ? "接受确认中..."
-          : "接受"}
+        {getAcceptButtonText()}
       </Button>
     </div>
   );

@@ -95,8 +95,6 @@ export default function CreateNFT() {
     );
     setCollections(fetchedCollections);
 
-    // console.log("Fetched collections:", fetchedCollections);
-
     // If there's only one collection, pre-select it
     if (fetchedCollections.length === 1) {
       setValue("collection", fetchedCollections[0].id);
@@ -130,7 +128,7 @@ export default function CreateNFT() {
 
       const collection = collections.find((c) => c.id === selectedId);
 
-      if (collection && collection.predefined_trait_types) {
+      if (collection?.predefined_trait_types) {
         const keyMaps: Attribute[] = JSON.parse(
           String(collection.predefined_trait_types)
         );
@@ -151,7 +149,7 @@ export default function CreateNFT() {
   );
 
   const onSubmit: SubmitHandler<CreateNFTFormInputs> = async (data) => {
-    await createNFT(data);
+    createNFT(data);
     // The navigation to success page is handled inside useCreateNFT
   };
 
@@ -159,9 +157,6 @@ export default function CreateNFT() {
   if (isLoading) {
     buttonText = processingStep || "处理中...";
   }
-  // if (isMintingPending) {
-  //   buttonText = "等待钱包确认...";
-  // }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -203,18 +198,18 @@ export default function CreateNFT() {
                 className="cursor-pointer bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200"
               >
                 选择文件
-                <input
-                  id="file-upload"
-                  type="file"
-                  className="hidden"
-                  accept="image/jpeg,image/png,image/gif,image/svg+xml"
-                  {...register("file", {
-                    required: "请选择要上传的文件",
-                  })}
-                  onChange={handleFileChange} // Move onChange outside register
-                  ref={fileInputRef} // Assign ref to the input
-                />
               </label>
+              <input
+                id="file-upload"
+                type="file"
+                className="hidden"
+                accept="image/jpeg,image/png,image/gif,image/svg+xml"
+                {...register("file", {
+                  required: "请选择要上传的文件",
+                })}
+                onChange={handleFileChange} // Move onChange outside register
+                ref={fileInputRef} // Assign ref to the input
+              />
               {errors.file && (
                 <p className="text-red-500 text-sm mt-2">
                   {errors.file.message}
@@ -293,9 +288,9 @@ export default function CreateNFT() {
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+              <div className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 属性
-              </label>
+              </div>
               {fields.map((item, index) => (
                 <div key={item.id} className="flex gap-4 mb-3">
                   <input

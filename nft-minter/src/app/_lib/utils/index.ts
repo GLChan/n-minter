@@ -91,7 +91,7 @@ export function formatTimeAgo(date: Date | string): string {
  * @returns 可访问的HTTP URL
  */
 export function formatIPFSUrl(ipfsUri?: string | null): string {
-  if (!ipfsUri || !ipfsUri.startsWith("ipfs://")) {
+  if (!ipfsUri?.startsWith("ipfs://")) {
     return ipfsUri || "";
   }
   const cid = ipfsUri.substring(7);

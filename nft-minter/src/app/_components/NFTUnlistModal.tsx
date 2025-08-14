@@ -83,6 +83,11 @@ export const NFTUnlistModal = ({
     }
   };
 
+  function getButtonText() {
+    if (isCancelling) return "等待钱包确认...";
+    return isConfirmingCancel ? "取消确认中..." : "确认取消上架";
+  }
+
   return (
     <>
       {/* 取消上架确认模态框 */}
@@ -126,11 +131,7 @@ export const NFTUnlistModal = ({
                 disabled={isCancelling || isConfirmingCancel}
                 className="flex-1"
               >
-                {isCancelling
-                  ? "等待钱包确认..."
-                  : isConfirmingCancel
-                  ? "取消确认中..."
-                  : "确认取消上架"}
+                {getButtonText()}
               </Button>
             </div>
           </div>

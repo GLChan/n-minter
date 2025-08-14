@@ -7,8 +7,6 @@ import "./globals.css";
 import { Navbar } from "./_components/Navbar";
 import { Footer } from "./_components/Footer";
 import { Toaster } from "react-hot-toast";
-// import { NextIntlClientProvider } from "next-intl";
-// import { getLocale } from "next-intl/server";
 import { UserProvider } from "@/contexts/UserContext";
 
 export const metadata: Metadata = {
@@ -22,10 +20,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const locale = await getLocale();
 
   return (
-    <html suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased bg-background text-foreground`}
       >

@@ -89,39 +89,44 @@ export default function CreateCollectionPage() {
     }
   }, [connectedWalletAddress]);
 
+  const validateForm = () => {
+    if (!collectionName.trim()) {
+      setError("合集名称不能为空");
+      return false;
+    }
+    if (!collectionImage) {
+      setError("请上传合集封面");
+      return false;
+    }
+    if (!collectionCategory) {
+      setError("请选择合集类别");
+      return false;
+    }
+    if (!collectionSymbol.trim()) {
+      setError("合集简称不能为空");
+      return false;
+    }
+    if (royaltyFeeBps < 0 || royaltyFeeBps > 10000) {
+      setError("版税费率必须在 0 到 10000 之间 (0-100%)");
+      return false;
+    }
+    if (!chainId.trim()) {
+      setError("请选择区块链");
+      return false;
+    }
+    if (!royaltyRecipientAddress.trim()) {
+      setError("创建者收益地址不能为空");
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (isProcessing) return;
 
-    if (!collectionName.trim()) {
-      setError("合集名称不能为空");
-      return;
-    }
-    if (!collectionImage) {
-      setError("请上传合集封面");
-      return;
-    }
-    if (!collectionCategory) {
-      setError("请选择合集类别");
-      return;
-    }
-    if (!collectionSymbol.trim()) {
-      setError("合集简称不能为空");
-      return;
-    }
-    if (royaltyFeeBps < 0 || royaltyFeeBps > 10000) {
-      setError("版税费率必须在 0 到 10000 之间 (0-100%)");
-      return;
-    }
-    if (!chainId.trim()) {
-      setError("请选择区块链");
-      return;
-    }
-    if (!royaltyRecipientAddress.trim()) {
-      setError("创建者收益地址不能为空");
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsProcessing(true);
     setError(null);
@@ -500,7 +505,7 @@ export default function CreateCollectionPage() {
 
               <div className="space-y-4" id="attributes-container">
                 {attributes.map((attr, index) => (
-                  <div key={index} className="flex gap-4">
+                  <div key={attr.key} className="flex gap-4">
                     <div className="flex-1">
                       <input
                         type="text"

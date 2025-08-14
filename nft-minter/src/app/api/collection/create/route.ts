@@ -6,197 +6,216 @@ import { env } from "@/app/_lib/config/env";
 import { Address, decodeEventLog } from "viem";
 import { MY_NFT_FACTORY_ABI } from "@/app/_lib/constants";
 import { saveCollection } from "@/app/_lib/actions";
+import { SupabaseClient } from "@supabase/supabase-js";
 
-export async function POST(req: NextRequest) {
+interface CollectionFormData {
+  name: string;
+  description: string;
+  categoryId: string;
+  chain_id: string;
+  chain_network: string;
+  creatorId: string;
+  imageFile: File;
+  bannerFile: File;
+  symbol: string;
+  royaltyRecipientAddress: string;
+  royaltyFeeBps: string;
+  walletAddress: string;
+  predefinedTraitTypes: string;
+}
+
+interface UploadResult {
+  logo_image_url: string | null;
+  banner_image_url: string | null;
+}
+
+// 处理用户认证
+async function authenticateUser() {
   const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    throw new Error("Unauthorized");
+  }
+  
+  return { supabase, user };
+}
+
+// 验证表单数据
+function validateFormData(formData: FormData): CollectionFormData {
+  const name = formData.get("name") as string;
+  const imageFile = formData.get("image") as File;
+  const categoryId = formData.get("category") as string;
+  const creatorId = formData.get("creatorId") as string;
+
+  if (!name || !imageFile || !categoryId || !creatorId) {
+    throw new Error("缺少必要的字段：名称、图片、类别、创建者ID");
   }
 
-  console.log("user", user);
+  return {
+    name,
+    description: formData.get("description") as string,
+    categoryId,
+    chain_id: formData.get("chainId") as string,
+    chain_network: formData.get("chainNetwork") as string,
+    creatorId,
+    imageFile,
+    bannerFile: formData.get("banner") as File,
+    symbol: formData.get("symbol") as string,
+    royaltyRecipientAddress: formData.get("royaltyRecipientAddress") as string,
+    royaltyFeeBps: formData.get("royaltyFeeBps") as string,
+    walletAddress: formData.get("walletAddress") as string,
+    predefinedTraitTypes: formData.get("predefinedTraitTypes") as string,
+  };
+}
 
-  try {
-    const formData = await req.formData();
-    const name = formData.get("name") as string;
-    const description = formData.get("description") as string;
-    const categoryId = formData.get("category") as string;
-    const chain_id = formData.get("chainId") as string;
-    const chain_network = formData.get("chainNetwork") as string;
-    const creatorId = formData.get("creatorId") as string;
-    const imageFile = formData.get("image") as File;
-    const bannerFile = formData.get("banner") as File;
-    const symbol = formData.get("symbol") as string;
-    const royaltyRecipientAddress = formData.get("royaltyRecipientAddress");
-    const royaltyFeeBps = formData.get("royaltyFeeBps") as string;
-    const walletAddress = formData.get("walletAddress") as string;
 
-    if (!name || !imageFile || !categoryId || !creatorId) {
-      return NextResponse.json(
-        { error: "缺少必要的字段：名称、图片、类别、创建者ID" },
-        { status: 400 }
-      );
-    }
+// 通用文件上传函数
+async function uploadFile(supabase: SupabaseClient, file: File, bucket: string): Promise<string> {
+  const fileName = `${uuidv4()}-${file.name}`;
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(fileName, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
 
-    let logo_image_url: string | null = null;
-    let banner_image_url: string | null = null;
+  if (error) {
+    throw new Error(`上传文件失败: ${error.message}`);
+  }
 
-    // 上传封面图片
-    if (imageFile) {
-      const imageFileName = `${uuidv4()}-${imageFile.name}`;
-      const { data: imageData, error: imageError } = await supabase.storage
-        .from("collections")
-        .upload(imageFileName, imageFile, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+  return `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${data.path}`;
+}
 
-      if (imageError) {
-        console.error("上传封面图片失败:", imageError);
-        return NextResponse.json(
-          { error: "上传封面图片失败" },
-          { status: 500 }
-        );
-      }
-      logo_image_url = `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/collections/${imageData.path}`;
-    }
+// 处理图片上传
+async function uploadImages(supabase: SupabaseClient, imageFile: File, bannerFile?: File): Promise<UploadResult> {
+  const logo_image_url = await uploadFile(supabase, imageFile, "collections");
+  
+  let banner_image_url: string | null = null;
+  if (bannerFile) {
+    banner_image_url = await uploadFile(supabase, bannerFile, "collections");
+  }
 
-    // 上传横幅图片 (可选)
-    if (bannerFile) {
-      const bannerFileName = `${uuidv4()}-${bannerFile.name}`;
-      const { data: bannerData, error: bannerError } = await supabase.storage
-        .from("collections")
-        .upload(bannerFileName, bannerFile, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+  return { logo_image_url, banner_image_url };
+}
 
-      if (bannerError) {
-        console.error("上传横幅图片失败:", bannerError);
-        return NextResponse.json(
-          { error: "上传横幅图片失败" },
-          { status: 500 }
-        );
-      }
-      banner_image_url = `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/collections/${bannerData.path}`;
-    }
+// 处理合约部署
+async function deployContract(formData: CollectionFormData) {
+  const viem = getViemClients(parseInt(formData.chain_id, 10));
+  const { account, publicClient, walletClient } = viem;
 
-    // 获取合约地址
-    let account, publicClient, walletClient;
+  const factoryAddress = env.NEXT_PUBLIC_MY_NFT_FACTORY_ADDRESS as Address;
+  const factoryABI = MY_NFT_FACTORY_ABI;
+
+  const creationFee = await publicClient.readContract({
+    address: factoryAddress,
+    abi: factoryABI,
+    functionName: "creationFee",
+  });
+
+  const { request } = await publicClient.simulateContract({
+    account,
+    address: factoryAddress,
+    abi: factoryABI,
+    functionName: "createNFTCollection",
+    args: [
+      formData.name,
+      formData.symbol,
+      formData.walletAddress as Address,
+      formData.royaltyRecipientAddress as Address,
+      BigInt(formData.royaltyFeeBps),
+    ],
+    value: creationFee as bigint,
+  });
+
+  const hash = await walletClient.writeContract(request);
+  const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+// 解析合约地址
+  for (const log of receipt.logs) {
     try {
-      const viem = getViemClients(parseInt(chain_id, 10));
-      account = viem.account;
-      publicClient = viem.publicClient;
-      walletClient = viem.walletClient;
-    } catch (err) {
-      return NextResponse.json(
-        { error: err instanceof Error ? err.message : "viem初始化错误" },
-        { status: 400 }
-      );
-    }
+      const parsedLog = decodeEventLog({
+        abi: factoryABI,
+        eventName: "CollectionCreated",
+        topics: log.topics,
+        data: log.data,
+      });
 
-    const factoryAddress = env.NEXT_PUBLIC_MY_NFT_FACTORY_ADDRESS as Address;
-    const factoryABI = MY_NFT_FACTORY_ABI;
+      if (parsedLog.eventName === "CollectionCreated" && parsedLog.args) {
+        const contractAddress = Array.isArray(parsedLog.args)
+          ? parsedLog.args[0]
+          : (parsedLog.args as { newCollectionAddress?: string }).newCollectionAddress;
 
-    // 获取创建费用
-    const creationFee = await publicClient.readContract({
-      address: factoryAddress,
-      abi: factoryABI,
-      functionName: "creationFee",
-    });
-
-    // 调用工厂合约的 createNFTCollection 方法
-    const { request } = await publicClient.simulateContract({
-      account,
-      address: factoryAddress,
-      abi: factoryABI,
-      functionName: "createNFTCollection",
-      args: [
-        name,
-        symbol,
-        walletAddress as Address, // 用户的钱包地址
-        royaltyRecipientAddress as Address,
-        BigInt(royaltyFeeBps), // royaltyFeeBps 应该是 uint96 类型
-      ],
-      value: creationFee as bigint, // 支付创建费用
-    });
-
-    const hash = await walletClient.writeContract(request);
-    console.log("Transaction hash:", hash);
-
-    // 等待交易确认
-    const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    console.log("Transaction receipt:", receipt);
-
-    let contractAddress: string | null = null;
-
-    // 从交易日志中解析 CollectionCreated 事件
-    for (const log of receipt.logs) {
-      try {
-        const parsedLog = decodeEventLog({
-          abi: factoryABI,
-          eventName: "CollectionCreated",
-          topics: log.topics,
-          data: log.data,
-        });
-        // console.log(parsedLog);
-        if (parsedLog.eventName === "CollectionCreated" && parsedLog.args) {
-          // 兼容 args 可能为数组或对象的情况
-          contractAddress = Array.isArray(parsedLog.args)
-            ? parsedLog.args[0] // 通常第一个参数为新合约地址
-            : (
-                parsedLog.args as {
-                  newCollectionAddress?: string;
-                }
-              ).newCollectionAddress;
-
+        if (contractAddress) {
           console.log("✅ 新合约地址:", contractAddress);
-          // console.log("📛 名称:", name);
-          // console.log("🏷️ 符号:", symbol);
-          // console.log("🎨 创作者:", creator);
-          // console.log("💰 版税接收人:", royaltyReceiver);
-          // console.log("🪙 版税比例:", royaltyFraction.toString());
-          break;
+          return contractAddress;
         }
-      } catch (e) {
-        console.log(e);
-        // 忽略不匹配的日志，省略未使用变量警告
       }
+    } catch (e) {
+      // 忽略不匹配的日志
+      console.error("解析日志时出错:", e);
+      continue;
     }
+  }
 
-    if (!contractAddress) {
-      console.error("未能从交易中获取合约地址");
-      return NextResponse.json(
-        { error: "未能从交易中获取合约地址" },
-        { status: 500 }
-      );
-    }
+  throw new Error("未能从交易中获取合约地址");
+}
 
-    // 保存合集数据到数据库
+export async function POST(req: NextRequest) {
+  try {
+    const { supabase, user } = await authenticateUser();
+    console.log("user", user);
+
+    const formData = await req.formData();
+    const validatedData = validateFormData(formData);
+
+    const { logo_image_url, banner_image_url } = await uploadImages(
+      supabase,
+      validatedData.imageFile,
+      validatedData.bannerFile
+    );
+
+    const contractAddress = await deployContract(validatedData);
+
     const data = await saveCollection({
-      name,
-      description,
+      name: validatedData.name,
+      description: validatedData.description,
       logo_image_url,
       banner_image_url,
-      creator_id: creatorId,
-      chain_id: parseInt(chain_id, 10), // 确保 chain_id 是数字类型
-      contract_address: contractAddress, // 动态部署合约的地址
-      chain_network,
-      slug: name.toLowerCase().replace(/\s+/g, "-"), // 生成 slug
-      category_id: parseInt(categoryId, 10), // 确保 category_id 是数字类型
-      symbol,
-      predefined_trait_types: formData.get("predefinedTraitTypes") as string,
-      royalty_fee_bps: Number(royaltyFeeBps),
-      royalty_recipient_address: String(royaltyRecipientAddress),
+      creator_id: validatedData.creatorId,
+      chain_id: parseInt(validatedData.chain_id, 10),
+      contract_address: contractAddress,
+      chain_network: validatedData.chain_network,
+      slug: validatedData.name.toLowerCase().replace(/\s+/g, "-"),
+      category_id: parseInt(validatedData.categoryId, 10),
+      symbol: validatedData.symbol,
+      predefined_trait_types: validatedData.predefinedTraitTypes,
+      royalty_fee_bps: Number(validatedData.royaltyFeeBps),
+      royalty_recipient_address: validatedData.royaltyRecipientAddress,
     });
 
     return NextResponse.json(data, { status: 201 });
   } catch (error) {
-    console.error("创建合集时发生未知错误:", error);
+    console.error("创建合集时发生错误:", error);
+    
+    if (error instanceof Error) {
+      let statusCode;
+
+      switch (true) {
+        case error.message === "Unauthorized":
+          statusCode = 401;
+          break;
+        case error.message.includes("缺少必要的字段"):
+        case error.message.includes("viem初始化错误"):
+          statusCode = 400;
+          break;
+        default:
+          statusCode = 500;
+          break;
+      }
+      return NextResponse.json({ error: error.message }, { status: statusCode });
+    }
+
     return NextResponse.json({ error: "内部服务器错误" }, { status: 500 });
   }
 }

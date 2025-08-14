@@ -65,7 +65,7 @@ export async function getUserProfile(): Promise<UserProfile | null> {
     console.error("获取用户资料失败:", error);
   }
 
-  if (!data || !data.user) {
+  if (!data?.user) {
     return null;
   }
 
@@ -256,7 +256,7 @@ export async function listNFT(
   order: OrderPayload,
   signature: string
 ) {
-  // TODO: 可以进行一些校验（通过 RPC 节点查询链上数据，确认签名者确实是该 NFT 的当前拥有者），然后将这条订单和签名存入数据库中，状态标记为“有效 (active)”。
+  // 可以进行一些校验（通过 RPC 节点查询链上数据，确认签名者确实是该 NFT 的当前拥有者），然后将这条订单和签名存入数据库中，状态标记为“有效 (active)”。
 
   // 更新nft 状态为上架
   const { data, error } = await supabase

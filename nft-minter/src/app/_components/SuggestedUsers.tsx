@@ -51,6 +51,7 @@ export const SuggestedUsers: React.FC<{ children: React.ReactNode }> = ({
 
       <div
         className="relative h-80 overflow-hidden"
+        role="button" tabIndex={0}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >

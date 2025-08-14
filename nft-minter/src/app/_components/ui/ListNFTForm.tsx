@@ -171,6 +171,16 @@ export const ListNFTForm: React.FC<ListNFTFormProps> = ({
   const totalFees = platformFee + royalties;
   const earnPercentage = 1 - totalFees;
 
+  const tradeButtonText = () => {
+    if (isApproving) return "等待钱包确认...";
+    return isConfirmingApproval ? "授权确认中..." : "授权平台交易";
+  };
+
+  const buttonText = () => {
+    if (isSigning) return "等待钱包签名...";
+    return isSubmitting ? "正在提交..." : "确认挂单";
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <div className="mb-6">
@@ -246,11 +256,7 @@ export const ListNFTForm: React.FC<ListNFTFormProps> = ({
             disabled={isApproving || isConfirmingApproval}
             className="flex-1"
           >
-            {isApproving
-              ? "等待钱包确认..."
-              : isConfirmingApproval
-              ? "授权确认中..."
-              : "授权平台交易"}
+            {tradeButtonText()}
           </Button>
         ) : (
           <>
@@ -268,11 +274,7 @@ export const ListNFTForm: React.FC<ListNFTFormProps> = ({
               disabled={!price || isSubmitting || isSigning}
               className="flex-1"
             >
-              {isSigning
-                ? "等待钱包签名..."
-                : isSubmitting
-                ? "正在提交..."
-                : "确认挂单"}
+              {buttonText()}
             </Button>
           </>
         )}

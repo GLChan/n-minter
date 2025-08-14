@@ -190,7 +190,6 @@ export default function NFTInteraction({
     if (writeContractError) {
       console.error("购买合约调用错误:", writeContractError);
       setIsSubmitting(false);
-      // toast.error(`购买失败: ${writeContractError.message}`);
     }
   }, [writeContractError]);
 
@@ -297,19 +296,29 @@ export default function NFTInteraction({
     refetchAllowance,
   ]);
 
+  // 计算拥有者按钮内容
+  const getOwnerButton = () => {
+    const isOwner = userProfile && nft.owner_address === userProfile.wallet_address;
+    if (!isOwner) return null;
+
+    if (nft.list_status === NFTMarketStatus.NotListed) {
+      return (
+        <Button size="lg" onClick={() => setShowListModal(true)}>
+          上架
+        </Button>
+      );
+    } else {
+      return (
+        <Button size="lg" onClick={() => setShowUnlistModal(true)}>
+          下架
+        </Button>
+      );
+    }
+  };
+
   return (
     <>
-      {userProfile && nft.owner_address === userProfile.wallet_address ? (
-        nft.list_status === NFTMarketStatus.NotListed ? (
-          <Button size="lg" onClick={() => setShowListModal(true)}>
-            上架
-          </Button>
-        ) : (
-          <Button size="lg" onClick={() => setShowUnlistModal(true)}>
-            下架
-          </Button>
-        )
-      ) : (
+      {getOwnerButton() || (
         <div className="flex gap-2">
           {/* 检查是否需要授权 */}
           {userWalletAddress &&

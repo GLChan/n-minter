@@ -1,24 +1,13 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-// import { Button } from "@/app/_components/ui/Button"; // Adjust path if needed
 import { getReceivedOffers } from "@/app/_lib/actions";
 import { formatIPFSUrl, formatTimeAgo, weiToEth } from "@/app/_lib/utils";
 import { OfferActionButtons } from "./OfferActionButtons";
 
 export async function OffersTab() {
   const receivedOffers = await getReceivedOffers();
-
-  // const handleAcceptOffer = (offerId: string) => {
-  //   console.log("Accepting offer:", offerId);
-  //   alert(`接受报价 ${offerId} (功能待实现)`);
-  // };
-
-  // const handleRejectOffer = (offerId: string) => {
-  //   console.log("Rejecting offer:", offerId);
-  //   alert(`拒绝报价 ${offerId} (功能待实现)`);
-  // };
-
+  
   console.log("Received offers:", receivedOffers);
   return (
     <div>

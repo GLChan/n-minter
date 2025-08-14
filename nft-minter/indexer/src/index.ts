@@ -645,33 +645,7 @@ async function startIndexer() {
   marketplaceContract.on("error", (error) => {
     console.error("事件监听发生错误:", error);
   });
-
-  // 也可以选择从某个历史区块开始同步事件 (一次性获取所有历史事件)
-  // const START_BLOCK_NUMBER = 0; // 替换为您的起始区块号
-  // const filter = marketplaceContract.filters.OrderFulfilled();
-  // const logs = await marketplaceContract.queryFilter(filter, START_BLOCK_NUMBER, "latest");
-  // console.log(`同步到 ${logs.length} 条历史 OrderFulfilled 事件...`);
-  // for (const log of logs) {
-  //   const parsedLog = marketplaceContract.interface.parseLog(log);
-  //   if (parsedLog) {
-  //     const { orderHash, seller, buyer, nftAddress, tokenId, price } = parsedLog.args;
-  //     const block = await provider.getBlock(log.blockNumber);
-  //     const timestamp = block ? new Date(Number(block.timestamp) * 1000) : new Date();
-  //     await saveOrderFulfilled({
-  //       orderHash,
-  //       seller,
-  //       buyer,
-  //       nftAddress,
-  //       tokenId: tokenId.toString(),
-  //       price: price.toString(),
-  //       transactionHash: log.transactionHash,
-  //       blockNumber: log.blockNumber,
-  //       logIndex: log.logIndex,
-  //       timestamp,
-  //     });
-  //   }
-  // }
-  // console.log("历史事件同步完成。");
+  
 }
 
 startIndexer().catch(console.error);
