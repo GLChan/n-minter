@@ -2,5 +2,5 @@ projectKey=nft-minter
 serverUrl=http://localhost:9000
 serverVersion=25.3.0.104237
 dashboardUrl=http://localhost:9000/dashboard?id=nft-minter
-ceTaskId=2e356ac6-59b6-47e0-89e8-fafa825579c3
-ceTaskUrl=http://localhost:9000/api/ce/task?id=2e356ac6-59b6-47e0-89e8-fafa825579c3
+ceTaskId=9a470053-b951-4c9a-88a5-97b9df597472
+ceTaskUrl=http://localhost:9000/api/ce/task?id=9a470053-b951-4c9a-88a5-97b9df597472

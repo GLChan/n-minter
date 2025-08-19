@@ -5,9 +5,8 @@ import {
   PINATA_IPFS_GATEWAY_BASE,
 } from "@/app/_lib/constants";
 import { CookieOptionsWithName } from "@supabase/ssr";
-import { keccak256, toUtf8Bytes } from "ethers";
+import { keccak256, toUtf8Bytes, ethers } from "ethers";
 import { format } from "date-fns";
-import { ethers } from "ethers";
 
 export function getCookieOptions() {
   return {
@@ -92,7 +91,7 @@ export function formatTimeAgo(date: Date | string): string {
  */
 export function formatIPFSUrl(ipfsUri?: string | null): string {
   if (!ipfsUri?.startsWith("ipfs://")) {
-    return ipfsUri || "";
+    return ipfsUri ?? "";
   }
   const cid = ipfsUri.substring(7);
   // 使用常量拼接 URL

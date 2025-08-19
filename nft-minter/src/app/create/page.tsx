@@ -103,7 +103,7 @@ export default function CreateNFT() {
       }
       if (fetchedCollections[0].predefined_trait_types) {
         const keyMaps: Attribute[] = JSON.parse(
-          String(fetchedCollections[0].predefined_trait_types)
+          fetchedCollections[0].predefined_trait_types.toString()
         );
         setValue(
           "attributes",
@@ -130,7 +130,7 @@ export default function CreateNFT() {
 
       if (collection?.predefined_trait_types) {
         const keyMaps: Attribute[] = JSON.parse(
-          String(collection.predefined_trait_types)
+          collection.predefined_trait_types.toString()
         );
         setValue(
           "attributes",
@@ -139,7 +139,7 @@ export default function CreateNFT() {
             value: attr.value,
           }))
         );
-        setValue("contractAddress", collection.contract_address || "");
+        setValue("contractAddress", collection.contract_address ?? "");
       } else {
         setValue("attributes", [{ key: "", value: "" }]);
         setValue("contractAddress", "");

@@ -4,13 +4,13 @@ import {
   useAccount,
   // useWriteContract, // Replaced by writeContract action
   // useWaitForTransactionReceipt, // Replaced by waitForTransactionReceipt action
+  useConfig, // For wagmi v2, useConfig is used to get the wagmi configuration
 } from "wagmi";
 import {
   writeContract,
   waitForTransactionReceipt,
   // For wagmi v2, you get config from useAccount or directly from wagmi config setup
 } from "@wagmi/core";
-import { useConfig } from "wagmi"; // To get the wagmi config for actions
 
 import { id as ethersId } from "ethers"; // ethers v6
 // For ethers v5, it might be: import { id } from "@ethersproject/hash";
@@ -527,7 +527,7 @@ export function useCreateNFT() {
       mutation.mutate(formData);
     },
     isLoading: mutation.isPending, // 组合所有加载状态
-    error: mutation.error?.message || null, // 简化的错误消息
+    error: mutation.error?.message ?? null, // 简化的错误消息
     successData: mutation.data, // 成功后的数据
     processingStep: currentProcessingStep, // 用于更细粒度的 UI 反馈
     reset: mutation.reset, // 重置 mutation 状态（如果需要）
