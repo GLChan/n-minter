@@ -25,6 +25,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased bg-background text-foreground`}
+        suppressHydrationWarning
       >
         {/* <NextIntlClientProvider> */}
         <Toaster

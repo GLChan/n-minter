@@ -146,7 +146,7 @@ export const OfferActionButtons: React.FC<OfferActionButtonsProps> = ({
       nftAddress: offer.nft_address! as `0x${string}`,
       tokenId: BigInt(offer.token_id!),
       currency: offer.currency_address as `0x${string}`, // 使用 WETH 地址
-      price: BigInt(offer.price_wei || 0),
+      price: BigInt(offer.price_wei ?? 0),
       nonce: BigInt(`${offer.nonce}`),
       deadline: BigInt(offer.deadline_timestamp!),
     };

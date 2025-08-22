@@ -102,16 +102,27 @@ export default function CreateNFT() {
         setValue("contractAddress", fetchedCollections[0].contract_address);
       }
       if (fetchedCollections[0].predefined_trait_types) {
-        const keyMaps: Attribute[] = JSON.parse(
-          fetchedCollections[0].predefined_trait_types.toString()
-        );
-        setValue(
-          "attributes",
-          keyMaps.map((attr) => ({
-            key: attr.key,
-            value: attr.value,
-          }))
-        );
+        const traitTypes = fetchedCollections[0].predefined_trait_types;
+        if (typeof traitTypes === 'string') {
+          const keyMaps: Attribute[] = JSON.parse(traitTypes);
+          setValue(
+            "attributes",
+            keyMaps.map((attr) => ({
+              key: attr.key,
+              value: attr.value,
+            }))
+          );
+        } else {
+          // 如果已经是对象，直接使用
+          const keyMaps = traitTypes as Attribute[];
+          setValue(
+            "attributes",
+            keyMaps.map((attr) => ({
+              key: attr.key,
+              value: attr.value,
+            }))
+          );
+        }
       }
     }
   };
@@ -129,16 +140,27 @@ export default function CreateNFT() {
       const collection = collections.find((c) => c.id === selectedId);
 
       if (collection?.predefined_trait_types) {
-        const keyMaps: Attribute[] = JSON.parse(
-          collection.predefined_trait_types.toString()
-        );
-        setValue(
-          "attributes",
-          keyMaps.map((attr) => ({
-            key: attr.key,
-            value: attr.value,
-          }))
-        );
+        const traitTypes = collection.predefined_trait_types;
+        if (typeof traitTypes === 'string') {
+          const keyMaps: Attribute[] = JSON.parse(traitTypes);
+          setValue(
+            "attributes",
+            keyMaps.map((attr) => ({
+              key: attr.key,
+              value: attr.value,
+            }))
+          );
+        } else {
+          // 如果已经是对象，直接使用
+          const keyMaps = traitTypes as Attribute[];
+          setValue(
+            "attributes",
+            keyMaps.map((attr) => ({
+              key: attr.key,
+              value: attr.value,
+            }))
+          );
+        }
         setValue("contractAddress", collection.contract_address ?? "");
       } else {
         setValue("attributes", [{ key: "", value: "" }]);

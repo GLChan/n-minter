@@ -118,7 +118,7 @@ export default function NFTInteraction({
         address: env.NEXT_PUBLIC_WETH_CONTRACT_ADDRESS as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "approve",
-        args: [MARKETPLACE_CONTRACT_ADDRESS, BigInt(nft.list_price!)], // 授权 Marketplace 合约使用 WETH
+        args: [MARKETPLACE_CONTRACT_ADDRESS, BigInt(nft.list_price)], // 授权 Marketplace 合约使用 WETH
       });
       toast.loading("正在发送授权交易，请稍候...");
     } catch (error) {
@@ -141,7 +141,8 @@ export default function NFTInteraction({
     console.log("当前授权额度:", allowance);
     if (
       allowance === undefined ||
-      (allowance && BigInt(allowance.toString()) < BigInt(nft.list_price || 0))
+      allowance === null ||
+      (typeof allowance === 'bigint' && allowance < BigInt(nft.list_price ?? 0))
     ) {
       toast.error("WETH 授权额度不足，请先授权。");
       // 这里不直接调用授权，而是让用户点击授权按钮
@@ -163,7 +164,7 @@ export default function NFTInteraction({
       nftAddress: orderData.nft_address! as `0x${string}`,
       tokenId: BigInt(orderData.token_id!),
       currency: orderData.currency as `0x${string}`, // 使用 WETH 地址
-      price: BigInt(orderData.price_wei || 0),
+      price: BigInt(orderData.price_wei ?? 0),
       nonce: BigInt(`${orderData.nonce}`),
       deadline: BigInt(orderData.deadline_timestamp!),
     };
@@ -323,7 +324,9 @@ export default function NFTInteraction({
           {/* 检查是否需要授权 */}
           {userWalletAddress &&
           allowance !== undefined &&
-          BigInt(allowance!.toString()) < BigInt(nft.list_price || 0) ? (
+          allowance !== null &&
+          typeof allowance === 'bigint' &&
+          allowance < BigInt(nft.list_price ?? 0) ? (
             <Button
               size="lg"
               disabled={isApproving || isSubmitting}

@@ -5,11 +5,18 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const UserContext = createContext<UserProfile | null>(null);
 
-export function UserProvider({ children }: { children: React.ReactNode }) {
+export function UserProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    
     // 组件挂载后，从 NextAuth 的 session API 端点获取用户信息
     // NextAuth 默认提供 /api/auth/session 这个端点
     async function fetchUser() {
@@ -28,11 +35,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
 
     fetchUser();
-  }, []); // 空依赖数组，确保只在首次加载时执行一次
+  }, [isHydrated]); // 依赖 isHydrated，确保只在客户端执行
 
-  // 在用户信息加载完成前，可以显示一个加载状态或什么都不显示
-  if (loading) {
-    return <>{children}</>; // 或者返回一个带骨架屏的 children
+  // 在用户信息加载完成前或未 hydrated 时，显示 children 但不提供用户信息
+  if (!isHydrated || loading) {
+    return <UserContext.Provider value={null}>{children}</UserContext.Provider>;
   }
 
   return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
