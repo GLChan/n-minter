@@ -26,7 +26,6 @@ export const authenticationAdapter = createAuthenticationAdapter({
     return message.prepareMessage();
   },
   verify: async ({ message, signature }) => {
-    console.log('verify', message, signature)
     const response = await fetch('/api/auth/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -37,8 +36,6 @@ export const authenticationAdapter = createAuthenticationAdapter({
       throw new Error('Failed to verify signature');
     }
     const data = await response.json();
-
-    console.log('verify', data)
 
     await signInAction({
       address: data.address,

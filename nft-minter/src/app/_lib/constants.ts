@@ -1,3 +1,5 @@
+import { env } from "./config/env";
+
 export const sessionCookieName = "session";
 export const secureCookieName = "secure";
 
@@ -29,7 +31,6 @@ export const MARKETPLACE_NAME = "GL NFT Marketplace";
 export const MARKETPLACE_VERSION = "1.0";
 
 import MyNFT from "@/../artifacts/contracts/MyNFT.sol/MyNFT.json";
-import { env } from "./config/env";
 export const MY_NFT_ABI = MyNFT.abi;
 
 import IERC20 from "@/../artifacts/@openzeppelin/contracts/token/ERC20/IERC20.sol/IERC20.json";

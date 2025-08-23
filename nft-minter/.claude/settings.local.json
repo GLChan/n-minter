@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npm run build)",
-      "Bash(npm run test:coverage)"
+      "Bash(npm run test:coverage)",
+      "Bash(npx jest src/app/_lib/supabase/__tests__/admin.test.ts --no-coverage)",
+      "Bash(npm test -- src/app/_lib/supabase/__tests__/client.test.ts --no-coverage)"
     ],
     "deny": [],
     "ask": []
